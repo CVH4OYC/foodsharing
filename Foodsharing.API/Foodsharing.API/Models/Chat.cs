@@ -1,18 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Foodsharing.API.Abstract;
 
 namespace Foodsharing.API.Models;
 
 /// <summary>
 /// Чат
 /// </summary>
-public class Chat
+public class Chat : EntityBase
 {
-    /// <summary>
-    /// Id чата
-    /// </summary>
-    [Key]
-    public Guid Id { get; set; }
-    
     /// <summary>
     /// Внешний ключ, указывающий на первого собеседника в чате
     /// </summary>

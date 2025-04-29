@@ -9,12 +9,6 @@ namespace Foodsharing.API.Models;
 public class User : IdentityUser<Guid>
 {
     /// <summary>
-    /// Id пользователя
-    /// </summary>
-    [Key]
-    public Guid Id { get; set; }
-
-    /// <summary>
     /// Имя пользователя (уникально)
     /// </summary>
     [StringLength(30, ErrorMessage = "Длина имени превышает 30 символов!")]

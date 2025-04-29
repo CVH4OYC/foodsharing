@@ -1,18 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Foodsharing.API.Abstract;
 
 namespace Foodsharing.API.Models;
 
 /// <summary>
 /// Категория еды в объявлении
 /// </summary>
-public class Category
+public class Category : EntityBase
 {
-    /// <summary>
-    /// Id категории продуктов питания
-    /// </summary>
-    [Key]
-    public Guid Id { get; set; }
-    
     /// <summary>
     /// Название категории продуктов питания
     /// </summary>
@@ -23,6 +18,11 @@ public class Category
     /// Id родительской категории
     /// </summary>
     public Guid? ParentId { get; set; }
+
+    /// <summary>
+    /// Код цвета для отображения его на фронте
+    /// </summary>
+    public string? Color { get; set; }
 
     /// <summary>
     /// Навигационное свойство для связи с таблицей Announcement

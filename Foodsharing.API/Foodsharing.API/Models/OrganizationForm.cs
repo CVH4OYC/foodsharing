@@ -1,19 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography.X509Certificates;
+using Foodsharing.API.Abstract;
 
 namespace Foodsharing.API.Models;
 
 /// <summary>
 /// Форма хозяйственного общества
 /// </summary>
-public class OrganizationForm
+public class OrganizationForm : EntityBase
 {
-    /// <summary>
-    /// Id формы
-    /// </summary>
-    [Key]
-    public Guid Id { get; set; }
-
     /// <summary>
     /// Короткое название формы (например, ИП)
     /// </summary>
@@ -22,7 +17,7 @@ public class OrganizationForm
     /// <summary>
     /// Полное название формы (например, Индивидуальный предприниматель) 
     /// </summary> 
-    public string OrganizationFormFulltName { get; set; }
+    public string OrganizationFormFullName { get; set; }
 
     /// <summary>
     /// Навигационное свойство для связи с Organization

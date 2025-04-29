@@ -9,12 +9,6 @@ namespace Foodsharing.API.Models;
 public class Role : IdentityRole<Guid> 
 {
     /// <summary>
-    /// Id роли
-    /// </summary>
-    [Key]
-    public Guid Id { get; set; }
-    
-    /// <summary>
     /// Название роли
     /// </summary>
     [Required]

@@ -6,14 +6,8 @@ namespace Foodsharing.API.Models;
 /// <summary>
 /// Роль пользователя
 /// </summary>
-public class UserRole : IdentityUserRole<Guid> 
+public class UserRole : IdentityUserRole<Guid>
 {
-    /// <summary>
-    /// Id сущности о роли пользователя
-    /// </summary>
-    [Key]
-    public Guid Id { get; set; }
-
     /// <summary>
     /// Навигационное свойство для связи с таблицей Role
     /// </summary>

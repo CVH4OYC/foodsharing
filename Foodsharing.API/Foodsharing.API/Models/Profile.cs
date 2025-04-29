@@ -12,8 +12,8 @@ public class Profile
     /// </summary>
     [Key]
     [Required]
-    public Guid  UserId { get; set; }
-    
+    public Guid  UserId { get; set; } = Guid.NewGuid();
+
     /// <summary>
     /// Навигационное свойство для связи с таблицей User
     /// </summary>

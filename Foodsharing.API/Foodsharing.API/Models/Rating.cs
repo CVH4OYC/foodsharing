@@ -1,18 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Foodsharing.API.Abstract;
 
 namespace Foodsharing.API.Models;
 
 /// <summary>
 /// Оценка обмена пользователем
 /// </summary>
-public class Rating
+public class Rating : EntityBase
 {
-    /// <summary>
-    /// Id
-    /// </summary>
-    [Key]
-    public Guid Id { get; set; }
-
     /// <summary>
     /// Id оцениваемого обмена
     /// </summary>

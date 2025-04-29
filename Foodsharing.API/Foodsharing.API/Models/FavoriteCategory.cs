@@ -1,18 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Foodsharing.API.Abstract;
 
 namespace Foodsharing.API.Models;
 
 /// <summary>
 /// Избранная категория еды
 /// </summary>
-public class FavoriteCategory
+public class FavoriteCategory : EntityBase
 {
-    /// <summary>
-    /// Id
-    /// </summary>
-    [Key]
-    public Guid Id { get; set; }
-
     /// <summary>
     /// Id пользователя
     /// </summary>

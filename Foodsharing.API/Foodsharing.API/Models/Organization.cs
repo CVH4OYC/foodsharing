@@ -1,18 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Foodsharing.API.Abstract;
 
 namespace Foodsharing.API.Models;
 
 /// <summary>
 /// Организация
 /// </summary>
-public class Organization
+public class Organization : EntityBase
 {
-    /// <summary>
-    /// Id организации
-    /// </summary>
-    [Key]
-    public Guid Id { get; set; }
-    
     /// <summary>
     /// Название организации
     /// </summary>

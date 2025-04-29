@@ -1,18 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Foodsharing.API.Abstract;
 
 namespace Foodsharing.API.Models;
 
 /// <summary>
 /// Представитель организации
 /// </summary>
-public class RepresentativeOrganization
+public class RepresentativeOrganization : EntityBase
 {
-    /// <summary>
-    /// Id 
-    /// </summary>
-    [Key]
-    public Guid Id { get; set; }
-    
     /// <summary>
     /// Внешний ключ, указывающий на пользователя, который является представителем организации
     /// </summary>

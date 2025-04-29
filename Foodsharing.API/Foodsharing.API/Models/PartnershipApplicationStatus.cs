@@ -1,18 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Foodsharing.API.Abstract;
 
 namespace Foodsharing.API.Models;
 
 /// <summary>
 /// Статус заявки на партнёрство
 /// </summary>
-public class PartnershipApplicationStatus
+public class PartnershipApplicationStatus : EntityBase
 {
-    /// <summary>
-    /// Id статуса
-    /// </summary>
-    [Key]
-    public Guid Id { get; set; }
-
     /// <summary>
     /// Название статуса
     /// </summary> 

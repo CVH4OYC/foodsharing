@@ -1,18 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Foodsharing.API.Abstract;
 
 namespace Foodsharing.API.Models;
 
 /// <summary>
 /// Сообщение
 /// </summary>
-public class Message
+public class Message : EntityBase
 {
-    /// <summary>
-    /// Id сообщения
-    /// </summary>
-    [Key]
-    public Guid Id { get; set; }
-    
     /// <summary>
     /// Внешний ключ, указывающий на пользователя, который отправил сообщения
     /// </summary>
