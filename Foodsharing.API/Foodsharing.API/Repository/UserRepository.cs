@@ -1,0 +1,20 @@
+﻿using Foodsharing.API.Data;
+using Foodsharing.API.Interfaces;
+using Foodsharing.API.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace Foodsharing.API.Repository;
+
+public class UserRepository : Repository<User>, IUserRepository
+{
+    private readonly DbContext context;
+
+    public UserRepository(AppDbContext context) : base(context)
+    {
+        this.context = context;
+    }
+    public async Task<User?> GetByUserNameAsync(string userName, CancellationToken cancellationToken)
+    {
+        return await context.Set<User>().FirstOrDefaultAsync(u => u.UserName == userName, cancellationToken);
+    }
+}
