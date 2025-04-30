@@ -11,25 +11,33 @@ namespace Foodsharing.API.Infrastructure;
 
 public class JwtProvider : IJwtProvider
 {
-    private readonly JwtOptions options;
+    private readonly JwtOptions _options;
+    private readonly IUserRepository _userRepository;
 
-    public JwtProvider(IOptions<JwtOptions> options)
+    public JwtProvider(IOptions<JwtOptions> options, IUserRepository userRepository)
     {
-        this.options = options.Value;
+        _options = options.Value;
+        _userRepository = userRepository;
     }
-    public async Task<string> GenerateTokenAsync(User user)
+    public async Task<string> GenerateTokenAsync(User user, CancellationToken cancellationToken = default)
     {
+        var userRoles = await _userRepository.GetUserRolesAsync(user.Id, cancellationToken);
+
         var claims = new List<Claim> { new Claim("userId", user.UserName) };
+        foreach (var role in userRoles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
 
         var signingCredentials = new SigningCredentials(
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.SecretKey)), SecurityAlgorithms.HmacSha256);
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey)), SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
             claims: claims,
-            issuer: options.Issuer,
-            audience: options.Audience,
+            issuer: _options.Issuer,
+            audience: _options.Audience,
             signingCredentials: signingCredentials,
-            expires: DateTime.UtcNow.AddHours(options.ExpiresHours));
+            expires: DateTime.UtcNow.AddHours(_options.ExpiresHours));
 
         var tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
 

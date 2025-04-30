@@ -17,4 +17,13 @@ public class UserRepository : Repository<User>, IUserRepository
     {
         return await context.Set<User>().FirstOrDefaultAsync(u => u.UserName == userName, cancellationToken);
     }
+
+    public async Task<List<string>> GetUserRolesAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await context.Set<UserRole>()
+            .Where(ur => ur.UserId == userId)
+            .Include(ur => ur.Role)
+            .Select(ur => ur.Role.Name)
+            .ToListAsync();
+    }
 }
