@@ -1,5 +1,6 @@
 ﻿using Foodsharing.API.Data.ModelsConficurations;
 using Foodsharing.API.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Foodsharing.API.Data;
@@ -7,10 +8,10 @@ namespace Foodsharing.API.Data;
 /// <summary>
 /// Контекст БД
 /// </summary>
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<User, Role, Guid>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-    
+
     /// <summary>
     /// Коллекция сущностей типа Address
     /// </summary>
@@ -92,16 +93,6 @@ public class AppDbContext : DbContext
     public DbSet<RepresentativeOrganization> Representatives { get; set; }
     
     /// <summary>
-    /// Коллекция сущностей типа Role
-    /// </summary>
-    public DbSet<Role> Roles { get; set; }
-    
-    /// <summary>
-    /// Коллекция сущностей типа User
-    /// </summary>
-    public DbSet<User> Users { get; set; }
-    
-    /// <summary>
     /// Коллекция сущностей типа Transaction
     /// </summary>
     public DbSet<Transaction> Transactions { get; set; }
@@ -111,11 +102,6 @@ public class AppDbContext : DbContext
     /// </summary>
     public DbSet<TransactionStatus> TransactionStatuses { get; set; }
     
-    /// <summary>
-    /// Коллекция сущностей типа UserRole
-    /// </summary>
-    public DbSet<UserRole> UserRoles { get; set; }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -123,7 +109,6 @@ public class AppDbContext : DbContext
         modelBuilder.ApplyConfiguration(new ChatConfiguration());
         modelBuilder.ApplyConfiguration(new TransactionConfiguration());
         modelBuilder.ApplyConfiguration(new RatingConfiguration());
-        modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
 
         SeedData.Seed(modelBuilder);
     }

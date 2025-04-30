@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace Foodsharing.API.Models;
 
@@ -9,28 +8,10 @@ namespace Foodsharing.API.Models;
 public class User : IdentityUser<Guid>
 {
     /// <summary>
-    /// Имя пользователя (уникально)
-    /// </summary>
-    [StringLength(30, ErrorMessage = "Длина имени превышает 30 символов!")]
-    [Required]
-    public string UserName { get; set; }
-    
-    /// <summary>
-    /// Хэш пароля пользователя
-    /// </summary>
-    [Required]
-    public string Password { get; set; }
-    
-    /// <summary>
     /// Навигационное свойство для связи с таблицей Profile
     /// </summary>
     public Profile? Profile { get; set; }
-    
-    /// <summary>
-    /// Навигационное свойство для связи с таблицей UserRole
-    /// </summary>
-    public List<UserRole>? UserRoles { get; set; }
-    
+       
     /// <summary>
     /// Навигационное свойство для связи с таблицей Representative
     /// </summary>

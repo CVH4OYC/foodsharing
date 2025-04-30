@@ -7,15 +7,6 @@ namespace Foodsharing.API.Models;
 /// Роль пользователя
 /// </summary>
 public class Role : IdentityRole<Guid> 
-{
-    /// <summary>
-    /// Название роли
-    /// </summary>
-    [Required]
-    public string Name { get; set; }
-    
-    /// <summary>
-    /// Навигационное свойство для связи с таблицей UserRole
-    /// </summary>
-    public List<UserRole>? UserRoles { get; set; }
+{  
+
 }

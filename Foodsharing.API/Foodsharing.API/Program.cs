@@ -1,4 +1,6 @@
 using Foodsharing.API.Data;
+using Foodsharing.API.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +19,21 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connection);
 });
 
+builder.Services.AddIdentity<User, Role>(options =>
+{
+    // Настройки пользователя
+    options.User.RequireUniqueEmail = true;
+    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+
+    // Настройки пароля
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = true;
+})
+.AddEntityFrameworkStores<AppDbContext>()
+.AddDefaultTokenProviders();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -28,6 +45,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication(); // Важно: до UseAuthorization!
 app.UseAuthorization();
 
 app.MapControllers();
