@@ -15,16 +15,4 @@ public class TestController : ControllerBase
     {
         return Ok();
     }
-
-    [HttpGet("token")]
-    public IActionResult GetTokenFromCookie()
-    {
-        var token = Request.Cookies["token"];  // Извлечение токена из куки
-        if (string.IsNullOrEmpty(token))
-        {
-            return Unauthorized("Token not found in cookies.");
-        }
-
-        return Ok(new { Token = token });
-    }
 }
