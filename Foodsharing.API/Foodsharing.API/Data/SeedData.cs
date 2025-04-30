@@ -16,26 +16,22 @@ public class SeedData
             new Role
             {
                 Id = new Guid("f05800c4-9e1a-453b-8409-41d46bf7e208"),
-                Name = RolesConsts.Moderator,
-                NormalizedName = RolesConsts.Moderator.ToUpper(),
+                Name = RolesConsts.Moderator
             },
             new Role
             {
                 Id = new Guid("fc6be39a-58d5-4ab5-aa62-a20c4d28cee8"),
-                Name = RolesConsts.User,
-                NormalizedName = RolesConsts.User.ToUpper(),
+                Name = RolesConsts.User
             },
             new Role
             {
                 Id = new Guid("c898637f-1b41-48e3-8a75-5bb99a5f6f5e"),
-                Name = RolesConsts.Admin,
-                NormalizedName = RolesConsts.Admin.ToUpper(),
+                Name = RolesConsts.Admin
             },
             new Role
             {
                 Id = new Guid("de83b434-1710-4afa-a6bb-5069028e549c"),
-                Name = RolesConsts.RepresentativeOrganization,
-                NormalizedName = RolesConsts.RepresentativeOrganization.ToUpper(),
+                Name = RolesConsts.RepresentativeOrganization
             });
 
         modelBuilder.Entity<Category>().HasData(

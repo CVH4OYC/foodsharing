@@ -8,7 +8,7 @@ namespace Foodsharing.API.Data;
 /// <summary>
 /// Контекст БД
 /// </summary>
-public class AppDbContext : IdentityDbContext<User, Role, Guid>
+public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -101,7 +101,22 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid>
     /// Коллекция сущностей типа TransactionStatus
     /// </summary>
     public DbSet<TransactionStatus> TransactionStatuses { get; set; }
+
+    /// <summary>
+    /// Коллекция сущностей типа UserRole
+    /// </summary>
+    public DbSet<UserRole> UserRoles { get; set; }
+
+    /// <summary>
+    /// Коллекция сущностей типа Role
+    /// </summary>
+    public DbSet<Role> Roles { get; set; }
     
+    /// <summary>
+    /// Коллекция сущностей типа User
+    /// </summary>
+    public DbSet<User> Users { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

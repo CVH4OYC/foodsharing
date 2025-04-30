@@ -1,6 +1,7 @@
 ﻿using Foodsharing.API.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 
 namespace Foodsharing.API.Extensions;
@@ -38,6 +39,7 @@ public static class ApiExtensions
                     ValidAudience = jwtOptions.Audience,
                     // валидация ключа безопасности
                     ValidateIssuerSigningKey = true,
+                    RoleClaimType = ClaimTypes.Role
                 };
                 // чтение установленного токена из кук
                 options.Events = new JwtBearerEvents

@@ -1,12 +1,26 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.ComponentModel.DataAnnotations;
+using Foodsharing.API.Abstract;
 
 namespace Foodsharing.API.Models;
 
 /// <summary>
 /// Пользователь
 /// </summary>
-public class User : IdentityUser<Guid>
+public class User : EntityBase
 {
+    /// <summary>
+    /// Имя пользователя (уникально)
+    /// </summary>
+    [StringLength(30, ErrorMessage = "Длина имени превышает 30 символов!")]
+    [Required]
+    public string UserName { get; set; }
+
+    /// <summary>
+    /// Хэш пароля пользователя
+    /// </summary>
+    [Required]
+    public string Password { get; set; }
+
     /// <summary>
     /// Навигационное свойство для связи с таблицей Profile
     /// </summary>
@@ -56,4 +70,9 @@ public class User : IdentityUser<Guid>
     /// Заявки
     /// </summary>
     public List<PartnershipApplication>? Applications { get; set; }
+
+    /// <summary>
+    /// Навигационное свойство для связи с таблицей UserRole
+    /// </summary>
+    public List<UserRole>? UserRoles { get; set; }
 }

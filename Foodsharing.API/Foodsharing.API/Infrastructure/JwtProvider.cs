@@ -1,4 +1,6 @@
 ﻿using Foodsharing.API.Interfaces;
+using Foodsharing.API.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,17 +17,17 @@ public class JwtProvider : IJwtProvider
     {
         this.options = options.Value;
     }
-    public string GenerateToken(Models.User user)
+    public async Task<string> GenerateTokenAsync(User user)
     {
-        var claims = new List<Claim> { new Claim("userId", user.Id.ToString()) };
+        var claims = new List<Claim> { new Claim("userId", user.UserName) };
 
         var signingCredentials = new SigningCredentials(
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.SecretKey)), SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
+            claims: claims,
             issuer: options.Issuer,
             audience: options.Audience,
-            claims: claims,
             signingCredentials: signingCredentials,
             expires: DateTime.UtcNow.AddHours(options.ExpiresHours));
 

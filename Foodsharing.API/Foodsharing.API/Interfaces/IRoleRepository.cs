@@ -2,13 +2,13 @@
 
 namespace Foodsharing.API.Interfaces;
 
-public interface IUserRepository : IRepository<User>
+public interface IRoleRepository : IRepository<Role>
 {
     /// <summary>
-    /// Метод для получения User по UserName
+    /// Метод для получения роли по названиюe
     /// </summary>
-    /// <param name="userName">Имя пользователя</param>
+    /// <param name="roleName">Имя роли</param>
     /// <param name="cancellationToken">Токен отмены операции (по умолчанию None)</param>
     /// <returns>Пользователь типа <see cref="User"/></returns>
-    Task<User?> GetByUserNameAsync(string userName, CancellationToken cancellationToken);
+    Task<Role?> GetByRoleNameAsync(string roleName, CancellationToken cancellationToken);
 }

@@ -11,7 +11,7 @@ public interface IUserService
     /// <param name="regDTO">DTO для регистрации</param>
     /// <param name="cancellationToken">Токен отмены операции (по умолчанию None)</param>
     /// <returns>Результат операции типа <see cref="OperationResult"/></returns>
-    Task<OperationResult> RegisterAsync(RegisterDTO regDTO, CancellationToken cancellationToken = default);
+    Task<OperationResult> RegisterAsync(string userName, string password, string role, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Метод идентификации и аутентификации пользователя по имени пользователя
@@ -19,5 +19,5 @@ public interface IUserService
     /// <param name="loginDTO">DTO для входа</param>
     /// <param name="cancellationToken">Токен отмены операции (по умолчанию None)</param>
     /// <returns>Результат операции типа <see cref="OperationResult"/></returns>
-    Task<OperationResult> LoginAsync(LoginDTO loginDTO, CancellationToken cancellationToken = default);
+    Task<OperationResult> LoginAsync(string userName, string password, CancellationToken cancellationToken = default);
 }

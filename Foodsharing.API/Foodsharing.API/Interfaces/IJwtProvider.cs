@@ -12,5 +12,5 @@ public interface IJwtProvider
     /// </summary>
     /// <param name="user">Пользователь, для которого генерируется токен</param>
     /// <returns>Сгенерированный jwt-токен в виде строки</returns>
-    string GenerateToken(User user);
+    Task<string> GenerateTokenAsync(User user);
 }
