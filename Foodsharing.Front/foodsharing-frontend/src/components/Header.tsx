@@ -1,15 +1,14 @@
 // src/components/Header.tsx
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { HiMenu, HiX } from "react-icons/hi";
 
 const Header = () => {
-  // Иконка каталога (4 квадрата)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
   const CatalogIcon = () => (
-    <svg 
-      className="w-6 h-6 text-white" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none">
       <rect x="3" y="3" width="8" height="8" rx="2" fill="currentColor"/>
       <rect x="13" y="3" width="8" height="8" rx="2" fill="currentColor"/>
       <rect x="3" y="13" width="8" height="8" rx="2" fill="currentColor"/>
@@ -17,51 +16,92 @@ const Header = () => {
     </svg>
   );
 
+  // Закрытие меню при клике вне области
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <header className="bg-white shadow-md h-[100px] w-full fixed top-0 z-50">
-      {/* Внутренний контейнер с отступами */}
-      <div className="mx-auto px-[240px] w-full h-full">
-        <div className="max-w-[1440px] mx-auto h-full flex items-center justify-between">
-          {/* Левая часть: лого + каталог */}
-          <div className="flex items-center gap-6">
-            <Link to="/" className="text-2xl font-bold text-[#4CAF50]">
+    <header className="bg-white shadow-md z-20 relative">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+        <div className="flex items-center justify-between h-16">
+          {/* Левая часть */}
+          <div className="flex items-center gap-4">
+            <Link to="/" className="text-xl font-bold text-primary">
               ЕДАМ
             </Link>
-            <button className="bg-[#4CAF50] flex items-center gap-2 px-4 py-3 rounded-2xl hover:opacity-90">
+            <button className="hidden md:flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl">
               <CatalogIcon />
-              <span className="text-white">Каталог</span>
+              <span>Каталог</span>
             </button>
           </div>
 
-          {/* Центральная навигация */}
-          <nav className="flex gap-8">
-            <Link to="/ads" className="hover:text-[#4CAF50] transition-colors">
-              Объявления
-            </Link>
-            <Link to="/business" className="hover:text-[#4CAF50] transition-colors">
-              Бизнесу
-            </Link>
-            <Link to="/about" className="hover:text-[#4CAF50] transition-colors">
-              О нас
-            </Link>
+          {/* Бургер-меню */}
+          <button 
+            className="md:hidden p-2"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? (
+              <HiX className="h-6 w-6 text-gray-800" />
+            ) : (
+              <HiMenu className="h-6 w-6 text-gray-800" />
+            )}
+          </button>
+
+          {/* Десктоп навигация */}
+          <nav className="hidden md:flex items-center gap-6">
+            <Link to="/ads" className="hover:text-primary">Объявления</Link>
+            <Link to="/business" className="hover:text-primary">Бизнесу</Link>
+            <Link to="/about" className="hover:text-primary">О нас</Link>
           </nav>
 
-          {/* Правая часть: авторизация */}
-          <div className="flex items-center gap-6">
-            <Link 
-              to="/login" 
-              className="hover:text-[#4CAF50] transition-colors"
-            >
-              Войти
-            </Link>
+          {/* Кнопки авторизации */}
+          <div className="hidden md:flex items-center gap-4">
+            <Link to="/login" className="hover:text-primary">Войти</Link>
             <Link 
               to="/register" 
-              className="bg-[#4CAF50] text-white px-6 py-3 rounded-2xl hover:opacity-90 transition-all"
+              className="bg-primary text-white px-4 py-2 rounded-xl hover:opacity-90"
             >
               Зарегистрироваться
             </Link>
           </div>
         </div>
+
+        {/* Мобильное меню */}
+        {isMenuOpen && (
+          <div 
+            ref={menuRef}
+            className="md:hidden absolute bg-white w-full left-0 px-4 pb-4 shadow-lg z-30"
+          >
+            <div className="pt-2 space-y-4">
+              <button className="w-full flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl">
+                <CatalogIcon />
+                <span>Каталог</span>
+              </button>
+              
+              <Link to="/ads" className="block hover:text-primary">Объявления</Link>
+              <Link to="/business" className="block hover:text-primary">Бизнесу</Link>
+              <Link to="/about" className="block hover:text-primary">О нас</Link>
+              
+              <div className="pt-4 border-t">
+                <Link to="/login" className="block py-2 hover:text-primary">Войти</Link>
+                <Link 
+                  to="/register" 
+                  className="block bg-primary text-white px-4 py-2 rounded-xl mt-2"
+                >
+                  Зарегистрироваться
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );

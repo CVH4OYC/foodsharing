@@ -5,20 +5,13 @@ import Footer from "./Footer";
 
 const Layout = () => {
   return (
-    <div className="min-w-[1920px] w-full">
-      {/* Фиксированная шапка */}
+    <div className="flex flex-col min-h-screen">
       <Header />
-      
-      {/* Основной контент С ОТСТУПАМИ */}
-      <div className="mx-auto px-[240px] w-full">
-        <div className="max-w-[1440px] mx-auto flex flex-col min-h-screen">
-          <main className="flex-grow pt-[100px]">
-            <Outlet />
-          </main>
+      <main className="flex-grow">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          <Outlet />
         </div>
-      </div>
-
-      {/* Футер БЕЗ ОТСТУПОВ */}
+      </main>
       <Footer />
     </div>
   );
