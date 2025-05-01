@@ -10,7 +10,7 @@ namespace Foodsharing.API.Controllers;
 public class TestController : ControllerBase
 {
     [HttpGet("test")]
-    [Authorize(Roles = RolesConsts.User)]
+    [Authorize(Roles = RolesConsts.Admin)]
     public async Task<IActionResult> Test(CancellationToken cancellationToken)
     {
         return Ok();
