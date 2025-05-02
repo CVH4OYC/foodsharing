@@ -18,10 +18,10 @@ public class Repository<T> : IRepository<T> where T : class
     }
     public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await context.Set<T>().ToListAsync(cancellationToken); ;
+        return await context.Set<T>().ToListAsync(cancellationToken);
     }
 
-    public async Task<T> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<T> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await context.FindAsync<T>(id, cancellationToken);
     }

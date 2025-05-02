@@ -19,12 +19,28 @@ builder.Services.AddApiAuthentication(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+
+
+
 builder.Services.AddScoped<IUserService,UserService>();
+
+
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+
+// Репозитории
+builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
+
+// Сервисы
+builder.Services.AddScoped<IAddressService, AddressService>();
+builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 
 
 

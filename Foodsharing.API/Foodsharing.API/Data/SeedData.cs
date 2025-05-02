@@ -77,7 +77,7 @@ public class SeedData
                 Id = new Guid("81b33e3c-001b-4a85-9b48-e79906bcd11a"),
                 Name = TransactionStatusesConsts.IsCompleted
             });
-        
+
         modelBuilder.Entity<MessageStatus>().HasData(
             new MessageStatus
             {

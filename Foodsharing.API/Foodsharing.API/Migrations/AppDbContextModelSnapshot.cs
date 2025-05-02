@@ -50,7 +50,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Addresses");
+                    b.ToTable("Addresses", (string)null);
                 });
 
             modelBuilder.Entity("Foodsharing.API.Models.Announcement", b =>
@@ -95,7 +95,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Announcements");
+                    b.ToTable("Announcements", (string)null);
                 });
 
             modelBuilder.Entity("Foodsharing.API.Models.Category", b =>
@@ -116,7 +116,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
 
                     b.HasData(
                         new
@@ -164,7 +164,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasIndex("SecondUserId");
 
-                    b.ToTable("Chats");
+                    b.ToTable("Chats", (string)null);
                 });
 
             modelBuilder.Entity("Foodsharing.API.Models.FavoriteCategory", b =>
@@ -185,7 +185,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("FavoriteCategories");
+                    b.ToTable("FavoriteCategories", (string)null);
                 });
 
             modelBuilder.Entity("Foodsharing.API.Models.FavoriteOrganization", b =>
@@ -206,7 +206,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("FavoriteOrganizations");
+                    b.ToTable("FavoriteOrganizations", (string)null);
                 });
 
             modelBuilder.Entity("Foodsharing.API.Models.Message", b =>
@@ -246,7 +246,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasIndex("StatusId");
 
-                    b.ToTable("Messages");
+                    b.ToTable("Messages", (string)null);
                 });
 
             modelBuilder.Entity("Foodsharing.API.Models.MessageStatus", b =>
@@ -261,7 +261,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MessageStatuses");
+                    b.ToTable("MessageStatuses", (string)null);
 
                     b.HasData(
                         new
@@ -325,7 +325,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasIndex("OrganizationStatusId");
 
-                    b.ToTable("Organizations");
+                    b.ToTable("Organizations", (string)null);
                 });
 
             modelBuilder.Entity("Foodsharing.API.Models.OrganizationForm", b =>
@@ -344,7 +344,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OrganizationForms");
+                    b.ToTable("OrganizationForms", (string)null);
 
                     b.HasData(
                         new
@@ -379,7 +379,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OrganizationStatuses");
+                    b.ToTable("OrganizationStatuses", (string)null);
 
                     b.HasData(
                         new
@@ -434,7 +434,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasIndex("StatusId");
 
-                    b.ToTable("PartnershipApplications");
+                    b.ToTable("PartnershipApplications", (string)null);
                 });
 
             modelBuilder.Entity("Foodsharing.API.Models.PartnershipApplicationStatus", b =>
@@ -449,7 +449,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PartnershipApplicationStatuses");
+                    b.ToTable("PartnershipApplicationStatuses", (string)null);
 
                     b.HasData(
                         new
@@ -487,7 +487,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("Profiles");
+                    b.ToTable("Profiles", (string)null);
                 });
 
             modelBuilder.Entity("Foodsharing.API.Models.Rating", b =>
@@ -519,7 +519,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasIndex("TransactionId");
 
-                    b.ToTable("Ratings");
+                    b.ToTable("Ratings", (string)null);
                 });
 
             modelBuilder.Entity("Foodsharing.API.Models.RepresentativeOrganization", b =>
@@ -541,7 +541,7 @@ namespace Foodsharing.API.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Representatives");
+                    b.ToTable("Representatives", (string)null);
                 });
 
             modelBuilder.Entity("Foodsharing.API.Models.Role", b =>
@@ -556,7 +556,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
 
                     b.HasData(
                         new
@@ -612,7 +612,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasIndex("StatusId");
 
-                    b.ToTable("Transactions");
+                    b.ToTable("Transactions", (string)null);
                 });
 
             modelBuilder.Entity("Foodsharing.API.Models.TransactionStatus", b =>
@@ -627,7 +627,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TransactionStatuses");
+                    b.ToTable("TransactionStatuses", (string)null);
 
                     b.HasData(
                         new
@@ -664,7 +664,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Foodsharing.API.Models.UserRole", b =>
@@ -685,7 +685,7 @@ namespace Foodsharing.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("UserRoles", (string)null);
                 });
 
             modelBuilder.Entity("Foodsharing.API.Models.Announcement", b =>

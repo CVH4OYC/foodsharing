@@ -50,6 +50,10 @@ public class Announcement : EntityBase
     [Required]
     public string Image { get; set; }
     
+    //public Guid StatusId { get; set; }
+
+    //public AnnouncementStatus Status { get; set; }
+
     /// <summary>
     /// Внешний ключ, указывающий на категорию продукта питания, указанного в объявлении
     /// </summary>
@@ -75,5 +79,5 @@ public class Announcement : EntityBase
     /// <summary>
     /// Навигационное свойство для связи с таблицей Transaction
     /// </summary>
-    public List<Transaction>? Transactions { get; set; }
+    public List<Transaction> Transactions { get; set; } = new List<Transaction>();
 }

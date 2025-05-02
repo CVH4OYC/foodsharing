@@ -117,6 +117,8 @@ public class AppDbContext : DbContext
     /// </summary>
     public DbSet<User> Users { get; set; }
 
+    //public DbSet<AnnouncementStatus> AnnouncementStatuses { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

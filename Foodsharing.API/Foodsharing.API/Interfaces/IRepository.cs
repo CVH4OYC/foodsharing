@@ -22,7 +22,7 @@ public interface IRepository<T> : IDisposable
     /// <param name="id">id сущности</param>
     /// <param name="cancellationToken">Токен отмены операции (по умолчанию None)</param>
     /// <returns>Найденная сущность типа <typeparamref name="T"/> или null, если сущность не найдена</returns>
-    Task<T> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<T> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Метод репозитория для добавления сущности в БД
