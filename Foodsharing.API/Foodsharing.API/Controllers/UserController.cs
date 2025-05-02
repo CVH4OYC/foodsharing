@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Foodsharing.API.Constants;
 using Foodsharing.API.Services;
 using Foodsharing.API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Foodsharing.API.Controllers;
 [Route("api/[controller]")]
@@ -34,9 +35,9 @@ public class UserController : ControllerBase
     /// - 400 Bad Request: если регистрация завершилась неудачно
     /// </returns>
     [HttpPost("register")]
-    public async Task<IActionResult> RegisterAsync(RegisterDTO request)
+    public async Task<IActionResult> RegisterAsync(RegisterDTO request, CancellationToken cancellationToken)
     {
-        var result = await _userService.RegisterAsync(request.UserName, request.Password, RolesConsts.Admin);
+        var result = await _userService.RegisterAsync(request, RolesConsts.User, cancellationToken);
         if (result.Success)
         {
             AddCookie(result);
@@ -74,5 +75,13 @@ public class UserController : ControllerBase
     private void AddCookie(Infrastructure.OperationResult result)
     {
         Response.Cookies.Append("token", result.Data);
+    }
+
+    [HttpPost("logout")]
+    [Authorize]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("token");
+        return Ok("Вы вышли из системы");
     }
 }

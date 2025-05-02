@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Foodsharing.API.Extensions.Attributes;
 using Foodsharing.API.Models;
 
 namespace Foodsharing.API.DTOs.Announcement;
@@ -31,6 +32,7 @@ public class CreateAnnouncementRequest
     /// Картинка
     /// </summary>
     [Required]
+    [AllowedExtensions(new[] { ".jpg", ".jpeg", ".png" }, ErrorMessage = "Допустимые форматы: JPG, JPEG, PNG")]
     public IFormFile ImageFile { get; set; }
 
     /// <summary>

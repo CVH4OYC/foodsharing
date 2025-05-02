@@ -1,4 +1,6 @@
 ﻿
+using Foodsharing.API.Constants;
+using Foodsharing.API.DTOs;
 using Foodsharing.API.Infrastructure;
 using Foodsharing.API.Interfaces;
 using Foodsharing.API.Models;
@@ -13,36 +15,37 @@ public class UserService : IUserService
     private readonly IRoleRepository roleRepository;
     private readonly IUserRoleRepository userRoleRepository;
     private readonly IJwtProvider jwtProvider;
+    private readonly IImageService imageService;
 
-    public UserService(IPasswordHasher passwordHasher, IUserRepository userRepository, IRoleRepository roleRepository, IUserRoleRepository userRoleRepository, IJwtProvider jwtProvider)
+    public UserService(IPasswordHasher passwordHasher, IUserRepository userRepository, IRoleRepository roleRepository, IUserRoleRepository userRoleRepository, IJwtProvider jwtProvider, IImageService imageService)
     {
         this.passwordHasher = passwordHasher;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userRoleRepository = userRoleRepository;
         this.jwtProvider = jwtProvider;
+        this.imageService = imageService;
     }
     /// <summary>
     /// Метод регистрации нового пользователя
     /// </summary>
-    /// <param name="userName">Имя пользователя</param>
-    /// <param name="password">Пароль</param>
+    /// <param name="request">Имя пользователя</param>
     /// <param name="roleName">Имя роли</param>
     /// <param name="cancellationToken">Токен отмены операции (по умолчанию None)</param>
     /// <returns>Результат операции типа <see cref="OperationResult"/></returns>
-    public async Task<OperationResult> RegisterAsync(string userName, string password, string roleName, CancellationToken cancellationToken = default)
+    public async Task<OperationResult> RegisterAsync(RegisterDTO request, string roleName, CancellationToken cancellationToken = default)
     {
-        var user = await userRepository.GetByUserNameAsync(userName, cancellationToken);
+        var user = await userRepository.GetByUserNameAsync(request.UserName, cancellationToken);
         if (user != null)
             return OperationResult.FailureResult("Пользователь с таким именем уже существует");
 
-        var hashedPassword = passwordHasher.Generate(password);
+        var hashedPassword = passwordHasher.Generate(request.Password);
 
         var role = await roleRepository.GetByRoleNameAsync(roleName, cancellationToken);
         if (role == null)
             return OperationResult.FailureResult("Роль не существует");
 
-        var newUser = new User { UserName = userName, Password = hashedPassword };
+        var newUser = new User { UserName = request.UserName, Password = hashedPassword };
         await userRepository.AddAsync(newUser, cancellationToken);
 
         var userRole = new UserRole
@@ -51,6 +54,18 @@ public class UserService : IUserService
             RoleId = role.Id      // Присваиваем роль
         };
         await userRoleRepository.AddAsync(userRole, cancellationToken);
+
+        var profile = new Profile
+        {
+            UserId = newUser.Id,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            Bio = request.Bio,
+            Image = await imageService.SaveImageAsync(request.ImageFile, PathsConsts.AvatarsFolder)
+        };
+
+        await userRepository.AddProfileAsync(profile, cancellationToken);
+
         var token = await jwtProvider.GenerateTokenAsync(newUser);
         return OperationResult.SuccessResult("Регистрация прошла успешно", token);
     }

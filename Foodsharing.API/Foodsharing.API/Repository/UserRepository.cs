@@ -24,6 +24,12 @@ public class UserRepository : Repository<User>, IUserRepository
             .Where(ur => ur.UserId == userId)
             .Include(ur => ur.Role)
             .Select(ur => ur.Role.Name)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task AddProfileAsync (Profile profile, CancellationToken cancellationToken)
+    {
+        await context.AddAsync(profile, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
     }
 }

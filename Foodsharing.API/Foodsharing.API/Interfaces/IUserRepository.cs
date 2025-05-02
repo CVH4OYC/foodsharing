@@ -18,5 +18,7 @@ public interface IUserRepository : IRepository<User>
     /// <param name="userId">Id пользователя</param>
     /// <param name="cancellationToken">Токен отмены</param>
     /// <returns></returns>
-    Task<List<string>> GetUserRolesAsync(Guid userId, CancellationToken cancellationToken); 
+    Task<List<string>> GetUserRolesAsync(Guid userId, CancellationToken cancellationToken);
+
+    Task AddProfileAsync(Profile profile, CancellationToken cancellationToken);
 }

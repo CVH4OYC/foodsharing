@@ -1,6 +1,7 @@
 ﻿using Foodsharing.API.DTOs.Announcement;
 using Foodsharing.API.Interfaces;
 using Foodsharing.API.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Foodsharing.API.Controllers;
@@ -33,6 +34,7 @@ public class AnnouncementController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult> CreateAnnouncement(CreateAnnouncementRequest dto)
     {
         await _announcementService.AddAsync(dto);
