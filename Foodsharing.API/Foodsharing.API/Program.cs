@@ -10,6 +10,7 @@ using Foodsharing.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
@@ -27,7 +28,7 @@ builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 
 builder.Services.AddScoped<IUserService,UserService>();
@@ -38,7 +39,7 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 builder.Services.AddScoped<IImageService, ImageService>();
-
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 
 
@@ -57,10 +58,13 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", policy =>
     {
-        policy.WithOrigins("https://localhost:3000") // адрес фронта
-              .AllowCredentials()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        policy.WithOrigins(
+                "https://localhost:3000",  // Frontend
+                "https://localhost:7044"   // Backend (для статических файлов)
+            )
+            .AllowCredentials()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
 });
 
@@ -88,18 +92,41 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseStaticFiles(new StaticFileOptions
+// Конфигурация статических файлов
+StaticFileOptions CreateStaticFilesOptions(
+    string folderName,
+    IWebHostEnvironment env)
 {
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(app.Environment.WebRootPath, PathsConsts.PicturesFolder, PathsConsts.AvatarsFolder)),
-    RequestPath = "/avatars"
-});
+    return new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(
+            Path.Combine(
+                env.WebRootPath,
+                PathsConsts.PicturesFolder,
+                folderName)),
+        RequestPath = $"/{folderName}",
+        ContentTypeProvider = new FileExtensionContentTypeProvider
+        {
+            Mappings =
+            {
+                [".webp"] = "image/webp",
+                [".heic"] = "image/heic",
+                [".heif"] = "image/heif"
+            }
+        },
+        OnPrepareResponse = ctx =>
+            ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=604800")
+    };
+}
 
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(app.Environment.WebRootPath, PathsConsts.PicturesFolder, PathsConsts.AnnouncementsFolder)),
-    RequestPath = "/announcements"
-});
+// Аватары
+app.UseStaticFiles(CreateStaticFilesOptions(
+    PathsConsts.AvatarsFolder,
+    app.Environment));
+
+// Объявления
+app.UseStaticFiles(CreateStaticFilesOptions(
+    PathsConsts.AnnouncementsFolder,
+    app.Environment));
 
 app.Run();

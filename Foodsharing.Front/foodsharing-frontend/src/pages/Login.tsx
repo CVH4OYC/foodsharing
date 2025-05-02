@@ -2,26 +2,29 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API } from "../services/api";
+import { useAuth } from "../context/AuthContext"; // импорт контекста авторизации
 
 const Login = () => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { updateAuth } = useAuth(); // получаем функцию обновления авторизации
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const res = await API.post("/User/login", { userName, password });
       localStorage.setItem("token", res.data.token);
-      navigate("/secure");
+      updateAuth(); // обновляем состояние авторизации
+      navigate("/"); // перенаправляем на главную страницу
     } catch (err) {
       setError("Неверное имя пользователя или пароль");
     }
   };
 
   return (
-    <div className="bg-white flex items-center justify-center pt-16 pb-12"> {/* Убрано min-h-screen, pt-20 → pt-16 */}
+    <div className="bg-white flex items-center justify-center pt-16 pb-12">
       <div className="w-full max-w-md px-4 sm:px-0">
         <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
           <h2 className="text-2xl font-bold text-primary mb-6 text-center">
@@ -69,8 +72,8 @@ const Login = () => {
 
           <div className="mt-6 text-center text-sm">
             <span className="text-gray-600">Нет аккаунта? </span>
-            <a 
-              href="/register" 
+            <a
+              href="/register"
               className="text-primary hover:underline font-medium"
             >
               Зарегистрироваться

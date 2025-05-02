@@ -34,7 +34,7 @@ public class AnnouncementService : IAnnouncementService
             CategoryId = request.CategoryId,
             UserId = request.UserId,
             DateCreation = DateTime.UtcNow,
-            ExpirationDate = request.ExpirationDate,
+            ExpirationDate = request.ExpirationDate.ToUniversalTime(),
             Image = imagePath
         };
 
@@ -46,7 +46,7 @@ public class AnnouncementService : IAnnouncementService
     public async Task<IEnumerable<AnnouncementDTO>> GetAnnouncementsAsync(CancellationToken cancellationToken = default)
     {
         var announcements = await announcementRepository.GetAllAnnouncementsAsync(cancellationToken);
-        
+
         return announcements.Select(a => new AnnouncementDTO
         {
             AnnouncementId = a.Id,
@@ -75,8 +75,9 @@ public class AnnouncementService : IAnnouncementService
             {
                 UserId = a.UserId,
                 UserName = a.User.UserName,
-                FirstName = "",
-                LastName = "",
+                FirstName = a.User.Profile.FirstName,
+                LastName = a.User.Profile.LastName,
+                Image = a.User.Profile.Image
             }
         });
     }
@@ -113,8 +114,9 @@ public class AnnouncementService : IAnnouncementService
             {
                 UserId = announcement.UserId,
                 UserName = announcement.User.UserName,
-                FirstName = "",
-                LastName = "",
+                FirstName = announcement.User.Profile.FirstName,
+                LastName = announcement.User.Profile.LastName,
+                Image = announcement.User.Profile.Image
             }
         };
     }

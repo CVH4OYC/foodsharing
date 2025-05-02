@@ -23,6 +23,7 @@ public class AnnouncementRepository : Repository<Announcement>, IAnnouncementRep
     {
         return await context.Set<Announcement>()
             .Include(a => a.User)
+                .ThenInclude(u => u.Profile)
             .Include(a => a.Category)
             .Include(a => a.Address)
             .Include(a => a.Transactions)
@@ -34,6 +35,7 @@ public class AnnouncementRepository : Repository<Announcement>, IAnnouncementRep
     {
         return await context.Set<Announcement>()
             .Include(a => a.User)
+                .ThenInclude(u => u.Profile)
             .Include(a => a.Category)
             .Include(a => a.Address)
             .Include(a => a.Transactions)

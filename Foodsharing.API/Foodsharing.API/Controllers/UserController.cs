@@ -1,7 +1,4 @@
 ﻿using Foodsharing.API.DTOs;
-using Foodsharing.API.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Foodsharing.API.Constants;
 using Foodsharing.API.Services;

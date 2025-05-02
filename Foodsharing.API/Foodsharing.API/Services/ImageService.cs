@@ -18,6 +18,8 @@ public class ImageService : IImageService
 
     public async Task<string> SaveImageAsync(IFormFile imageFile, string pathFolder)
     {
+        if (imageFile == null || imageFile.Length == 0)
+            return null;
         var fileName = $"{Guid.NewGuid()}{Path.GetExtension(imageFile.FileName)}";
         var uploadsFolder = Path.Combine(_env.WebRootPath, PathsConsts.PicturesFolder, pathFolder);
         Directory.CreateDirectory(uploadsFolder);
@@ -49,6 +51,6 @@ public class ImageService : IImageService
             });
         }
 
-        return $"/{PathsConsts.PicturesFolder}/{pathFolder}/{fileName}".Replace("\\", "/");
+        return $"/{pathFolder}/{fileName}".Replace("\\", "/");
     }
 }
