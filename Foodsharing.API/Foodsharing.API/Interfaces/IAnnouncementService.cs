@@ -10,5 +10,5 @@ public interface IAnnouncementService
 
     Task<IEnumerable<AnnouncementDTO>> GetAnnouncementsAsync(CancellationToken cancellationToken = default);
 
-    Task<AnnouncementDTO> GetAnnouncementByIdAsync(Guid announcementId, CancellationToken cancellationToken = default);
+    Task<AnnouncementDTO?> GetAnnouncementByIdAsync(Guid announcementId, CancellationToken cancellationToken = default);
 }

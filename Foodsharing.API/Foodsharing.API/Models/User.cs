@@ -1,11 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Foodsharing.API.Abstract;
+using Microsoft.EntityFrameworkCore;
 
 namespace Foodsharing.API.Models;
 
 /// <summary>
 /// Пользователь
 /// </summary>
+[Index(nameof(UserName), IsUnique = true)]
 public class User : EntityBase
 {
     /// <summary>

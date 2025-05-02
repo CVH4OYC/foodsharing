@@ -12,5 +12,7 @@ public interface IAnnouncementRepository : IRepository<Announcement>
     /// <param name="cancellationToken">Токен отмены операции (по умолчанию None)</param>
     Task<List<Announcement>?> GetUsersAnnouncementsAsync(Guid userId, CancellationToken cancellationToken);
 
-    Task<IEnumerable<Announcement>> GetAllAnnouncementsAsync(CancellationToken cancellationToken);
+    Task<IEnumerable<Announcement>?> GetAllAnnouncementsAsync(CancellationToken cancellationToken);
+
+    Task<Announcement?> GetAnnouncementByIdAsync(Guid id, CancellationToken cancellationToken);
 }

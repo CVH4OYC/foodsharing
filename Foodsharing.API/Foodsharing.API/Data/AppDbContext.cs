@@ -126,6 +126,7 @@ public class AppDbContext : DbContext
         modelBuilder.ApplyConfiguration(new ChatConfiguration());
         modelBuilder.ApplyConfiguration(new TransactionConfiguration());
         modelBuilder.ApplyConfiguration(new RatingConfiguration());
+        modelBuilder.ApplyConfiguration(new UserConfiguration());
 
         SeedData.Seed(modelBuilder);
     }

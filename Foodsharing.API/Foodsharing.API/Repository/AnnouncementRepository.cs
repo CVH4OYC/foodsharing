@@ -19,7 +19,7 @@ public class AnnouncementRepository : Repository<Announcement>, IAnnouncementRep
         return await context.Set<Announcement>().Where(a => a.UserId == userId).ToListAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<Announcement>> GetAllAnnouncementsAsync(CancellationToken cancellationToken)
+    public async Task<IEnumerable<Announcement>?> GetAllAnnouncementsAsync(CancellationToken cancellationToken)
     {
         return await context.Set<Announcement>()
             .Include(a => a.User)
@@ -28,5 +28,16 @@ public class AnnouncementRepository : Repository<Announcement>, IAnnouncementRep
             .Include(a => a.Transactions)
                 .ThenInclude(t => t.Status)
             .ToListAsync(cancellationToken);
+    }
+    
+    public async Task<Announcement?> GetAnnouncementByIdAsync (Guid id, CancellationToken cancellationToken)
+    {
+        return await context.Set<Announcement>()
+            .Include(a => a.User)
+            .Include(a => a.Category)
+            .Include(a => a.Address)
+            .Include(a => a.Transactions)
+                .ThenInclude(t => t.Status)
+            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
     }
 }

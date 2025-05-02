@@ -28,10 +28,10 @@ public class CreateAnnouncementRequest
     public DateTime ExpirationDate { get; set; }
 
     /// <summary>
-    /// Путь к картинке
+    /// Картинка
     /// </summary>
     [Required]
-    public string Image { get; set; }
+    public IFormFile ImageFile { get; set; }
 
     /// <summary>
     /// Внешний ключ, указывающий на категорию продукта питания, указанного в объявлении

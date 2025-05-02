@@ -1,4 +1,5 @@
 using System.Text;
+using Foodsharing.API.Constants;
 using Foodsharing.API.Data;
 using Foodsharing.API.Extensions;
 using Foodsharing.API.Infrastructure;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,7 +23,8 @@ builder.Services.AddControllers();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-
+builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
@@ -32,15 +35,10 @@ builder.Services.AddScoped<IUserService,UserService>();
 
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-
-
-// Репозитории
-builder.Services.AddScoped<IAddressRepository, AddressRepository>();
-builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
-
-// Сервисы
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
+builder.Services.AddScoped<IImageService, ImageService>();
+
 
 
 
@@ -89,5 +87,19 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(app.Environment.WebRootPath, PathsConsts.PicturesFolder, PathsConsts.AvatarsFolder)),
+    RequestPath = "/avatars"
+});
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(app.Environment.WebRootPath, PathsConsts.PicturesFolder, PathsConsts.AnnouncementsFolder)),
+    RequestPath = "/announcements"
+});
 
 app.Run();

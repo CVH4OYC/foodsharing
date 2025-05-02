@@ -12,16 +12,19 @@ public class AnnouncementService : IAnnouncementService
 
     private readonly IAnnouncementRepository announcementRepository;
     private readonly IAddressService addressService;
+    private readonly IImageService imageService;
 
-    public AnnouncementService(IAnnouncementRepository announcementRepository, IAddressService addressService)
+    public AnnouncementService(IAnnouncementRepository announcementRepository, IAddressService addressService, IImageService imageService)
     {
         this.announcementRepository = announcementRepository;
         this.addressService = addressService;
+        this.imageService = imageService;
     }
 
     public async Task<OperationResult> AddAsync(CreateAnnouncementRequest request, CancellationToken cancellationToken = default)
     {
         var addressId = await addressService.ProcessAddressAsync(request.Address);
+        var imagePath = await imageService.SaveImageAsync(request.ImageFile, PathsConsts.AnnouncementsFolder);
 
         var newAnnouncement = new Announcement
         {
@@ -32,7 +35,7 @@ public class AnnouncementService : IAnnouncementService
             UserId = request.UserId,
             DateCreation = DateTime.UtcNow,
             ExpirationDate = request.ExpirationDate,
-            Image = ""
+            Image = imagePath
         };
 
         await announcementRepository.AddAsync(newAnnouncement, cancellationToken);
@@ -40,7 +43,7 @@ public class AnnouncementService : IAnnouncementService
         return OperationResult.SuccessResult("Объявление добавлено успешно");
     }
 
-    public async Task<IEnumerable<AnnouncementDTO>> GetAnnouncementsAsync(CancellationToken cancellationToken)
+    public async Task<IEnumerable<AnnouncementDTO>> GetAnnouncementsAsync(CancellationToken cancellationToken = default)
     {
         var announcements = await announcementRepository.GetAllAnnouncementsAsync(cancellationToken);
         
@@ -52,6 +55,7 @@ public class AnnouncementService : IAnnouncementService
             ExpirationDate = a.ExpirationDate,
             DateCreation = a.DateCreation,
             Status = CalculateStatus(a.Transactions),
+            Image = a.Image,
             Address = new AddressForAnnouncementDTO
             {
                 AddressId = a.AddressId,
@@ -77,13 +81,45 @@ public class AnnouncementService : IAnnouncementService
         });
     }
 
-    public async Task<AnnouncementDTO> GetAnnouncementByIdAsync(Guid announcementId, CancellationToken cancellationToken)
+    public async Task<AnnouncementDTO?> GetAnnouncementByIdAsync(Guid announcementId, CancellationToken cancellationToken = default)
     {
-        //return await announcementRepository.GetByIdAsync(announcementId, cancellationToken);
-        return new AnnouncementDTO();
+        var announcement = await announcementRepository.GetAnnouncementByIdAsync(announcementId, cancellationToken);
+
+        return announcement is null ? null : new AnnouncementDTO
+        {
+            AnnouncementId = announcement.Id,
+            Title = announcement.Title,
+            Description = announcement.Description,
+            ExpirationDate = announcement.ExpirationDate,
+            DateCreation = announcement.DateCreation,
+            Status = CalculateStatus(announcement.Transactions),
+            Image = announcement.Image,
+            Address = new AddressForAnnouncementDTO
+            {
+                AddressId = announcement.AddressId,
+                Region = announcement.Address.Region,
+                City = announcement.Address.City,
+                Street = announcement.Address.Street,
+                House = announcement.Address.House
+            },
+            Category = new CategoryForAnnouncement
+            {
+                CategoryId = announcement.CategoryId,
+                Name = announcement.Category.Name,
+                Color = announcement.Category.Color,
+                ParentId = announcement.Category.ParentId,
+            },
+            User = new UserForAnnouncementDTO
+            {
+                UserId = announcement.UserId,
+                UserName = announcement.User.UserName,
+                FirstName = "",
+                LastName = "",
+            }
+        };
     }
 
-    private string CalculateStatus(IEnumerable<Transaction> transactions)
+    private static string CalculateStatus(IEnumerable<Transaction> transactions)
     {
         if (transactions == null || !transactions.Any())
             return AnnouncementStatusesConsts.IsFree;

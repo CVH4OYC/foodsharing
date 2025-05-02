@@ -23,10 +23,10 @@ public class AnnouncementController : ControllerBase
     }
 
     [HttpGet("{announcementId}")]
-    public async Task<ActionResult<Announcement>> GetAnnouncementByIdAsync(Guid announcementId, CancellationToken cancellationToken)
+    public async Task<ActionResult<AnnouncementDTO>> GetAnnouncementByIdAsync(Guid announcementId, CancellationToken cancellationToken)
     {
         var announcement = await _announcementService.GetAnnouncementByIdAsync(announcementId, cancellationToken);
-        
+
         return announcement == null
             ? NotFound($"Объявление с ID {announcementId} не найдено")
             : Ok(announcement);
