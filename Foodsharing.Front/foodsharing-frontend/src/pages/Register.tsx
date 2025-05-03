@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { API } from "../services/api";
-import { useAuth } from "../context/AuthContext"; // добавлено
+import { useAuth } from "../context/AuthContext";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -16,7 +16,7 @@ const Register = () => {
   const [preview, setPreview] = useState<string>("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { updateAuth } = useAuth(); // добавлено
+  const { login } = useAuth(); // Используем метод login из контекста
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const allowedExtensions = [".jpg", ".jpeg", ".png"];
@@ -55,9 +55,10 @@ const Register = () => {
           userName: formData.userName,
           password: formData.password,
         });
-        localStorage.setItem("token", loginRes.data.token);
-        updateAuth(); // обновление авторизации
-        navigate("/"); // переход на главную
+        
+        // Используем метод login вместо прямого взаимодействия с localStorage
+        login(loginRes.data.token);
+        navigate("/");
       }
     } catch (err: any) {
       setError(err.response?.data || "Ошибка регистрации");

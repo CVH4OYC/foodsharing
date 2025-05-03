@@ -6,7 +6,7 @@ import { API } from "../services/api";
 import { useAuth } from "../context/AuthContext"; // Импортируем контекст для авторизации
 
 const Header = () => {
-  const { isAuth, updateAuth } = useAuth(); // Используем контекст для получения состояния и обновления
+  const { isAuth, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -34,8 +34,7 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       await API.post("/User/logout");
-      localStorage.removeItem("token");
-      updateAuth(); // Обновляем состояние авторизации через контекст
+      logout(); // Используем метод из контекста
       navigate("/");
     } catch (err) {
       console.error("Ошибка выхода:", err);

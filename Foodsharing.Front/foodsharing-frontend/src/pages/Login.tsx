@@ -2,22 +2,23 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API } from "../services/api";
-import { useAuth } from "../context/AuthContext"; // импорт контекста авторизации
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { updateAuth } = useAuth(); // получаем функцию обновления авторизации
+  const { login } = useAuth(); // Используем метод login из контекста
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const res = await API.post("/User/login", { userName, password });
-      localStorage.setItem("token", res.data.token);
-      updateAuth(); // обновляем состояние авторизации
-      navigate("/"); // перенаправляем на главную страницу
+      
+      // Используем метод login вместо прямого взаимодействия с localStorage
+      login(res.data.token);
+      navigate("/");
     } catch (err) {
       setError("Неверное имя пользователя или пароль");
     }

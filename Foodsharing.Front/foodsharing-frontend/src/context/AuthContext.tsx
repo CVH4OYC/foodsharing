@@ -1,24 +1,35 @@
 // src/context/AuthContext.tsx
 import { createContext, useContext, useState, useEffect } from "react";
 
-const AuthContext = createContext({
+type AuthContextType = {
+  isAuth: boolean;
+  login: (token: string) => void;
+  logout: () => void;
+};
+
+const AuthContext = createContext<AuthContextType>({
   isAuth: false,
-  updateAuth: () => {}
+  login: () => {},
+  logout: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isAuth, setIsAuth] = useState(false);
+  const [isAuth, setIsAuth] = useState(() => {
+    return !!localStorage.getItem("token");
+  });
 
-  const updateAuth = () => {
-    setIsAuth(!!localStorage.getItem("token"));
+  const login = (token: string) => {
+    localStorage.setItem("token", token);
+    setIsAuth(true);
   };
 
-  useEffect(() => {
-    updateAuth();
-  }, []);
+  const logout = () => {
+    localStorage.removeItem("token");
+    setIsAuth(false);
+  };
 
   return (
-    <AuthContext.Provider value={{ isAuth, updateAuth }}>
+    <AuthContext.Provider value={{ isAuth, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
