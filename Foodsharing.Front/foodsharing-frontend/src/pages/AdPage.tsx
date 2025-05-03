@@ -28,7 +28,7 @@ const AdPage = () => {
   if (!ad) return <div className="text-center py-8">Объявление не найдено</div>;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto py-8">
       <div className="bg-white rounded-xl shadow-lg p-6">
         {/* Шапка */}
         <div className="flex justify-between items-start mb-6">
@@ -131,7 +131,8 @@ const AdPage = () => {
             </div>
 
             <div className="border-t pt-6">
-              <div className="flex items-center gap-4 mb-4">
+              <p className="text-sm text-gray-500 mb-4">Автор объявления</p>
+              <div className="flex items-center gap-4 mb-6">
                 {ad.user.image ? (
                   <img
                     src={`${StaticAPI.defaults.baseURL}${ad.user.image}`}
@@ -149,17 +150,28 @@ const AdPage = () => {
                   <p className="font-medium">{ad.user.userName}</p>
                   <div className="flex items-center gap-2">
                     <span className="text-yellow-500">★ 5,0</span>
-                    <span className="text-sm text-gray-500">Автор объявления</span>
                   </div>
                 </div>
               </div>
 
-              <button
-                className="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg font-medium transition-colors"
-                onClick={() => console.log('Бронирование...')}
-              >
-                Забронировать
-              </button>
+              <div className="flex gap-4">
+                <button
+                  className="flex-1 bg-primary hover:bg-green-600 text-white py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                  onClick={() => console.log('Бронирование...')}
+                >
+                  Забронировать
+                </button>
+                
+                <button
+                  className="flex-1 border-2 border-primary text-primary bg-white hover:bg-gray-50 py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                  onClick={() => console.log('Написать...')}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                  Написать
+                </button>
+              </div>
             </div>
           </div>
         </div>
