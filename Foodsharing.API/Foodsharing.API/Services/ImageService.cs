@@ -16,7 +16,7 @@ public class ImageService : IImageService
         _env = env;
     }
 
-    public async Task<string> SaveImageAsync(IFormFile imageFile, string pathFolder)
+    public async Task<string> SaveImageAsync(IFormFile? imageFile, string pathFolder)
     {
         if (imageFile == null || imageFile.Length == 0)
             return null;

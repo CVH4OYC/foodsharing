@@ -13,6 +13,7 @@ public class AnnouncemenstCreateUpdRequest : EntityBase
     /// <summary>
     /// Заголовок объявления
     /// </summary>
+    [Required]
     [StringLength(50, ErrorMessage = "Длина заголовка превышает 50 символов!")]
     public string Title { get; set; }
 
@@ -22,6 +23,7 @@ public class AnnouncemenstCreateUpdRequest : EntityBase
     [StringLength(500, ErrorMessage = "Длина описания превышает 500 символов!")]
     public string? Description { get; set; }
 
+    [Required]
     public AddressForAnnouncementDTO Address { get; set; }
 
     /// <summary>
@@ -39,11 +41,15 @@ public class AnnouncemenstCreateUpdRequest : EntityBase
     /// <summary>
     /// Внешний ключ, указывающий на категорию продукта питания, указанного в объявлении
     /// </summary>
+    [Required]
     public Guid CategoryId { get; set; }
 
     /// <summary>
     /// Внешний ключ, указывающий на пользователя, который создал объявление
     /// </summary>
+    [Required]
     public Guid UserId { get; set; }
+
+    public string? ImagePath { get; set; }
 }
 

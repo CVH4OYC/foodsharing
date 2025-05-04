@@ -29,6 +29,7 @@ const AdFormPage = () => {
   const [expirationDate, setExpirationDate] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [imagePath, setImagePath] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
@@ -55,6 +56,7 @@ const AdFormPage = () => {
         setExpirationDate(ad.expirationDate?.split("T")[0] || "");
         setCategoryId(ad.category?.categoryId || "");
         setPreview(`${StaticAPI.defaults.baseURL}${ad.image}`); 
+        setImagePath(`${ad.image}`);
       });
     }
   }, [announcementId, isAuth]);
@@ -141,16 +143,17 @@ const AdFormPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!imageFile && !isEditing) {
       alert("Загрузите изображение");
       return;
     }
-
+  
     const formData = new FormData();
     if (imageFile) formData.append("ImageFile", imageFile);
-
-    const params: Record<string, string> = {
+  
+    // Добавляем все параметры в FormData
+    const params = {
       Title: title,
       Description: description,
       "Address.Region": region,
@@ -161,16 +164,20 @@ const AdFormPage = () => {
       CategoryId: categoryId,
       UserId: userId!,
       Id: announcementId!,
+      ImagePath: imagePath
     };
-
-    const queryString = new URLSearchParams(params).toString();
-
+  
+    // Переносим все параметры в FormData
+    Object.entries(params).forEach(([key, value]) => {
+      formData.append(key, value.toString());
+    });
+  
     try {
       if (isEditing) {
-        await API.put(`/Announcement/?${new URLSearchParams(params)}`, formData);
+        await API.put(`/announcement`, formData);
         navigate("/ads");
       } else {
-        await API.post(`/announcement?${queryString}`, formData);
+        await API.post(`/announcement`, formData);
         navigate("/ads");
       }
     } catch (err) {

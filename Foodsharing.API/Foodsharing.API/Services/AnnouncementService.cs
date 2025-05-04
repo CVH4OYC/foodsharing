@@ -35,7 +35,7 @@ public class AnnouncementService : IAnnouncementService
             UserId = request.UserId,
             DateCreation = DateTime.UtcNow,
             ExpirationDate = request.ExpirationDate.ToUniversalTime(),
-            Image = imagePath
+            Image = imagePath,
         };
 
         await announcementRepository.AddAsync(newAnnouncement, cancellationToken);
@@ -54,14 +54,14 @@ public class AnnouncementService : IAnnouncementService
         var newAnnouncement = new Announcement
         {
             Id = request.Id,
-            Title = request.Title,
+            Title =  request.Title,
             Description = request.Description,
             AddressId = addressId,
             CategoryId = request.CategoryId,
             DateCreation = DateTime.UtcNow,
             ExpirationDate = request.ExpirationDate.ToUniversalTime(),
             UserId = request.UserId,
-            Image = imagePath
+            Image = string.IsNullOrEmpty(imagePath) ? request.ImagePath : imagePath,
         };
 
         await announcementRepository.UpdateAsync(newAnnouncement, cancellationToken);
