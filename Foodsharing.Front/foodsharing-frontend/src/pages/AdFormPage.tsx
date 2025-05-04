@@ -163,8 +163,8 @@ const AdFormPage = () => {
       ExpirationDate: expirationDate,
       CategoryId: categoryId,
       UserId: userId!,
-      Id: announcementId!,
-      ImagePath: imagePath
+      ImagePath: imagePath,
+      ...(isEditing && { Id: announcementId }), // Добавляем Id только при редактировании
     };
   
     // Переносим все параметры в FormData
