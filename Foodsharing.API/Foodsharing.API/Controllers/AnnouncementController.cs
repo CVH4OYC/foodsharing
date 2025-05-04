@@ -1,8 +1,10 @@
-﻿using Foodsharing.API.DTOs.Announcement;
+﻿using System.Security.Claims;
+using Foodsharing.API.DTOs.Announcement;
 using Foodsharing.API.Interfaces;
 using Foodsharing.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Foodsharing.API.Controllers;
 [Route("api/[controller]")]
@@ -35,9 +37,22 @@ public class AnnouncementController : ControllerBase
 
     [HttpPost]
     [Authorize]
-    public async Task<ActionResult> CreateAnnouncementAsync(AnnouncemenstCreateUpdRequest dto)
+    public async Task<ActionResult> CreateAnnouncementAsync(AnnouncemenstCreateUpdRequest dto, CancellationToken cancellationToken)
     {
-        await _announcementService.AddAsync(dto);
+        await _announcementService.AddAsync(dto, cancellationToken);
         return Ok();
+    }
+
+    [HttpPut]
+    [Authorize]
+    public async Task<ActionResult> UpdateAnnouncementAsync(AnnouncemenstCreateUpdRequest dto, CancellationToken cancellationToken)
+    {
+        var userId =new Guid (User.Claims.First(c => c.Type == "userId").Value);
+        var result = await _announcementService.UpdateAsync(userId, dto, cancellationToken);
+        
+        if (result.Success)
+            return Ok();
+        else 
+            return BadRequest();
     }
 }

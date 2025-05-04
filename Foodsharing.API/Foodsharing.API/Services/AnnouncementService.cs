@@ -43,6 +43,33 @@ public class AnnouncementService : IAnnouncementService
         return OperationResult.SuccessResult("Объявление добавлено успешно");
     }
 
+    public async Task<OperationResult> UpdateAsync(Guid userId,AnnouncemenstCreateUpdRequest request, CancellationToken cancellationToken = default)
+    {
+        if (request.UserId != userId) 
+            return OperationResult.FailureResult("Автор и текущий пользователь не совпадаетг");
+
+        var addressId = await addressService.ProcessAddressAsync(request.Address);
+        var imagePath = await imageService.SaveImageAsync(request.ImageFile, PathsConsts.AnnouncementsFolder);
+
+        var newAnnouncement = new Announcement
+        {
+            Id = request.Id,
+            Title = request.Title,
+            Description = request.Description,
+            AddressId = addressId,
+            CategoryId = request.CategoryId,
+            DateCreation = DateTime.UtcNow,
+            ExpirationDate = request.ExpirationDate.ToUniversalTime(),
+            UserId = request.UserId,
+            Image = imagePath
+        };
+
+        await announcementRepository.UpdateAsync(newAnnouncement, cancellationToken);
+
+        return OperationResult.SuccessResult("Обновление завершено успешно");
+    }
+
+
     public async Task<IEnumerable<AnnouncementDTO>> GetAnnouncementsAsync(CancellationToken cancellationToken = default)
     {
         var announcements = await announcementRepository.GetAllAnnouncementsAsync(cancellationToken);

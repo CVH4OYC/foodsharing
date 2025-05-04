@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { API } from "../services/api";
+import { API, StaticAPI } from "../services/api";
 import { Announcement, Category } from "../types/ads";
 import { useAuth } from "../context/AuthContext";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -54,7 +54,7 @@ const AdFormPage = () => {
         setHouse(ad.address?.house || "");
         setExpirationDate(ad.expirationDate?.split("T")[0] || "");
         setCategoryId(ad.category?.categoryId || "");
-        setPreview(`${ad.image?.startsWith("/") ? "" : "/"}${ad.image}`);
+        setPreview(`${StaticAPI.defaults.baseURL}${ad.image}`); 
       });
     }
   }, [announcementId, isAuth]);
@@ -160,13 +160,15 @@ const AdFormPage = () => {
       ExpirationDate: expirationDate,
       CategoryId: categoryId,
       UserId: userId!,
+      Id: announcementId!,
     };
 
     const queryString = new URLSearchParams(params).toString();
 
     try {
       if (isEditing) {
-        alert("Редактирование ещё не реализовано");
+        await API.put(`/Announcement/?${new URLSearchParams(params)}`, formData);
+        navigate("/ads");
       } else {
         await API.post(`/announcement?${queryString}`, formData);
         navigate("/ads");

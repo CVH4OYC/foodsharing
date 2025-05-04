@@ -101,7 +101,7 @@ const AdPage = () => {
               {showMenu && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-1 border">
                   <button
-                    onClick={() => console.log("Редактировать")}
+                    onClick={() => navigate(`/ads/edit/${ad.announcementId}`)}
                     className="block w-full px-4 py-2 text-sm hover:bg-gray-100 text-left"
                   >
                     Редактировать

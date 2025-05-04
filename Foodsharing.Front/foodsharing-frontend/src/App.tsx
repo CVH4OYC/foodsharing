@@ -23,6 +23,7 @@ function App() {
         <Route path="/ads" element={<AdsPage />} />
         <Route path="/ads/:announcementId" element={<AdPage />} />
         <Route path="/ads/new" element={<AdFormPage />} />
+        <Route path="/ads/edit/:announcementId" element={<AdFormPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
