@@ -22,6 +22,17 @@ const setAuthHeader = (config: any) => {
   return config;
 };
 
+const handleUnauthorized = (error: any) => {
+  if (error.response?.status === 401) {
+    localStorage.removeItem('token');
+    window.location.href = '/login'; // Принудительный редирект
+  }
+  return Promise.reject(error);
+};
+
+API.interceptors.response.use(undefined, handleUnauthorized);
+StaticAPI.interceptors.response.use(undefined, handleUnauthorized);
+
 API.interceptors.request.use(setAuthHeader);
 StaticAPI.interceptors.request.use(setAuthHeader);
 

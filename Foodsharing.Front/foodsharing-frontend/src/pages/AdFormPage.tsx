@@ -1,19 +1,27 @@
-//AdFormPage.tsx
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { API } from "../services/api";
-import { Announcement } from "../types/ads";
+import { Announcement, Category } from "../types/ads";
 import { useAuth } from "../context/AuthContext";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 const AdFormPage = () => {
   const { announcementId } = useParams();
   const navigate = useNavigate();
   const { isAuth } = useAuth();
 
+  useEffect(() => {
+    if (!isAuth) {
+      navigate('/login'); // Перенаправление если не авторизован
+    }
+  }, [isAuth, navigate]);
+
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [region, setRegion] = useState("");
   const [city, setCity] = useState("");
   const [street, setStreet] = useState("");
@@ -22,6 +30,7 @@ const AdFormPage = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
   const isEditing = !!announcementId;
 
@@ -49,6 +58,78 @@ const AdFormPage = () => {
       });
     }
   }, [announcementId, isAuth]);
+
+  const buildCategoryTree = (flatCategories: Category[]): Category[] => {
+    const map = new Map(flatCategories.map(c => [c.id, { ...c, children: [] as Category[] }]));
+    const tree: Category[] = [];
+
+    map.forEach((cat) => {
+      if (cat.parentId) {
+        map.get(cat.parentId)?.children?.push(cat);
+      } else {
+        tree.push(cat);
+      }
+    });
+
+    return tree;
+  };
+
+  const categoryTree = buildCategoryTree(categories);
+
+  const toggleCategory = (id: string) => {
+    const updated = new Set(expandedCategories);
+    updated.has(id) ? updated.delete(id) : updated.add(id);
+    setExpandedCategories(updated);
+  };
+
+  const CategorySelector = ({ categories }: { categories: Category[] }) => (
+    <div className="space-y-1">
+      {categories.map((category) => (
+        <div key={category.id} className="rounded-md overflow-hidden">
+          <label
+            className="flex items-center justify-between p-2 cursor-pointer font-medium text-white rounded-md"
+            style={{ backgroundColor: category.color || '#4CAF50' }}
+          >
+            <div className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="category"
+                value={category.id}
+                checked={categoryId === category.id}
+                onChange={() => setCategoryId(category.id)}
+                className="accent-white"
+              />
+              <span>{category.name}</span>
+            </div>
+            <button type="button" onClick={() => toggleCategory(category.id)}>
+              {expandedCategories.has(category.id) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+          </label>
+          {expandedCategories.has(category.id) && category.children && (
+            <div className="pl-4 pt-1 space-y-1">
+              {category.children.map((child) => (
+                <label
+                  key={child.id}
+                  className="flex items-center space-x-2 p-2 rounded-md text-sm text-white cursor-pointer"
+                  style={{ backgroundColor: child.color || '#81C784' }}
+                >
+                  <input
+                    type="radio"
+                    name="category"
+                    value={child.id}
+                    checked={categoryId === child.id}
+                    onChange={() => setCategoryId(child.id)}
+                    className="accent-white"
+                  />
+                  <span>{child.name}</span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -85,7 +166,6 @@ const AdFormPage = () => {
 
     try {
       if (isEditing) {
-        // Обновление логики пока нет в схеме, но можно реализовать аналогично
         alert("Редактирование ещё не реализовано");
       } else {
         await API.post(`/announcement?${queryString}`, formData);
@@ -97,157 +177,120 @@ const AdFormPage = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-6">
-        {isEditing ? "Редактировать объявление" : "Создать объявление"}
-      </h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block font-medium mb-1">Заголовок</label>
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col md:flex-row gap-6">
+        {/* Изображение */}
+        <div className="w-full md:w-1/2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Фото</label>
+          <label className="block border-2 border-dashed rounded-xl cursor-pointer h-64 flex items-center justify-center overflow-hidden">
+            {preview ? (
+              <img
+                src={preview}
+                alt="Preview"
+                className="object-cover w-full h-full rounded-xl"
+              />
+            ) : (
+              <div className="text-gray-400">Нажмите для загрузки</div>
+            )}
+            <input
+              type="file"
+              onChange={handleFileChange}
+              className="hidden"
+              accept="image/*"
+            />
+          </label>
+        </div>
+
+        {/* Поля формы */}
+        <form onSubmit={handleSubmit} className="w-full md:w-1/2 space-y-4">
           <input
             type="text"
+            placeholder="Заголовок объявления"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full border rounded-xl px-4 py-2"
+            className="w-full border rounded-lg px-4 py-2"
             maxLength={50}
             required
           />
-        </div>
 
-        <div>
-          <label className="block font-medium mb-1">Описание</label>
           <textarea
+            placeholder="Описание (необязательно)"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full border rounded-xl px-4 py-2"
+            className="w-full border rounded-lg px-4 py-2"
             rows={3}
             maxLength={500}
           />
-        </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block font-medium mb-1">Регион</label>
+          <div className="grid grid-cols-2 gap-2">
             <input
               type="text"
+              placeholder="Регион"
               value={region}
               onChange={(e) => setRegion(e.target.value)}
-              className="w-full border rounded-xl px-4 py-2"
+              className="border rounded-lg px-4 py-2"
             />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">Город</label>
             <input
               type="text"
+              placeholder="Город"
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              className="w-full border rounded-xl px-4 py-2"
+              className="border rounded-lg px-4 py-2"
             />
           </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block font-medium mb-1">Улица</label>
+          <div className="grid grid-cols-2 gap-2">
             <input
               type="text"
+              placeholder="Улица"
               value={street}
               onChange={(e) => setStreet(e.target.value)}
-              className="w-full border rounded-xl px-4 py-2"
+              className="border rounded-lg px-4 py-2"
             />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">Дом</label>
             <input
               type="text"
+              placeholder="Дом"
               value={house}
               onChange={(e) => setHouse(e.target.value)}
-              className="w-full border rounded-xl px-4 py-2"
+              className="border rounded-lg px-4 py-2"
             />
           </div>
-        </div>
 
-        <div>
-          <label className="block font-medium mb-1">Категория</label>
-          <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full border rounded px-4 py-2"
-            required
-          >
-            <option value="">Выберите категорию</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block font-medium mb-1">Срок годности</label>
           <input
             type="date"
             value={expirationDate}
             onChange={(e) => setExpirationDate(e.target.value)}
-            className="w-full border rounded px-4 py-2"
+            className="w-full border rounded-lg px-4 py-2"
             required
           />
-        </div>
 
-        {/* Фото-поле с превью */}
-        <div className="relative group">
-          <label className="block mb-2 text-sm font-medium text-gray-700">
-            Фото
-          </label>
-          <div className="flex items-center justify-center w-full">
-            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer hover:border-primary transition-colors">
-              {preview ? (
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="w-full h-full object-cover rounded-xl"
-                />
-              ) : (
-                <>
-                  <svg
-                    className="w-8 h-8 text-gray-400 mb-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <span className="text-sm text-gray-500">
-                    Нажмите для загрузки
-                  </span>
-                </>
+          <div>
+            <label className="block text-sm font-medium mb-2 text-gray-700">Категория</label>
+            <div className="relative">
+              <button
+                type="button"
+                className="w-full text-left border rounded-lg px-4 py-2 bg-gray-100"
+                onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+              >
+                {categoryId ? categories.find(cat => cat.id === categoryId)?.name || "Выбрать категорию" : "Выбрать категорию"}
+              </button>
+              {showCategoryDropdown && (
+                <div className="absolute z-10 w-full mt-2 border rounded-lg p-2 bg-white max-h-64 overflow-y-auto shadow-md">
+                  <CategorySelector categories={categoryTree} />
+                </div>
               )}
-              <input
-                type="file"
-                onChange={handleFileChange}
-                className="hidden"
-                accept="image/*"
-              />
-            </label>
+            </div>
           </div>
-        </div>
 
-        <div>
           <button
             type="submit"
-            className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors"
+            className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-xl font-medium transition-colors"
             disabled={!userId}
           >
-            {isEditing ? "Сохранить изменения" : "Создать"}
+            {isEditing ? "Сохранить изменения" : "Создать объявление"}
           </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

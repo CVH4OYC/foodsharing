@@ -2,21 +2,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API } from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth,  } from "../context/AuthContext";
 
 const Login = () => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { login } = useAuth(); // Используем метод login из контекста
+  const { login } = useAuth(); // Получаем только метод login
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const res = await API.post("/User/login", { userName, password });
       
-      // Используем метод login вместо прямого взаимодействия с localStorage
+      // Используем метод login из контекста вместо setIsAuth
       login(res.data.token);
       navigate("/");
     } catch (err) {
