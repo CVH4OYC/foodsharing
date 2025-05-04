@@ -21,7 +21,7 @@ public class AnnouncementService : IAnnouncementService
         this.imageService = imageService;
     }
 
-    public async Task<OperationResult> AddAsync(CreateAnnouncementRequest request, CancellationToken cancellationToken = default)
+    public async Task<OperationResult> AddAsync(AnnouncemenstCreateUpdRequest request, CancellationToken cancellationToken = default)
     {
         var addressId = await addressService.ProcessAddressAsync(request.Address);
         var imagePath = await imageService.SaveImageAsync(request.ImageFile, PathsConsts.AnnouncementsFolder);

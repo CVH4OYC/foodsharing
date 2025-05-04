@@ -1,4 +1,3 @@
-// src/context/AuthContext.tsx
 import { createContext, useContext, useState, useEffect } from "react";
 
 type AuthContextType = {
@@ -13,18 +12,21 @@ const AuthContext = createContext<AuthContextType>({
   logout: () => {},
 });
 
+const getTokenFromCookie = (): string | null => {
+  const match = document.cookie.match(/(?:^|; )token=([^;]*)/);
+  return match ? decodeURIComponent(match[1]) : null;
+};
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isAuth, setIsAuth] = useState(() => {
-    return !!localStorage.getItem("token");
-  });
+  const [isAuth, setIsAuth] = useState(() => !!getTokenFromCookie());
 
   const login = (token: string) => {
-    localStorage.setItem("token", token);
+    document.cookie = `token=${encodeURIComponent(token)}; path=/; max-age=3600`; // 1 час
     setIsAuth(true);
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
+    document.cookie = `token=; path=/; max-age=0`;
     setIsAuth(false);
   };
 

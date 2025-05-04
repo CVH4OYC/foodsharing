@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { API, StaticAPI } from "../services/api";
 import { Category, Announcement } from '../types/ads';
+import { useNavigate } from "react-router-dom"; 
 import AdCard from "../components/AdCard";
 
 const AdsPage = () => {
@@ -12,9 +13,11 @@ const AdsPage = () => {
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
+  const navigate = useNavigate(); 
+
   const fetchCategories = async () => {
     try {
-      const res = await API.get("/Gategory");
+      const res = await API.get("/category");
       const flat = res.data;
       const tree = flat.filter((c: Category) => !c.parentId)
         .map((parent: Category) => ({
@@ -150,22 +153,25 @@ const AdsPage = () => {
         {/* Основной контент */}
         <main className="flex-1">
           <div className="flex flex-wrap gap-4 items-center mb-6">
-            <button className="bg-primary text-white px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-primary-dark transition-colors">
-              Создать
-              <svg
-                className="w-4 h-4 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
-            </button>
+          <button
+            onClick={() => navigate("/ads/new")}
+            className="bg-primary text-white px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-primary-dark transition-colors"
+          >
+            Создать
+            <svg
+              className="w-4 h-4 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              />
+            </svg>
+          </button>
 
             <div className="flex gap-0 border border-primary rounded-xl overflow-hidden">
               <button

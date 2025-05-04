@@ -35,7 +35,7 @@ public class AnnouncementController : ControllerBase
 
     [HttpPost]
     [Authorize]
-    public async Task<ActionResult> CreateAnnouncementAsync(CreateAnnouncementRequest dto)
+    public async Task<ActionResult> CreateAnnouncementAsync(AnnouncemenstCreateUpdRequest dto)
     {
         await _announcementService.AddAsync(dto);
         return Ok();

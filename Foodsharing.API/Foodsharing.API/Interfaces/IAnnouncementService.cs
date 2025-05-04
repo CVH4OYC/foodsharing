@@ -6,7 +6,7 @@ namespace Foodsharing.API.Interfaces;
 
 public interface IAnnouncementService
 {
-    Task<OperationResult> AddAsync(CreateAnnouncementRequest request, CancellationToken cancellationToken = default);
+    Task<OperationResult> AddAsync(AnnouncemenstCreateUpdRequest request, CancellationToken cancellationToken = default);
 
     Task<IEnumerable<AnnouncementDTO>> GetAnnouncementsAsync(CancellationToken cancellationToken = default);
 

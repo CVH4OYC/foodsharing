@@ -13,16 +13,19 @@ export interface Category {
     description: string;
     image: string;
     category: {
+      categoryId: string;
       name: string;
       color: string;
     };
     user: {
+      userId: string; 
       userName: string;
       image?: string;
       firstName?: string;
       lastName?: string;
     };
     address: {
+      region?: string;
       city?: string;
       street?: string;
       house?: string;

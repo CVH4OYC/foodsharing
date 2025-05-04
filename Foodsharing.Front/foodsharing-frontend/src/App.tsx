@@ -7,6 +7,7 @@ import Secure from "./pages/Secure";
 import Profile from "./pages/Profile";
 import AdsPage from "./pages/AdsPage";
 import AdPage from "./pages/AdPage";
+import AdFormPage from "./pages/AdFormPage"; 
 import { AuthProvider } from "./context/AuthContext";
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
         <Route path="profile" element={<Profile />} />
         <Route path="/ads" element={<AdsPage />} />
         <Route path="/ads/:announcementId" element={<AdPage />} />
+        <Route path="/ads/new" element={<AdFormPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

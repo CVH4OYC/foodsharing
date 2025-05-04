@@ -7,11 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace Foodsharing.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-public class GategoryController : ControllerBase
+public class CategoryController : ControllerBase
 {
     private readonly ICategoryService _categoryService;
 
-    public GategoryController(ICategoryService categoryService)
+    public CategoryController(ICategoryService categoryService)
     {
         _categoryService = categoryService;   
     }

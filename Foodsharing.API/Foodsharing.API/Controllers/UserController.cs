@@ -81,4 +81,18 @@ public class UserController : ControllerBase
         Response.Cookies.Delete("token");
         return Ok("Вы вышли из системы");
     }
+
+    [HttpGet("me")]
+    [Authorize]
+    public IActionResult GetCurrentUser()
+    {
+        var userId = User.FindFirst("userId")?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("Не удалось получить userId из токена.");
+        }
+
+        return Ok(new { userId });
+    }
+
 }

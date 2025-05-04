@@ -23,7 +23,7 @@ public class JwtProvider : IJwtProvider
     {
         var userRoles = await _userRepository.GetUserRolesAsync(user.Id, cancellationToken);
 
-        var claims = new List<Claim> { new Claim("userId", user.UserName) };
+        var claims = new List<Claim> { new Claim("userId", user.Id.ToString()) };
         foreach (var role in userRoles)
         {
             claims.Add(new Claim(ClaimTypes.Role, role));

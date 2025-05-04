@@ -4,7 +4,10 @@ using Foodsharing.API.Models;
 
 namespace Foodsharing.API.DTOs.Announcement;
 
-public class CreateAnnouncementRequest
+/// <summary>
+/// Модель объявления для создания и редактирования
+/// </summary>
+public class AnnouncemenstCreateUpdRequest
 {
     /// <summary>
     /// Заголовок объявления
