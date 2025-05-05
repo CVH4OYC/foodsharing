@@ -13,6 +13,9 @@ const AdPage = () => {
   const [loading, setLoading] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleted, setDeleted] = useState(false);
 
   useEffect(() => {
     const fetchAd = async () => {
@@ -54,13 +57,61 @@ const AdPage = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (!ad?.announcementId) return;
+    setDeleting(true);
+    try {
+      await API.delete("/announcement", {
+        params: { announcementId: ad.announcementId },
+      });
+      setDeleted(true);
+      setTimeout(() => navigate("/ads"), 1500);
+    } catch (err) {
+      console.error("Ошибка при удалении", err);
+      alert("Не удалось удалить объявление");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (loading) return <div className="text-center py-8">Загрузка...</div>;
   if (!ad) return <div className="text-center py-8">Объявление не найдено</div>;
 
   return (
     <div className="max-w-7xl mx-auto py-8">
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-sm shadow-xl animate-fade-in">
+            <h2 className="text-lg font-semibold mb-4">Удалить объявление?</h2>
+            <p className="text-sm text-gray-600 mb-6">
+              Вы точно хотите удалить это объявление? Это действие необратимо.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                className="px-4 py-2 rounded-md bg-gray-100 hover:bg-gray-200 text-sm"
+                onClick={() => setShowConfirm(false)}
+              >
+                Отмена
+              </button>
+              <button
+                className="px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm"
+                onClick={handleDelete}
+                disabled={deleting}
+              >
+                {deleting ? "Удаление..." : "Удалить"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleted && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-xl shadow-md z-50 animate-fade-in">
+          Объявление успешно удалено
+        </div>
+      )}
+
       <div className="bg-white rounded-xl shadow-lg p-6">
-        {/* Шапка */}
         <div className="flex justify-between items-start mb-6">
           <Link
             to="/ads"
@@ -107,7 +158,7 @@ const AdPage = () => {
                     Редактировать
                   </button>
                   <button
-                    onClick={() => console.log("Удалить")}
+                    onClick={() => setShowConfirm(true)}
                     className="block w-full px-4 py-2 text-sm hover:bg-gray-100 text-left text-red-600"
                   >
                     Удалить

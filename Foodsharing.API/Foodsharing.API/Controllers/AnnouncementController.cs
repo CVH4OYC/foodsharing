@@ -55,4 +55,17 @@ public class AnnouncementController : ControllerBase
         else 
             return BadRequest();
     }
+
+    [HttpDelete]
+    [Authorize]
+    public async Task<IActionResult> DeleteAsync(Guid announcementId, CancellationToken cancellationToken)
+    {
+        var result = await _announcementService.DeleteAnnouncementByIdAsync (announcementId, cancellationToken);
+        if ( result.Success)
+        {
+            return Ok(result.Data);
+        }
+        return BadRequest(result.Data);
+
+    }
 }

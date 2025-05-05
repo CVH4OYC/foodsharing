@@ -13,4 +13,6 @@ public interface IAnnouncementService
     Task<AnnouncementDTO?> GetAnnouncementByIdAsync(Guid announcementId, CancellationToken cancellationToken = default);
 
     Task<OperationResult> UpdateAsync(Guid userId, AnnouncemenstCreateUpdRequest request, CancellationToken cancellationToken = default);
+
+    Task<OperationResult> DeleteAnnouncementByIdAsync(Guid announcementId, CancellationToken cancellationToken = default);
 }

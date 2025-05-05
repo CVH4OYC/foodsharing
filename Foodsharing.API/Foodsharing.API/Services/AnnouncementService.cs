@@ -148,6 +148,17 @@ public class AnnouncementService : IAnnouncementService
         };
     }
 
+    public async Task<OperationResult> DeleteAnnouncementByIdAsync(Guid announcementId, CancellationToken cancellationToken = default)
+    {
+        var announcement = new Announcement
+        {
+            Id = announcementId,
+        };
+
+        await announcementRepository.DeleteAsync(announcement);
+        return OperationResult.SuccessResult("Объявление удалено");
+    }
+
     private static string CalculateStatus(IEnumerable<Transaction> transactions)
     {
         if (transactions == null || !transactions.Any())

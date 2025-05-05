@@ -59,7 +59,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("FrontendPolicy", policy =>
     {
         policy.WithOrigins(
-                "https://localhost:3000",  // Frontend
+                "http://localhost:3000",  // Frontend
                 "https://localhost:7044"   // Backend (для статических файлов)
             )
             .AllowCredentials()
