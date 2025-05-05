@@ -8,7 +8,7 @@ public interface IAnnouncementService
 {
     Task<OperationResult> AddAsync(AnnouncemenstCreateUpdRequest request, CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<AnnouncementDTO>> GetAnnouncementsAsync(Guid? categoryId, string? search, string? sortBy, int page, int limit, CancellationToken cancellationToken);
+    Task<IEnumerable<AnnouncementDTO>> GetAnnouncementsAsync(Guid? categoryId, string? search, bool? isBooked, string? sortBy, int page, int limit, CancellationToken cancellationToken);
 
     Task<AnnouncementDTO?> GetAnnouncementByIdAsync(Guid announcementId, CancellationToken cancellationToken = default);
 

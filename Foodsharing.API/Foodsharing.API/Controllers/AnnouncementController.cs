@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Runtime.CompilerServices;
+using System.Security.Claims;
 using Foodsharing.API.DTOs.Announcement;
 using Foodsharing.API.Interfaces;
 using Foodsharing.API.Models;
@@ -27,10 +28,11 @@ public class AnnouncementController : ControllerBase
         [FromQuery] string? sortBy,
         [FromQuery] int page = 1,
         [FromQuery] int limit = 10,
+        [FromQuery] bool? isBooked = null,
         CancellationToken cancellationToken = default)
     {
         var result = await _announcementService.GetAnnouncementsAsync(
-            categoryId, search, sortBy, page, limit, cancellationToken);
+            categoryId, search, isBooked, sortBy, page, limit, cancellationToken);
 
         return Ok(result);
     }

@@ -77,6 +77,7 @@ public class AnnouncementService : IAnnouncementService
     public async Task<IEnumerable<AnnouncementDTO>> GetAnnouncementsAsync(
         Guid? categoryId = null,
         string? search = null,
+        bool? isBooked = null,
         string? sortBy = null,
         int page = 1,
         int limit = 10,
@@ -95,6 +96,15 @@ public class AnnouncementService : IAnnouncementService
         {
             var lowered = search.ToLower();
             query = query.Where(a => a.Title.ToLower().Contains(lowered));
+        }
+
+        // Фильтрация по забронированности
+        if (isBooked.HasValue)
+        {
+            query = query.Where(a =>
+                a.Transactions
+                    .OrderByDescending(t => t.TransactionDate)
+                    .FirstOrDefault().Status.Name == TransactionStatusesConsts.IsBooked == isBooked.Value);
         }
 
         query = sortBy switch

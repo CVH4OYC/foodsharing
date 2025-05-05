@@ -17,6 +17,7 @@ const AdsPage = () => {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [mobileSortOpen, setMobileSortOpen] = useState(false);
   const loaderRef = useRef<HTMLDivElement | null>(null);
+  const [onlyBooked, setOnlyBooked] = useState<null | boolean>(null);
   const navigate = useNavigate();
 
   const fetchCategories = async () => {
@@ -46,6 +47,7 @@ const AdsPage = () => {
             categoryId: selectedCategory,
             sortBy,
             search,
+            isBooked: onlyBooked,
           },
         });
         setAnnouncements((prev) => (reset ? res.data : [...prev, ...res.data]));
@@ -57,7 +59,7 @@ const AdsPage = () => {
         setLastUpdate(Date.now());
       }
     },
-    [page, selectedCategory, sortBy, search]
+    [page, selectedCategory, sortBy, search, onlyBooked]
   );
 
   useEffect(() => {
@@ -89,28 +91,27 @@ const AdsPage = () => {
 
   useEffect(() => {
     fetchAnnouncements(true);
-  }, [selectedCategory, sortBy, search]);
+  }, [selectedCategory, sortBy, search, onlyBooked]);
 
   const resetFilters = () => {
     setSelectedCategory(null);
     setSortBy("dateCreation");
     setSearch("");
+    setOnlyBooked(null);
   };
 
   return (
     <div className="bg-white min-h-screen py-6 px-4 md:px-0 flex flex-col md:flex-row gap-6">
       {/* Категории - десктоп */}
+      {/* Боковая панель с фильтрами */}
       <aside className="w-64 hidden md:block bg-white rounded-xl shadow-lg p-4 shrink-0">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">Категории</h3>
-          <button
-            onClick={resetFilters}
-            className="text-sm text-primary hover:underline"
-          >
-            Сбросить
+          <button onClick={resetFilters} className="text-sm text-primary hover:underline">
+            Сбросить фильтры
           </button>
         </div>
-        <ul className="space-y-2 text-sm">
+        <ul className="space-y-2 text-sm mb-4">
           {categories.map((cat) => (
             <li key={cat.id}>
               <details className="group">
@@ -122,19 +123,12 @@ const AdsPage = () => {
                         setSelectedCategory((prev) => (prev === cat.id ? null : cat.id));
                       }}
                       className={`w-4 h-4 rounded-full border-2 ${
-                        selectedCategory === cat.id
-                          ? "bg-primary border-primary"
-                          : "border-gray-300"
+                        selectedCategory === cat.id ? "bg-primary border-primary" : "border-gray-300"
                       }`}
                     />
                     <span className="truncate">{cat.name}</span>
                   </div>
-                  <svg
-                    className="w-4 h-4 text-gray-500 transition-transform group-open:rotate-180"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="w-4 h-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </summary>
@@ -143,18 +137,12 @@ const AdsPage = () => {
                     {cat.children.map((child) => (
                       <li key={child.id} className="flex items-center gap-2">
                         <button
-                          onClick={() =>
-                            setSelectedCategory((prev) => (prev === child.id ? null : child.id))
-                          }
+                          onClick={() => setSelectedCategory((prev) => (prev === child.id ? null : child.id))}
                           className={`w-3 h-3 rounded-full border-2 ${
-                            selectedCategory === child.id
-                              ? "bg-primary border-primary"
-                              : "border-gray-300"
+                            selectedCategory === child.id ? "bg-primary border-primary" : "border-gray-300"
                           }`}
                         />
-                        <button className="hover:text-primary text-left truncate">
-                          {child.name}
-                        </button>
+                        <span className="truncate">{child.name}</span>
                       </li>
                     ))}
                   </ul>
@@ -163,6 +151,31 @@ const AdsPage = () => {
             </li>
           ))}
         </ul>
+
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold mb-2">Забронированность</h3>
+          <ul className="space-y-2 text-sm">
+            {[
+              { label: "Все", value: null },
+              { label: "Только забронированные", value: true },
+              { label: "Только свободные", value: false },
+            ].map(({ label, value }) => (
+              <li key={label}>
+                <button
+                  onClick={() => setOnlyBooked(value)}
+                  className="w-full text-left flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-gray-50"
+                >
+                  <span
+                    className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${
+                      onlyBooked === value ? "bg-primary border-primary" : "border-gray-300"
+                    }`}
+                  ></span>
+                  {label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       </aside>
 
       {/* Основной контент */}
