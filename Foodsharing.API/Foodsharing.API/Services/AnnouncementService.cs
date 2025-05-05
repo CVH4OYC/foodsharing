@@ -4,6 +4,7 @@ using Foodsharing.API.Infrastructure;
 using Foodsharing.API.Interfaces;
 using Foodsharing.API.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Foodsharing.API.Services;
 
@@ -70,9 +71,41 @@ public class AnnouncementService : IAnnouncementService
     }
 
 
-    public async Task<IEnumerable<AnnouncementDTO>> GetAnnouncementsAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<AnnouncementDTO>> GetAnnouncementsAsync(
+        Guid? categoryId = null,
+        string? search = null,
+        string? sortBy = null,
+        int page = 1,
+        int limit = 10,
+        CancellationToken cancellationToken = default)
     {
-        var announcements = await announcementRepository.GetAllAnnouncementsAsync(cancellationToken);
+        var query = announcementRepository.GetAllAnnouncements();
+
+        if (categoryId.HasValue)
+        {
+            query = query.Where(a =>
+                a.CategoryId == categoryId.Value ||
+                a.Category.ParentId == categoryId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var lowered = search.ToLower();
+            query = query.Where(a => a.Title.ToLower().Contains(lowered));
+        }
+
+        query = sortBy switch
+        {
+            "title" => query.OrderBy(a => a.Title),
+            "experationDate" => query.OrderByDescending(a => a.ExpirationDate),
+            "dateCreation" => query.OrderByDescending(a => a.DateCreation),
+            _ => query.OrderByDescending(a => a.DateCreation)
+        };
+
+        var announcements = await query
+            .Skip((page - 1) * limit)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
 
         return announcements.Select(a => new AnnouncementDTO
         {

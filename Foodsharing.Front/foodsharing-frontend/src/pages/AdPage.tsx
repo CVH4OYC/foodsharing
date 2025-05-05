@@ -80,7 +80,7 @@ const AdPage = () => {
         params: { announcementId: ad.announcementId },
       });
       setDeleted(true);
-      setTimeout(() => navigate("/ads"), 1500);
+      setTimeout(() => navigate("/ads"), 500);
     } catch (err) {
       console.error("Ошибка при удалении", err);
       alert("Не удалось удалить объявление");

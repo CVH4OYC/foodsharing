@@ -19,10 +19,18 @@ public class AnnouncementController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<AnnouncementDTO>>> GetAnnouncementsAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<IEnumerable<AnnouncementDTO>>> GetAnnouncementsAsync(
+        [FromQuery] Guid? categoryId,
+        [FromQuery] string? search,
+        [FromQuery] string? sortBy,
+        [FromQuery] int page = 1,
+        [FromQuery] int limit = 10,
+        CancellationToken cancellationToken = default)
     {
-        var announcements = await _announcementService.GetAnnouncementsAsync(cancellationToken);
-        return Ok(announcements ?? new List<AnnouncementDTO>());
+        var result = await _announcementService.GetAnnouncementsAsync(
+            categoryId, search, sortBy, page, limit, cancellationToken);
+
+        return Ok(result);
     }
 
     [HttpGet("{announcementId}")]

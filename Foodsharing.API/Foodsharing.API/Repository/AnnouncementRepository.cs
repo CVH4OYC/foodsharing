@@ -19,16 +19,15 @@ public class AnnouncementRepository : Repository<Announcement>, IAnnouncementRep
         return await context.Set<Announcement>().Where(a => a.UserId == userId).ToListAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<Announcement>?> GetAllAnnouncementsAsync(CancellationToken cancellationToken)
+    public IQueryable<Announcement?> GetAllAnnouncements()
     {
-        return await context.Set<Announcement>()
+        return context.Set<Announcement>()
             .Include(a => a.User)
                 .ThenInclude(u => u.Profile)
             .Include(a => a.Category)
             .Include(a => a.Address)
             .Include(a => a.Transactions)
-                .ThenInclude(t => t.Status)
-            .ToListAsync(cancellationToken);
+                .ThenInclude(t => t.Status);
     }
     
     public async Task<Announcement?> GetAnnouncementByIdAsync (Guid id, CancellationToken cancellationToken)
