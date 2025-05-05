@@ -41,4 +41,5 @@ public class AnnouncementRepository : Repository<Announcement>, IAnnouncementRep
                 .ThenInclude(t => t.Status)
             .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
     }
+
 }

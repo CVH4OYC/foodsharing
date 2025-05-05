@@ -33,6 +33,7 @@ export interface Category {
     dateCreation: string;
     expirationDate?: string;
     status?: string;
+    isBookedByCurrentUser: boolean;
   }
   
   export interface AdCardProps extends Omit<Announcement, 'dateCreation'> {

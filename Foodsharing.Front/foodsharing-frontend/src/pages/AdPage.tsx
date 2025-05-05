@@ -15,21 +15,30 @@ const AdPage = () => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [deleted, setDeleted] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"success" | "error">("success");
   const menuRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    const fetchAd = async () => {
-      try {
-        const response = await API.get(`/Announcement/${announcementId}`);
-        setAd(response.data);
-      } catch (error) {
-        console.error("Ошибка загрузки объявления:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const isOwner = ad?.user.userId === currentUserId;
 
+  const showTempMessage = (msg: string, type: "success" | "error") => {
+    setMessage(msg);
+    setMessageType(type);
+    setTimeout(() => setMessage(null), 4000);
+  };
+
+  const fetchAd = async () => {
+    try {
+      const response = await API.get(`/Announcement/${announcementId}`);
+      setAd(response.data);
+    } catch (error) {
+      showTempMessage("Ошибка загрузки объявления", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     if (announcementId) fetchAd();
   }, [announcementId]);
 
@@ -38,8 +47,8 @@ const AdPage = () => {
       try {
         const res = await API.get("/user/me");
         setCurrentUserId(res.data.userId);
-      } catch (err) {
-        console.warn("Не удалось получить текущего пользователя", err);
+      } catch {
+        // Игнорируем
       }
     };
 
@@ -62,8 +71,6 @@ const AdPage = () => {
     };
   }, [showMenu]);
 
-  const isOwner = ad?.user.userId === currentUserId;
-
   const handleAuthRedirect = (callback: () => void) => {
     if (!isAuth) {
       navigate("/login");
@@ -79,13 +86,40 @@ const AdPage = () => {
       await API.delete("/announcement", {
         params: { announcementId: ad.announcementId },
       });
-      setDeleted(true);
-      setTimeout(() => navigate("/ads"), 500);
+      showTempMessage("Объявление удалено", "success");
+      setTimeout(() => navigate("/ads"), 800);
     } catch (err) {
-      console.error("Ошибка при удалении", err);
-      alert("Не удалось удалить объявление");
+      showTempMessage("Не удалось удалить объявление", "error");
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleBooking = async () => {
+    try {
+      await API.post("/announcement/book", null, {
+        params: { announcementId },
+      });
+      showTempMessage("Объявление забронировано", "success");
+      fetchAd();
+    } catch (err: any) {
+      const msg = typeof err?.response?.data === "string"
+      ? err.response.data
+      : "Не удалось забронировать";
+    showTempMessage(msg, "error");
+    }
+  };
+
+  const handleUnbooking = async () => {
+    try {
+      await API.post("/announcement/unbook", null, {
+        params: { announcementId },
+      });
+      showTempMessage("Бронь отменена", "success");
+      fetchAd();
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || "Не удалось отменить бронь";
+      showTempMessage(msg, "error");
     }
   };
 
@@ -94,6 +128,14 @@ const AdPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto py-8">
+      {message && (
+        <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-xl shadow-md z-50 animate-fade-in ${
+          messageType === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"
+        }`}>
+          {message}
+        </div>
+      )}
+
       {showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-sm shadow-xl animate-fade-in">
@@ -120,25 +162,11 @@ const AdPage = () => {
         </div>
       )}
 
-      {deleted && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-xl shadow-md z-50 animate-fade-in">
-          Объявление успешно удалено
-        </div>
-      )}
-
       <div className="bg-white rounded-xl shadow-lg p-6">
         <div className="flex justify-between items-start mb-6">
-          <Link
-            to="/ads"
-            className="text-primary hover:text-primary-dark flex items-center gap-2"
-          >
+          <Link to="/ads" className="text-primary hover:text-primary-dark flex items-center gap-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 19l-7-7m0 0l7-7m-7 7h18"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             Назад к списку
           </Link>
@@ -149,18 +177,8 @@ const AdPage = () => {
                 onClick={() => setShowMenu(!showMenu)}
                 className="hover:bg-gray-100 rounded-full p-2"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 5v.01M12 12v.01M12 19v.01"
-                  />
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01" />
                 </svg>
               </button>
 
@@ -184,7 +202,7 @@ const AdPage = () => {
           )}
         </div>
 
-        {/* Контент */}
+        {/* Content */}
         <div className="grid md:grid-cols-2 gap-8">
           <div className="relative h-96 rounded-xl overflow-hidden">
             <img
@@ -209,24 +227,10 @@ const AdPage = () => {
                 </span>
                 <div className="flex items-center gap-2 text-gray-600">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  <span>
-                    {[ad.address?.city, ad.address?.street, ad.address?.house]
-                      .filter(Boolean)
-                      .join(", ")}
-                  </span>
+                  <span>{[ad.address?.city, ad.address?.street, ad.address?.house].filter(Boolean).join(", ")}</span>
                 </div>
               </div>
 
@@ -234,9 +238,7 @@ const AdPage = () => {
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Срок годности</p>
                   <p className="font-medium">
-                    {ad.expirationDate
-                      ? new Date(ad.expirationDate).toLocaleDateString("ru-RU")
-                      : "Не указано"}
+                    {ad.expirationDate ? new Date(ad.expirationDate).toLocaleDateString("ru-RU") : "Не указано"}
                   </p>
                 </div>
                 <div>
@@ -264,9 +266,7 @@ const AdPage = () => {
                   />
                 ) : (
                   <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                    <span className="font-medium">
-                      {ad.user.userName?.[0]?.toUpperCase() || "U"}
-                    </span>
+                    <span className="font-medium">{ad.user.userName?.[0]?.toUpperCase() || "U"}</span>
                   </div>
                 )}
                 <div>
@@ -278,29 +278,35 @@ const AdPage = () => {
               </div>
 
               {!isOwner ? (
-                <div className="flex gap-4">
-                  <button
-                    className="flex-1 bg-primary hover:bg-green-600 text-white py-3 px-6 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
-                    onClick={() => handleAuthRedirect(() => console.log("Бронирование..."))}
-                  >
-                    Забронировать
-                  </button>
-
-                  <button
-                    className="flex-1 border-2 border-primary text-primary bg-white hover:bg-gray-50 py-3 px-6 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
-                    onClick={() => handleAuthRedirect(() => console.log("Написать..."))}
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                      />
-                    </svg>
-                    Написать
-                  </button>
-                </div>
+                ad.status === "Забронировано" && !ad.isBookedByCurrentUser ? (
+                  <div className="bg-gray-200 text-gray-700 py-3 px-6 rounded-xl text-center font-medium">
+                    Забронировано
+                  </div>
+                ) : (
+                  <div className="flex gap-4">
+                    {ad.isBookedByCurrentUser ? (
+                      <button
+                        className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-xl font-medium transition-colors"
+                        onClick={() => handleAuthRedirect(handleUnbooking)}
+                      >
+                        Отменить бронь
+                      </button>
+                    ) : (
+                      <button
+                        className="flex-1 bg-primary hover:bg-green-600 text-white py-3 px-6 rounded-xl font-medium transition-colors"
+                        onClick={() => handleAuthRedirect(handleBooking)}
+                      >
+                        Забронировать
+                      </button>
+                    )}
+                    <button
+                      className="flex-1 border-2 border-primary text-primary bg-white hover:bg-gray-50 py-3 px-6 rounded-xl font-medium"
+                      onClick={() => handleAuthRedirect(() => console.log("Написать..."))}
+                    >
+                      Написать
+                    </button>
+                  </div>
+                )
               ) : (
                 <div className="text-sm text-gray-600">
                   Статус: <span className="font-medium">{ad.status || "активно"}</span>

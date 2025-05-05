@@ -1,5 +1,6 @@
 ﻿using Foodsharing.API.Constants;
 using Foodsharing.API.DTOs.Announcement;
+using Foodsharing.API.Extensions;
 using Foodsharing.API.Infrastructure;
 using Foodsharing.API.Interfaces;
 using Foodsharing.API.Models;
@@ -14,12 +15,14 @@ public class AnnouncementService : IAnnouncementService
     private readonly IAnnouncementRepository announcementRepository;
     private readonly IAddressService addressService;
     private readonly IImageService imageService;
+    private readonly IHttpContextAccessor httpContextAccessor;
 
-    public AnnouncementService(IAnnouncementRepository announcementRepository, IAddressService addressService, IImageService imageService)
+    public AnnouncementService(IAnnouncementRepository announcementRepository, IAddressService addressService, IImageService imageService, IHttpContextAccessor httpContextAccessor)
     {
         this.announcementRepository = announcementRepository;
         this.addressService = addressService;
         this.imageService = imageService;
+        this.httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<OperationResult> AddAsync(AnnouncemenstCreateUpdRequest request, CancellationToken cancellationToken = default)
@@ -44,7 +47,7 @@ public class AnnouncementService : IAnnouncementService
         return OperationResult.SuccessResult("Объявление добавлено успешно");
     }
 
-    public async Task<OperationResult> UpdateAsync(Guid userId,AnnouncemenstCreateUpdRequest request, CancellationToken cancellationToken = default)
+    public async Task<OperationResult> UpdateAsync(Guid userId, AnnouncemenstCreateUpdRequest request, CancellationToken cancellationToken = default)
     {
         if (request.UserId != userId) 
             return OperationResult.FailureResult("Автор и текущий пользователь не совпадаетг");
@@ -146,6 +149,10 @@ public class AnnouncementService : IAnnouncementService
     {
         var announcement = await announcementRepository.GetAnnouncementByIdAsync(announcementId, cancellationToken);
 
+        var currentUserId = httpContextAccessor.HttpContext?.User.GetUserId();
+        var activeBooking = announcement.Transactions
+            .FirstOrDefault(t => t.Status.Name == TransactionStatusesConsts.IsBooked);
+
         return announcement is null ? null : new AnnouncementDTO
         {
             AnnouncementId = announcement.Id,
@@ -177,7 +184,8 @@ public class AnnouncementService : IAnnouncementService
                 FirstName = announcement.User.Profile.FirstName,
                 LastName = announcement.User.Profile.LastName,
                 Image = announcement.User.Profile.Image
-            }
+            },
+            IsBookedByCurrentUser = activeBooking is not null && activeBooking?.RecipientId == currentUserId
         };
     }
 
