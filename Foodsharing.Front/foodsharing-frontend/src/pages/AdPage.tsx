@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { API, StaticAPI } from "../services/api";
 import { Announcement } from "../types/ads";
@@ -16,6 +16,7 @@ const AdPage = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const fetchAd = async () => {
@@ -46,6 +47,20 @@ const AdPage = () => {
       fetchCurrentUserId();
     }
   }, [isAuth]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+    if (showMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showMenu]);
 
   const isOwner = ad?.user.userId === currentUserId;
 
@@ -129,7 +144,7 @@ const AdPage = () => {
           </Link>
 
           {isOwner && (
-            <div className="relative">
+            <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setShowMenu(!showMenu)}
                 className="hover:bg-gray-100 rounded-full p-2"
