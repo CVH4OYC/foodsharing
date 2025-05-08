@@ -20,4 +20,8 @@ public interface IUserService
     /// <param name="cancellationToken">Токен отмены операции (по умолчанию None)</param>
     /// <returns>Результат операции типа <see cref="OperationResult"/></returns>
     Task<OperationResult> LoginAsync(string userName, string password, CancellationToken cancellationToken = default);
+
+    Task<UserWithProfileDTO> GetMyProfileAsync(CancellationToken cancellationToken);
+
+    Task<UserWithProfileDTO> GetOtherProfileAsync(Guid userId, CancellationToken cancellationToken);
 }

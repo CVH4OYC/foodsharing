@@ -91,9 +91,12 @@ const AdCard: FC<AdCardProps> = ({
                   </span>
                 </div>
               )}
-              <span className="text-sm text-gray-700 truncate">
+              <Link
+                to={`/profile/user/${user?.userId}`}
+                className="text-sm text-primary hover:underline truncate"
+              >
                 {user?.userName}
-              </span>
+              </Link>
             </div>
             <span className="text-sm text-gray-500">{date}</span>
           </div>

@@ -191,7 +191,7 @@ const AdFormPage = () => {
         {/* Изображение */}
         <div className="w-full md:w-1/2">
           <label className="block text-sm font-medium text-gray-700 mb-2">Фото</label>
-          <label className="block border-2 border-dashed rounded-xl cursor-pointer h-64 flex items-center justify-center overflow-hidden">
+          <label className="block border-2 border-dashed rounded-xl cursor-pointer h-64 flex items-center justify-center overflow-hidden hover:border-primary transition-colors duration-200">
             {preview ? (
               <img
                 src={preview}

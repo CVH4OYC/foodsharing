@@ -1,4 +1,5 @@
-﻿using Foodsharing.API.Data;
+﻿using Foodsharing.API.Constants;
+using Foodsharing.API.Data;
 using Foodsharing.API.Interfaces;
 using Foodsharing.API.Models;
 using Microsoft.EntityFrameworkCore;
@@ -14,9 +15,38 @@ public class AnnouncementRepository : Repository<Announcement>, IAnnouncementRep
         this.context = context;
     }
 
-    public async Task<List<Announcement>?> GetUsersAnnouncementsAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<List<Announcement>> GetUsersAnnouncementsAsync(Guid userId, string? statusFilter, CancellationToken cancellationToken)
     {
-        return await context.Set<Announcement>().Where(a => a.UserId == userId).ToListAsync(cancellationToken);
+        IQueryable<Announcement> query = context.Set<Announcement>()
+            .Include(a => a.User).ThenInclude(u => u.Profile)
+            .Include(a => a.Category)
+            .Include(a => a.Address)
+            .Include(a => a.Transactions).ThenInclude(t => t.Status)
+            .Where(a => a.UserId == userId);
+
+        if (!string.IsNullOrEmpty(statusFilter))
+        {
+            query = statusFilter switch
+            {
+                "active" => query.Where(a =>
+                    !a.Transactions.Any() ||
+                    a.Transactions.Any(t =>
+                        t.Status.Name == TransactionStatusesConsts.IsCanceled ||
+                        t.Status.Name == TransactionStatusesConsts.IsBooked)),
+
+                "booked" => query.Where(a =>
+                    a.Transactions.Any(t =>
+                    t.Status.Name == TransactionStatusesConsts.IsBooked)),
+
+                "completed" => query.Where(a =>
+                    a.Transactions.Any(t =>
+                        t.Status.Name == TransactionStatusesConsts.IsCompleted)),
+
+                _ => query
+            };
+        }
+
+        return await query.ToListAsync(cancellationToken);
     }
 
     public IQueryable<Announcement?> GetAllAnnouncements()

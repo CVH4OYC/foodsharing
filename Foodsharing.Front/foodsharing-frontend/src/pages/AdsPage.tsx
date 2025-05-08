@@ -17,7 +17,7 @@ const AdsPage = () => {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [mobileSortOpen, setMobileSortOpen] = useState(false);
   const loaderRef = useRef<HTMLDivElement | null>(null);
-  const [onlyBooked, setOnlyBooked] = useState<null | boolean>(null);
+  const [statusFilter, setStatusFilter] = useState<string | null>("all");
   const navigate = useNavigate();
 
   const fetchCategories = async () => {
@@ -47,7 +47,7 @@ const AdsPage = () => {
             categoryId: selectedCategory,
             sortBy,
             search,
-            isBooked: onlyBooked,
+            statusFilter: statusFilter ?? undefined,
           },
         });
         setAnnouncements((prev) => (reset ? res.data : [...prev, ...res.data]));
@@ -59,7 +59,7 @@ const AdsPage = () => {
         setLastUpdate(Date.now());
       }
     },
-    [page, selectedCategory, sortBy, search, onlyBooked]
+    [page, selectedCategory, sortBy, search, statusFilter]
   );
 
   useEffect(() => {
@@ -69,7 +69,7 @@ const AdsPage = () => {
       if (Date.now() - lastUpdate >= 60000) {
         fetchAnnouncements(true);
       }
-    }, 10000);
+    }, 100000);
     return () => clearInterval(interval);
   }, []);
 
@@ -91,13 +91,13 @@ const AdsPage = () => {
 
   useEffect(() => {
     fetchAnnouncements(true);
-  }, [selectedCategory, sortBy, search, onlyBooked]);
+  }, [selectedCategory, sortBy, search, statusFilter]);
 
   const resetFilters = () => {
     setSelectedCategory(null);
     setSortBy("dateCreation");
     setSearch("");
-    setOnlyBooked(null);
+    setStatusFilter("all");
   };
 
   return (
@@ -153,21 +153,21 @@ const AdsPage = () => {
         </ul>
 
         <div className="mt-6">
-          <h3 className="text-lg font-semibold mb-2">Забронированность</h3>
+          <h3 className="text-lg font-semibold mb-2">Статус</h3>
           <ul className="space-y-2 text-sm">
             {[
-              { label: "Все", value: null },
-              { label: "Только забронированные", value: true },
-              { label: "Только свободные", value: false },
+              { label: "Все", value: "all" },
+              { label: "Забронированные", value: "booked" },
+              { label: "Свободные", value: "free" },
             ].map(({ label, value }) => (
               <li key={label}>
                 <button
-                  onClick={() => setOnlyBooked(value)}
+                  onClick={() => setStatusFilter(value)}
                   className="w-full text-left flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-gray-50"
                 >
                   <span
                     className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${
-                      onlyBooked === value ? "bg-primary border-primary" : "border-gray-300"
+                      statusFilter === value ? "bg-primary border-primary" : "border-gray-300"
                     }`}
                   ></span>
                   {label}

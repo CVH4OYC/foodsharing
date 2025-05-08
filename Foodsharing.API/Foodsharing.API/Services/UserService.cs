@@ -1,9 +1,12 @@
 ﻿
 using Foodsharing.API.Constants;
 using Foodsharing.API.DTOs;
+using Foodsharing.API.DTOs.Announcement;
+using Foodsharing.API.Extensions;
 using Foodsharing.API.Infrastructure;
 using Foodsharing.API.Interfaces;
 using Foodsharing.API.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace Foodsharing.API.Services;
 
@@ -16,8 +19,17 @@ public class UserService : IUserService
     private readonly IUserRoleRepository userRoleRepository;
     private readonly IJwtProvider jwtProvider;
     private readonly IImageService imageService;
+    private readonly IProfileRepository profileRepository;
+    private readonly IHttpContextAccessor httpContextAccessor;
 
-    public UserService(IPasswordHasher passwordHasher, IUserRepository userRepository, IRoleRepository roleRepository, IUserRoleRepository userRoleRepository, IJwtProvider jwtProvider, IImageService imageService)
+    public UserService(IPasswordHasher passwordHasher,
+                       IUserRepository userRepository,
+                       IRoleRepository roleRepository,
+                       IUserRoleRepository userRoleRepository,
+                       IJwtProvider jwtProvider,
+                       IImageService imageService,
+                       IProfileRepository profileRepository,
+                       IHttpContextAccessor httpContextAccessor)
     {
         this.passwordHasher = passwordHasher;
         this.userRepository = userRepository;
@@ -25,7 +37,10 @@ public class UserService : IUserService
         this.userRoleRepository = userRoleRepository;
         this.jwtProvider = jwtProvider;
         this.imageService = imageService;
+        this.profileRepository = profileRepository;
+        this.httpContextAccessor = httpContextAccessor;
     }
+
     /// <summary>
     /// Метод регистрации нового пользователя
     /// </summary>
@@ -88,5 +103,30 @@ public class UserService : IUserService
 
         var token = await jwtProvider.GenerateTokenAsync(user);
         return OperationResult.SuccessResult("Вход выполнен успешно", token);
+    }
+
+    public async Task<UserWithProfileDTO> GetMyProfileAsync(CancellationToken cancellationToken)
+    {
+        var currentUserId = httpContextAccessor.HttpContext?.User.GetUserId();
+        return await GetUserProfileAsync((Guid)currentUserId, cancellationToken);
+    }
+
+    public async Task<UserWithProfileDTO> GetOtherProfileAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await GetUserProfileAsync((Guid)userId, cancellationToken);
+    }
+
+    private async Task<UserWithProfileDTO?> GetUserProfileAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var profile = await profileRepository.GetProfileWithUserName(userId, cancellationToken);
+        return profile is null ? null : new UserWithProfileDTO
+        {
+            UserId = profile.UserId,
+            UserName = profile.User.UserName,
+            Image = profile.Image,
+            Bio = profile.Bio,
+            FirstName = profile.FirstName,
+            LastName = profile.LastName,
+        };
     }
 }

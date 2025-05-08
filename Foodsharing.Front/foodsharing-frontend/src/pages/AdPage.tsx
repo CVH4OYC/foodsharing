@@ -257,25 +257,28 @@ const AdPage = () => {
 
             <div className="border-t pt-6">
               <p className="text-sm text-gray-500 mb-4">Автор объявления</p>
-              <div className="flex items-center gap-4 mb-6">
-                {ad.user.image ? (
-                  <img
-                    src={`${StaticAPI.defaults.baseURL}${ad.user.image}`}
-                    alt={ad.user.userName}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                    <span className="font-medium">{ad.user.userName?.[0]?.toUpperCase() || "U"}</span>
+              <Link
+                  to={`/profile/user/${ad.user.userId}`}
+                  className="flex items-center gap-4 mb-6 hover:bg-gray-50 p-2 rounded-lg transition"
+                >
+                  {ad.user.image ? (
+                    <img
+                      src={`${StaticAPI.defaults.baseURL}${ad.user.image}`}
+                      alt={ad.user.userName}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                      <span className="font-medium">{ad.user.userName?.[0]?.toUpperCase() || "U"}</span>
+                    </div>
+                  )}
+                  <div>
+                    <p className="font-medium">{ad.user.userName}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-yellow-500">★ 5,0</span>
+                    </div>
                   </div>
-                )}
-                <div>
-                  <p className="font-medium">{ad.user.userName}</p>
-                  <div className="flex items-center gap-2">
-                    <span className="text-yellow-500">★ 5,0</span>
-                  </div>
-                </div>
-              </div>
+                </Link>
 
               {!isOwner ? (
                 ad.status === "Забронировано" && !ad.isBookedByCurrentUser ? (

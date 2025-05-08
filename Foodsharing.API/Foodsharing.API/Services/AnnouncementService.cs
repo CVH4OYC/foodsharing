@@ -77,7 +77,7 @@ public class AnnouncementService : IAnnouncementService
     public async Task<IEnumerable<AnnouncementDTO>> GetAnnouncementsAsync(
         Guid? categoryId = null,
         string? search = null,
-        bool? isBooked = null,
+        string? statusFilter = null, // заменили isBooked на string
         string? sortBy = null,
         int page = 1,
         int limit = 10,
@@ -98,13 +98,43 @@ public class AnnouncementService : IAnnouncementService
             query = query.Where(a => a.Title.ToLower().Contains(lowered));
         }
 
-        // Фильтрация по забронированности
-        if (isBooked.HasValue)
+        if (!string.IsNullOrEmpty(statusFilter))
         {
-            query = query.Where(a =>
-                a.Transactions
-                    .OrderByDescending(t => t.TransactionDate)
-                    .FirstOrDefault().Status.Name == TransactionStatusesConsts.IsBooked == isBooked.Value);
+            switch (statusFilter)
+            {
+                case "booked":
+                    query = query.Where(a =>
+                        a.Transactions
+                            .OrderByDescending(t => t.TransactionDate)
+                            .Select(t => t.Status.Name)
+                            .FirstOrDefault() == TransactionStatusesConsts.IsBooked);
+                    break;
+
+                case "free":
+                    query = query.Where(a =>
+                        !a.Transactions.Any() ||
+                        a.Transactions
+                            .OrderByDescending(t => t.TransactionDate)
+                            .Select(t => t.Status.Name)
+                            .FirstOrDefault() == TransactionStatusesConsts.IsCanceled);
+                    break;
+
+                case "all":
+                    query = query.Where(a =>
+                    a.Transactions
+                        .OrderByDescending(t => t.TransactionDate)
+                        .Select(t => t.Status.Name)
+                        .FirstOrDefault() != TransactionStatusesConsts.IsCompleted);
+                    break;
+
+                default:
+                    query = query.Where(a =>
+                    a.Transactions
+                        .OrderByDescending(t => t.TransactionDate)
+                        .Select(t => t.Status.Name)
+                        .FirstOrDefault() != TransactionStatusesConsts.IsCompleted);
+                    break;
+            }
         }
 
         query = sortBy switch
@@ -154,6 +184,7 @@ public class AnnouncementService : IAnnouncementService
             }
         });
     }
+
 
     public async Task<AnnouncementDTO?> GetAnnouncementByIdAsync(Guid announcementId, CancellationToken cancellationToken = default)
     {
@@ -208,6 +239,68 @@ public class AnnouncementService : IAnnouncementService
 
         await announcementRepository.DeleteAsync(announcement);
         return OperationResult.SuccessResult("Объявление удалено");
+    }
+
+    /// <summary>
+    /// Получить свои объявления
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<AnnouncementDTO>> GetMyAnnouncmentsAsync(CancellationToken cancellationToken, string? statusFilter = null)
+    {
+        var currentUserId = httpContextAccessor.HttpContext?.User.GetUserId();
+
+        return await GetUsersAnnouncmentsAsync((Guid)currentUserId, cancellationToken, statusFilter);
+    }
+
+    /// <summary>
+    /// Получить чужие объявления
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<AnnouncementDTO>> GetOtherAnnouncmentsAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await GetUsersAnnouncmentsAsync(userId, cancellationToken, statusFilter: "active");
+    }
+
+    private async Task<IEnumerable<AnnouncementDTO>> GetUsersAnnouncmentsAsync(Guid userId, CancellationToken cancellationToken, string? statusFilter = null)
+    {
+        var announcements = await announcementRepository.GetUsersAnnouncementsAsync(userId, statusFilter, cancellationToken);
+
+        return announcements.Select(a => new AnnouncementDTO
+        {
+            AnnouncementId = a.Id,
+            Title = a.Title,
+            Description = a.Description,
+            ExpirationDate = a.ExpirationDate,
+            DateCreation = a.DateCreation,
+            Status = CalculateStatus(a.Transactions),
+            Image = a.Image,
+            Address = new AddressForAnnouncementDTO
+            {
+                AddressId = a.AddressId,
+                Region = a.Address.Region,
+                City = a.Address.City,
+                Street = a.Address.Street,
+                House = a.Address.House
+            },
+            Category = new CategoryForAnnouncement
+            {
+                CategoryId = a.CategoryId,
+                Name = a.Category.Name,
+                Color = a.Category.Color,
+                ParentId = a.Category.ParentId,
+            },
+            User = new UserForAnnouncementDTO
+            {
+                UserId = a.UserId,
+                UserName = a.User.UserName,
+                FirstName = a.User.Profile.FirstName,
+                LastName = a.User.Profile.LastName,
+                Image = a.User.Profile.Image
+            }
+        });
     }
 
     private static string CalculateStatus(IEnumerable<Transaction> transactions)

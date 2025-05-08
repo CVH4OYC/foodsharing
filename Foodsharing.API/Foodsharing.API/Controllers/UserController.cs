@@ -4,6 +4,8 @@ using Foodsharing.API.Constants;
 using Foodsharing.API.Services;
 using Foodsharing.API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Foodsharing.API.DTOs.Announcement;
+using System.Threading.Tasks;
 
 namespace Foodsharing.API.Controllers;
 [Route("api/[controller]")]
@@ -15,8 +17,6 @@ public class UserController : ControllerBase
     /// <summary>
     /// Конструктор контроллера пользователей
     /// </summary>
-    /// <param name="repository">Репозиторий пользователей</param>
-    /// <param name="logger">Логгер для записи информации</param>
     public UserController(IUserService userService)
     {
         _userService = userService;
@@ -95,4 +95,21 @@ public class UserController : ControllerBase
         return Ok(new { userId });
     }
 
+    [HttpGet("my")]
+    [Authorize]
+    public async Task<IActionResult> GetMyProfile(CancellationToken cancellationToken)
+    {
+        var profile = await _userService.GetMyProfileAsync(cancellationToken);
+
+        return Ok(profile);
+    }
+
+    [HttpGet("{userId}")]
+    [Authorize]
+    public async Task<IActionResult> GetUserProfile(Guid userId, CancellationToken cancellationToken)
+    {
+        var profile = await _userService.GetOtherProfileAsync(userId, cancellationToken);
+
+        return Ok(profile);
+    }
 }

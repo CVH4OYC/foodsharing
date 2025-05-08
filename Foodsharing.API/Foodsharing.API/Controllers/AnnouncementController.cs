@@ -28,11 +28,11 @@ public class AnnouncementController : ControllerBase
         [FromQuery] string? sortBy,
         [FromQuery] int page = 1,
         [FromQuery] int limit = 10,
-        [FromQuery] bool? isBooked = null,
+        [FromQuery] string? statusFilter = null,
         CancellationToken cancellationToken = default)
     {
         var result = await _announcementService.GetAnnouncementsAsync(
-            categoryId, search, isBooked, sortBy, page, limit, cancellationToken);
+            categoryId, search, statusFilter, sortBy, page, limit, cancellationToken);
 
         return Ok(result);
     }
@@ -105,5 +105,24 @@ public class AnnouncementController : ControllerBase
             return Ok(result.Message);
         }
         return BadRequest(result.Message);
+    }
+
+    [HttpGet("my")]
+    [Authorize]
+    public async Task<ActionResult<IEnumerable<AnnouncementDTO>>> GetMyAnnouncements(
+        [FromQuery] string? statusFilter,
+        CancellationToken cancellationToken)
+    {
+        var announcements = await _announcementService.GetMyAnnouncmentsAsync(cancellationToken, statusFilter);
+        return Ok(announcements);
+    }
+
+    [HttpGet("user/{userId}")]
+    [Authorize]
+    public async Task<ActionResult<IEnumerable<AnnouncementDTO>>> GetUsersAnnouncements(Guid userId, CancellationToken cancellationToken)
+    {
+        var announcements = await _announcementService.GetOtherAnnouncmentsAsync(userId, cancellationToken);
+
+        return Ok(announcements);
     }
 }
