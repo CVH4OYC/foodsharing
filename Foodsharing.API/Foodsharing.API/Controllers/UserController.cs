@@ -70,17 +70,17 @@ public class UserController : ControllerBase
             return BadRequest(result.Message);
     }
 
-private void AddCookie(OperationResult result)
-{
-    Response.Cookies.Append("token", result.Data, new CookieOptions
+    private void AddCookie(OperationResult result)
     {
-        HttpOnly = true,
-        Secure = false, // HTTPS или HTTP
-        SameSite = SameSiteMode.Lax,
-        Expires = DateTimeOffset.UtcNow.AddHours(1),
-        Path = "/"
-    });
-}
+        Response.Cookies.Append("token", result.Data, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = false, // HTTPS или HTTP
+            SameSite = SameSiteMode.Lax,
+            Expires = DateTimeOffset.UtcNow.AddHours(1),
+            Path = "/"
+        });
+    }
 
     [HttpPost("logout")]
     [Authorize]
@@ -118,7 +118,6 @@ private void AddCookie(OperationResult result)
     }
 
     [HttpGet("{userId}")]
-    [Authorize]
     public async Task<IActionResult> GetUserProfile(Guid userId, CancellationToken cancellationToken)
     {
         var profile = await _userService.GetOtherProfileAsync(userId, cancellationToken);

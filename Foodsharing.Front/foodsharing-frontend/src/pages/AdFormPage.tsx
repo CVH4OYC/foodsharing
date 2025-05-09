@@ -175,10 +175,10 @@ const AdFormPage = () => {
     try {
       if (isEditing) {
         await API.put(`/announcement`, formData);
-        navigate("/ads");
+        navigate("/profile/ads");
       } else {
         await API.post(`/announcement`, formData);
-        navigate("/ads");
+        navigate("/profile/ads");
       }
     } catch (err) {
       console.error("Ошибка при отправке объявления", err);
@@ -291,13 +291,24 @@ const AdFormPage = () => {
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-xl font-medium transition-colors"
-            disabled={!userId}
-          >
-            {isEditing ? "Сохранить изменения" : "Создать объявление"}
-          </button>
+          <div className="flex gap-4">
+            <button
+              type="submit"
+              className="w-1/2 bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-xl font-medium transition-colors"
+              disabled={!userId}
+            >
+              {isEditing ? "Сохранить" : "Создать"}
+            </button>
+
+            
+            <button
+              type="button"
+              onClick={() => navigate(isEditing ? "/profile/ads" : "/ads")}
+              className="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 px-6 rounded-xl font-medium transition-colors"
+            >
+              Отмена
+            </button>
+          </div>
         </form>
       </div>
     </div>
