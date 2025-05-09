@@ -4,36 +4,25 @@ import axios from "axios";
 // Для API-запросов
 const API = axios.create({
   baseURL: "https://localhost:7044/api",
-  withCredentials: true,
+  withCredentials: true, // включаем отправку cookies
 });
 
 // Для статических файлов
 const StaticAPI = axios.create({
-  baseURL: "https://localhost:7044", // Без /api в конце
+  baseURL: "https://localhost:7044",
   withCredentials: true,
 });
 
-// Общий интерцептор для авторизации
-const setAuthHeader = (config: any) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-};
-
+// Глобальный перехват ошибок, например, 401
 const handleUnauthorized = (error: any) => {
   if (error.response?.status === 401) {
-    localStorage.removeItem('token');
-    window.location.href = '/login'; // Принудительный редирект
+    console.warn("Unauthorized — handled elsewhere in context or routes.");
+    // Не редиректим, просто пробрасываем ошибку
   }
   return Promise.reject(error);
 };
 
 API.interceptors.response.use(undefined, handleUnauthorized);
 StaticAPI.interceptors.response.use(undefined, handleUnauthorized);
-
-API.interceptors.request.use(setAuthHeader);
-StaticAPI.interceptors.request.use(setAuthHeader);
 
 export { API, StaticAPI };

@@ -6,6 +6,7 @@ using Foodsharing.API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Foodsharing.API.DTOs.Announcement;
 using System.Threading.Tasks;
+using Foodsharing.API.Infrastructure;
 
 namespace Foodsharing.API.Controllers;
 [Route("api/[controller]")]
@@ -69,16 +70,28 @@ public class UserController : ControllerBase
             return BadRequest(result.Message);
     }
 
-    private void AddCookie(Infrastructure.OperationResult result)
+private void AddCookie(OperationResult result)
+{
+    Response.Cookies.Append("token", result.Data, new CookieOptions
     {
-        Response.Cookies.Append("token", result.Data);
-    }
+        HttpOnly = true,
+        Secure = false, // HTTPS или HTTP
+        SameSite = SameSiteMode.Lax,
+        Expires = DateTimeOffset.UtcNow.AddHours(1),
+        Path = "/"
+    });
+}
 
     [HttpPost("logout")]
     [Authorize]
     public IActionResult Logout()
     {
-        Response.Cookies.Delete("token");
+        Response.Cookies.Delete("token", new CookieOptions
+        {
+            Secure = false,
+            SameSite = SameSiteMode.Lax,
+            Path = "/"
+        });
         return Ok("Вы вышли из системы");
     }
 
