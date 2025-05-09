@@ -97,7 +97,7 @@ const AdPage = () => {
 
   const handleBooking = async () => {
     try {
-      await API.post("/announcement/book", null, {
+      await API.post("/booking/book", null, {
         params: { announcementId },
       });
       showTempMessage("Объявление забронировано", "success");
@@ -112,13 +112,28 @@ const AdPage = () => {
 
   const handleUnbooking = async () => {
     try {
-      await API.post("/announcement/unbook", null, {
+      await API.post("/booking/unbook", null, {
         params: { announcementId },
       });
       showTempMessage("Бронь отменена", "success");
       fetchAd();
     } catch (err: any) {
       const msg = err?.response?.data?.message || "Не удалось отменить бронь";
+      showTempMessage(msg, "error");
+    }
+  };
+
+  const handleCompleteTransaction = async () => {
+    try {
+      await API.post("/booking/complete", null, {
+        params: { announcementId },
+      });
+      showTempMessage("Обмен завершён", "success");
+      fetchAd(); // обновляем объявление
+    } catch (err: any) {
+      const msg = typeof err?.response?.data === "string"
+        ? err.response.data
+        : "Не удалось завершить обмен";
       showTempMessage(msg, "error");
     }
   };
@@ -311,9 +326,20 @@ const AdPage = () => {
                   </div>
                 )
               ) : (
-                <div className="text-sm text-gray-600">
-                  Статус: <span className="font-medium">{ad.status || "активно"}</span>
-                </div>
+                    <div className="space-y-3">
+                      <div className="text-sm text-gray-600">
+                        Статус: <span className="font-medium">{ad.status || "активно"}</span>
+                      </div>
+
+                      {ad.status === "Забронировано" && (
+                        <button
+                          className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 px-6 rounded-xl font-medium transition-colors"
+                          onClick={handleCompleteTransaction}
+                        >
+                          Завершить обмен
+                        </button>
+                      )}
+                    </div>
               )}
             </div>
           </div>

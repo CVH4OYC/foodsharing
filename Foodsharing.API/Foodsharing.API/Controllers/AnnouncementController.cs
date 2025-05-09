@@ -13,12 +13,10 @@ namespace Foodsharing.API.Controllers;
 public class AnnouncementController : ControllerBase
 {
     private readonly IAnnouncementService _announcementService;
-    private readonly IBookingService _bookingService;
 
-    public AnnouncementController(IAnnouncementService announcementService, IBookingService bookingService)
+    public AnnouncementController(IAnnouncementService announcementService)
     {
         _announcementService = announcementService;
-        _bookingService = bookingService;
     }
 
     [HttpGet]
@@ -79,32 +77,6 @@ public class AnnouncementController : ControllerBase
         }
         return BadRequest(result.Message);
 
-    }
-
-    [HttpPost("book")]
-    [Authorize]
-    public async Task<IActionResult> BookAnnouncementAsync(Guid announcementId, CancellationToken cancellationToken)
-    {
-        var userId = new Guid(User.Claims.First(c => c.Type == "userId").Value);
-
-        var result = await _bookingService.BookAnnouncementAsync(announcementId, cancellationToken);
-        if (result.Success)
-        {
-            return Ok(result.Message);
-        }
-        return BadRequest(result.Message);
-    }
-
-    [HttpPost("unbook")]
-    [Authorize]
-    public async Task<IActionResult> UnbookAnnouncementAsync(Guid announcementId, CancellationToken cancellationToken)
-    {
-        var result = await _bookingService.UnbookAnnouncementAsync(announcementId, cancellationToken);
-        if (result.Success)
-        {
-            return Ok(result.Message);
-        }
-        return BadRequest(result.Message);
     }
 
     [HttpGet("my")]

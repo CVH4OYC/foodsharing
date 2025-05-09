@@ -8,4 +8,6 @@ public interface IBookingService
     Task<OperationResult> BookAnnouncementAsync(Guid announcementId, CancellationToken cancellationToken);
 
     Task<OperationResult> UnbookAnnouncementAsync(Guid announcementId, CancellationToken cancellationToken);
+
+    Task<OperationResult>  CompleteTransactionAsync(Guid announcementId, CancellationToken cancellationToken);
 }

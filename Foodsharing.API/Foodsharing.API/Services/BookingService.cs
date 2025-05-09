@@ -120,4 +120,34 @@ public class BookingService : IBookingService
         return OperationResult.SuccessResult("Бронь снята");
     }
 
+    public async Task<OperationResult> CompleteTransactionAsync(Guid announcementId, CancellationToken cancellationToken)
+    {
+        var sendertId = httpContextAccessor.HttpContext?.User.GetUserId();
+        if (sendertId == null)
+            return OperationResult.FailureResult("Пользователь не авторизован");
+
+        var announcement = await announcementRepository.GetAnnouncementByIdAsync(announcementId, cancellationToken);
+        if (announcement == null)
+            return OperationResult.FailureResult("Объявление не найдено");
+
+        var status = await statusesRepository.GetTransactionStatusByName(TransactionStatusesConsts.IsCompleted, cancellationToken);
+        if (status == null)
+            return OperationResult.FailureResult("Статус завершения не найден");
+
+        var transaction = await transactionRepository.GetBookedTransactionByAnnouncementIdAsync(announcementId, cancellationToken);
+        if (transaction == null)
+            return OperationResult.FailureResult("Бронирование не найдено");
+
+        // Проверяем, что именно этот пользователь делал бронь
+        if (transaction.SenderId != sendertId)
+            return OperationResult.FailureResult("Вы не можете завершить обмен, инициатором которого не являетесь");
+
+        transaction.StatusId = status.Id;
+        transaction.TransactionDate = DateTime.UtcNow;
+
+        await transactionRepository.UpdateAsync(transaction, cancellationToken);
+
+        return OperationResult.SuccessResult("Обмен завершён, объявление закрыто");
+    }
+
 }
