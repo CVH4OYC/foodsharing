@@ -32,6 +32,9 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IStatusesRepository, StatusesRepository>();
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>();
+builder.Services.AddScoped<IPartnershipRepository, PartnershipRepository>();
+
 
 builder.Services.AddScoped<IUserService,UserService>();
 
@@ -43,7 +46,7 @@ builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
-
+builder.Services.AddScoped<IPartnershipService, PartnershipService>();
 
 builder.Services.AddHttpContextAccessor();
 

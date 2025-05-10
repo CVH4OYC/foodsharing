@@ -24,7 +24,7 @@ public class AnnouncemenstCreateUpdRequest : EntityBase
     public string? Description { get; set; }
 
     [Required]
-    public AddressForAnnouncementDTO Address { get; set; }
+    public AddressDTO Address { get; set; }
 
     /// <summary>
     /// Срок годности продукта из объявления

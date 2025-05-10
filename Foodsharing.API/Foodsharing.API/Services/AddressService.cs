@@ -1,4 +1,4 @@
-﻿using Foodsharing.API.DTOs.Announcement;
+﻿using Foodsharing.API.DTOs;
 using Foodsharing.API.Interfaces;
 using Foodsharing.API.Models;
 using Foodsharing.API.Repository;
@@ -15,7 +15,7 @@ public class AddressService : IAddressService
         _addressRepository = addressRepository;
     }
 
-    public async Task<Guid> ProcessAddressAsync(AddressForAnnouncementDTO addressDto, CancellationToken cancellationToken = default)
+    public async Task<Guid> ProcessAddressAsync(AddressDTO addressDto, CancellationToken cancellationToken = default)
     {
         // Если передан существующий GUID
         if (addressDto.AddressId.HasValue)
@@ -32,7 +32,7 @@ public class AddressService : IAddressService
         return existingAddress?.Id ?? (await CreateNewAddress(addressDto)).Id;
     }
 
-    private async Task<Address> CreateNewAddress(AddressForAnnouncementDTO dto)
+    private async Task<Address> CreateNewAddress(AddressDTO dto)
     {
         var newAddress = new Address
         {

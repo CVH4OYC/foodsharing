@@ -1,8 +1,8 @@
-﻿using Foodsharing.API.DTOs.Announcement;
+﻿using Foodsharing.API.DTOs;
 
 namespace Foodsharing.API.Interfaces;
 
 public interface IAddressService
 {
-    Task<Guid> ProcessAddressAsync(AddressForAnnouncementDTO addressDto, CancellationToken cancellationToken = default);
+    Task<Guid> ProcessAddressAsync(AddressDTO addressDto, CancellationToken cancellationToken = default);
 }

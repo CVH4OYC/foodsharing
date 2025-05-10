@@ -19,7 +19,7 @@ public class AnnouncementDTO
     [StringLength(500, ErrorMessage = "Длина описания превышает 500 символов!")]
     public string? Description { get; set; }
 
-    public AddressForAnnouncementDTO Address { get; set; } = null!;
+    public AddressDTO Address { get; set; } = null!;
 
     /// <summary>
     /// Дата создания объявления

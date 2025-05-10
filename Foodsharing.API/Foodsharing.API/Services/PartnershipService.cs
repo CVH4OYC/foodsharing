@@ -1,0 +1,78 @@
+﻿using Foodsharing.API.Constants;
+using Foodsharing.API.DTOs;
+using Foodsharing.API.Infrastructure;
+using Foodsharing.API.Interfaces;
+using Foodsharing.API.Models;
+
+namespace Foodsharing.API.Services;
+
+public class PartnershipService : IPartnershipService
+{
+    private readonly IAddressService _addressService;
+    private readonly IPartnershipRepository _partnershipRepository;
+    private readonly IUserService _userService;
+    private readonly IOrganizationRepository _organizationRepository;
+    private readonly IStatusesRepository _statusesRepository;
+
+    public PartnershipService(IAddressService addressService,
+                              IPartnershipRepository partnershipRepository,
+                              IUserService userService,
+                              IOrganizationRepository organizationRepository,
+                              IStatusesRepository statusesRepository)
+    {
+        _addressService = addressService;
+        _partnershipRepository = partnershipRepository;
+        _userService = userService;
+        _organizationRepository = organizationRepository;
+        _statusesRepository = statusesRepository;
+    }
+
+    public async Task<OperationResult> ProccessPartnershipApplicationAsync(CreatePartnershipApplicationDTO dto, CancellationToken cancellationToken)
+    {
+        Organization newOrganization = await CreateOrganizationAsync(dto, cancellationToken);
+
+        await _organizationRepository.AddAsync(newOrganization, cancellationToken);
+
+        PartnershipApplication newPartnershipApplication = await CreateParthershipApplication(dto, newOrganization, cancellationToken);
+
+        await _partnershipRepository.AddAsync(newPartnershipApplication, cancellationToken);
+
+        return OperationResult.SuccessResult("Заявка успешно отправлена");
+    }
+
+    private async Task<PartnershipApplication> CreateParthershipApplication(CreatePartnershipApplicationDTO dto, Organization newOrganization, CancellationToken cancellationToken)
+    {
+        var pendingStatus = await _statusesRepository.GetPartnershipApplicationStatusByName(PartnershipApplicationStatusesConsts.IsPending, cancellationToken);
+
+        var newPartnershipApplication = new PartnershipApplication
+        {
+            OrganizationId = newOrganization.Id,
+            Phone = dto.Phone,
+            Email = dto.Email,
+            SubmittedAt = DateTime.UtcNow,
+            StatusId = pendingStatus.Id
+        };
+        return newPartnershipApplication;
+    }
+
+    private async Task<Organization> CreateOrganizationAsync(CreatePartnershipApplicationDTO dto, CancellationToken cancellationToken)
+    {
+        var addressId = await _addressService.ProcessAddressAsync(dto.Organization.Address);
+        var orgForm = await _organizationRepository.GetOrgFormByNameAsync(dto.Organization.OrganizationForm, cancellationToken);
+        var notActiveStatus = await _statusesRepository.GetOrganizationStatusByName(OrganizationStatusesConsts.IsNotActive, cancellationToken);
+
+        var newOrganization = new Organization
+        {
+            Name = dto.Organization.Name,
+            AddressId = addressId,
+            Phone = dto.Organization.Phone,
+            Email = dto.Organization.Email,
+            Website = dto.Organization.Website,
+            Description = dto.Organization.Description,
+            OrganizationFormId = orgForm.Id,
+            OrganizationStatusId = notActiveStatus.Id
+        };
+
+        return newOrganization;
+    }
+}

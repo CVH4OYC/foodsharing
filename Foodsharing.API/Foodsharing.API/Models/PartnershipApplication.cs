@@ -67,7 +67,7 @@ public class PartnershipApplication : EntityBase
     public DateTime? ReviewedAt { get; set; }
 
     /// <summary>
-    /// Описание организации
+    /// Комментарий проверяющего
     /// </summary>
     public string? Comment { get; set; }
 }

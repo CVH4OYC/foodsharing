@@ -1,4 +1,5 @@
 ﻿using Foodsharing.API.Constants;
+using Foodsharing.API.DTOs;
 using Foodsharing.API.DTOs.Announcement;
 using Foodsharing.API.Extensions;
 using Foodsharing.API.Infrastructure;
@@ -159,7 +160,7 @@ public class AnnouncementService : IAnnouncementService
             DateCreation = a.DateCreation,
             Status = CalculateStatus(a.Transactions),
             Image = a.Image,
-            Address = new AddressForAnnouncementDTO
+            Address = new AddressDTO
             {
                 AddressId = a.AddressId,
                 Region = a.Address.Region,
@@ -203,7 +204,7 @@ public class AnnouncementService : IAnnouncementService
             DateCreation = announcement.DateCreation,
             Status = CalculateStatus(announcement.Transactions),
             Image = announcement.Image,
-            Address = new AddressForAnnouncementDTO
+            Address = new AddressDTO
             {
                 AddressId = announcement.AddressId,
                 Region = announcement.Address.Region,
@@ -277,7 +278,7 @@ public class AnnouncementService : IAnnouncementService
             DateCreation = a.DateCreation,
             Status = CalculateStatus(a.Transactions),
             Image = a.Image,
-            Address = new AddressForAnnouncementDTO
+            Address = new AddressDTO
             {
                 AddressId = a.AddressId,
                 Region = a.Address.Region,
