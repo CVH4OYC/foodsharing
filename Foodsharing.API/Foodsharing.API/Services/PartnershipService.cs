@@ -79,4 +79,22 @@ public class PartnershipService : IPartnershipService
 
         return newOrganization;
     }
+
+    public async Task<List<PartnershipApplicationDTO>> GetPartnershipApplicationsAsync(string? search, string? sortBy, int page, int limit, string? statusFilter, CancellationToken cancellationToken)
+    {
+        var applications = await _partnershipRepository.GetPartnershipApplicationsAsync(search, sortBy, page, limit, statusFilter, cancellationToken);
+
+        return applications.Select(p => new PartnershipApplicationDTO
+        {
+            OrganizationId = p.OrganizationId,
+            Organization = new OrganizationDTO
+            {
+                Id = p.OrganizationId,
+                Name = p.Organization.Name,
+                LogoImage = p.Organization.LogoImage
+            },
+            SubmittedAt = p.SubmittedAt,
+            Status = p.Status.Name,
+        }).ToList();
+    }
 }

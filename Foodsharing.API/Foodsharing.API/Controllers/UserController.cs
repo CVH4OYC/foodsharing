@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Foodsharing.API.DTOs.Announcement;
 using System.Threading.Tasks;
 using Foodsharing.API.Infrastructure;
+using System.Security.Claims;
 
 namespace Foodsharing.API.Controllers;
 [Route("api/[controller]")]
@@ -105,7 +106,13 @@ public class UserController : ControllerBase
             return Unauthorized("Не удалось получить userId из токена.");
         }
 
-        return Ok(new { userId });
+        var roles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+
+        return Ok(new
+        {
+            userId,
+            roles
+        });
     }
 
     [HttpGet("my")]
