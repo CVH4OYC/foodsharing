@@ -11,21 +11,21 @@ public class PartnershipService : IPartnershipService
     private readonly IAddressService _addressService;
     private readonly IPartnershipRepository _partnershipRepository;
     private readonly IUserService _userService;
-    private readonly IOrganizationRepository _organizationRepository;
+    private readonly IOrganizationService _organizationService;
     private readonly IStatusesRepository _statusesRepository;
     private readonly IImageService _imageService;
 
     public PartnershipService(IAddressService addressService,
                               IPartnershipRepository partnershipRepository,
                               IUserService userService,
-                              IOrganizationRepository organizationRepository,
+                              IOrganizationService organizationRepository,
                               IStatusesRepository statusesRepository,
                               IImageService imageService)
     {
         _addressService = addressService;
         _partnershipRepository = partnershipRepository;
         _userService = userService;
-        _organizationRepository = organizationRepository;
+        _organizationService = organizationRepository;
         _statusesRepository = statusesRepository;
         _imageService = imageService;
     }
@@ -34,7 +34,7 @@ public class PartnershipService : IPartnershipService
     {
         Organization newOrganization = await CreateOrganizationAsync(dto, cancellationToken);
 
-        await _organizationRepository.AddAsync(newOrganization, cancellationToken);
+        await _organizationService.AddAsync(newOrganization, cancellationToken);
 
         PartnershipApplication newPartnershipApplication = await CreateParthershipApplication(dto, newOrganization, cancellationToken);
 
@@ -61,7 +61,6 @@ public class PartnershipService : IPartnershipService
     private async Task<Organization> CreateOrganizationAsync(CreatePartnershipApplicationDTO dto, CancellationToken cancellationToken)
     {
         var addressId = await _addressService.ProcessAddressAsync(dto.Organization.Address);
-        var orgForm = await _organizationRepository.GetOrgFormByNameAsync(dto.Organization.OrganizationForm, cancellationToken);
         var notActiveStatus = await _statusesRepository.GetOrganizationStatusByName(OrganizationStatusesConsts.IsNotActive, cancellationToken);
         var imagePath = await _imageService.SaveImageAsync(dto.Organization.ImageFile, PathsConsts.AnnouncementsFolder);
 
@@ -73,7 +72,7 @@ public class PartnershipService : IPartnershipService
             Email = dto.Organization.Email,
             Website = dto.Organization.Website,
             Description = dto.Organization.Description,
-            OrganizationFormId = orgForm.Id,
+            OrganizationFormId = dto.Organization.OrganizationFormId,
             OrganizationStatusId = notActiveStatus.Id,
             LogoImage = imagePath
         };

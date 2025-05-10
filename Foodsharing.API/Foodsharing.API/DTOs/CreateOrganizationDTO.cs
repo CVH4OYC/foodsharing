@@ -45,7 +45,7 @@ public class CreateOrganizationDTO
     /// Id формы хозяйственного управления организации (типа АО, ООО, ИП и т.д.)
     /// </summary>
     [Required]
-    public string OrganizationForm { get; set; }
+    public Guid OrganizationFormId { get; set; }
 
     /// <summary>
     /// Картинка

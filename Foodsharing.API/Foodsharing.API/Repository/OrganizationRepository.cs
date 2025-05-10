@@ -22,4 +22,9 @@ public class OrganizationRepository : Repository<Organization>,  IOrganizationRe
 
         return form;
     }
+
+    public async Task<List<OrganizationForm>> GetOrgFromsAsync(CancellationToken cancellationToken)
+    {
+        return await context.Set<OrganizationForm>().ToListAsync(cancellationToken);
+    }
 }

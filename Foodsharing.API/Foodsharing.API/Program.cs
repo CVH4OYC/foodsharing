@@ -37,8 +37,6 @@ builder.Services.AddScoped<IPartnershipRepository, PartnershipRepository>();
 
 
 builder.Services.AddScoped<IUserService,UserService>();
-
-
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IAddressService, AddressService>();
@@ -47,6 +45,7 @@ builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IPartnershipService, PartnershipService>();
+builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 
 builder.Services.AddHttpContextAccessor();
 
