@@ -25,7 +25,7 @@ public class ParthnershipController : ControllerBase
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost("createApplication")]
-    public async Task<ActionResult> CreatePartnershipApplicationAsync(CreatePartnershipApplicationDTO dto, CancellationToken cancellationToken)
+    public async Task<ActionResult> CreatePartnershipApplicationAsync([FromForm]CreatePartnershipApplicationDTO dto, CancellationToken cancellationToken)
     {
         var result = await _partnershipService.ProccessPartnershipApplicationAsync(dto, cancellationToken);
 

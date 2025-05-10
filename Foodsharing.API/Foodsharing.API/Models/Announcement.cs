@@ -49,10 +49,6 @@ public class Announcement : EntityBase
     /// </summary>
     [Required]
     public string Image { get; set; }
-    
-    //public Guid StatusId { get; set; }
-
-    //public AnnouncementStatus Status { get; set; }
 
     /// <summary>
     /// Внешний ключ, указывающий на категорию продукта питания, указанного в объявлении

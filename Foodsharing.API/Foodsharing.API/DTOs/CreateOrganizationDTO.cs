@@ -1,4 +1,5 @@
-﻿using Foodsharing.API.Models;
+﻿using Foodsharing.API.Extensions.Attributes;
+using Foodsharing.API.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace Foodsharing.API.DTOs;
@@ -12,9 +13,6 @@ public class CreateOrganizationDTO
     [Required]
     public string Name { get; set; }
 
-    /// <summary>
-    /// Внешний ключ, указывающий на адрес организации
-    /// </summary>
     [Required]
     public AddressDTO Address { get; set; }
 
@@ -48,4 +46,10 @@ public class CreateOrganizationDTO
     /// </summary>
     [Required]
     public string OrganizationForm { get; set; }
+
+    /// <summary>
+    /// Картинка
+    /// </summary>
+    [AllowedExtensions(new[] { ".jpg", ".jpeg", ".png" }, ErrorMessage = "Допустимые форматы: JPG, JPEG, PNG")]
+    public IFormFile? ImageFile { get; set; }
 }

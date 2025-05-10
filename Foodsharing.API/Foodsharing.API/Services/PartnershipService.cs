@@ -13,18 +13,21 @@ public class PartnershipService : IPartnershipService
     private readonly IUserService _userService;
     private readonly IOrganizationRepository _organizationRepository;
     private readonly IStatusesRepository _statusesRepository;
+    private readonly IImageService _imageService;
 
     public PartnershipService(IAddressService addressService,
                               IPartnershipRepository partnershipRepository,
                               IUserService userService,
                               IOrganizationRepository organizationRepository,
-                              IStatusesRepository statusesRepository)
+                              IStatusesRepository statusesRepository,
+                              IImageService imageService)
     {
         _addressService = addressService;
         _partnershipRepository = partnershipRepository;
         _userService = userService;
         _organizationRepository = organizationRepository;
         _statusesRepository = statusesRepository;
+        _imageService = imageService;
     }
 
     public async Task<OperationResult> ProccessPartnershipApplicationAsync(CreatePartnershipApplicationDTO dto, CancellationToken cancellationToken)
@@ -60,6 +63,7 @@ public class PartnershipService : IPartnershipService
         var addressId = await _addressService.ProcessAddressAsync(dto.Organization.Address);
         var orgForm = await _organizationRepository.GetOrgFormByNameAsync(dto.Organization.OrganizationForm, cancellationToken);
         var notActiveStatus = await _statusesRepository.GetOrganizationStatusByName(OrganizationStatusesConsts.IsNotActive, cancellationToken);
+        var imagePath = await _imageService.SaveImageAsync(dto.Organization.ImageFile, PathsConsts.AnnouncementsFolder);
 
         var newOrganization = new Organization
         {
@@ -70,7 +74,8 @@ public class PartnershipService : IPartnershipService
             Website = dto.Organization.Website,
             Description = dto.Organization.Description,
             OrganizationFormId = orgForm.Id,
-            OrganizationStatusId = notActiveStatus.Id
+            OrganizationStatusId = notActiveStatus.Id,
+            LogoImage = imagePath
         };
 
         return newOrganization;

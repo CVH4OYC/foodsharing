@@ -77,4 +77,10 @@ public class Organization : EntityBase
     /// Навигационное свойство для связи с таблицей RepresentativeOrganization
     /// </summary>
     public List<RepresentativeOrganization>? Representatives { get; set; }
+
+    /// <summary>
+    /// Путь к лого компании
+    /// </summary>
+    [Required]
+    public string LogoImage { get; set; }
 }
