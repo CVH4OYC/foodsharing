@@ -11,6 +11,7 @@ import AdPage from "./pages/AdPage";
 import AdFormPage from "./pages/AdFormPage";
 import UserProfilePage from "./pages/UserProfilePage";
 import { AuthProvider } from "./context/AuthContext";
+import BusinessPage from "./pages/BusinessPage";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
             <Route path="ads/new" element={<AdFormPage />} />
             <Route path="ads/edit/:announcementId" element={<AdFormPage />} />
             <Route path="ads/:announcementId" element={<AdPage />} />
+            <Route path="/business" element={<BusinessPage />} />
 
             {/* Профиль пользователя (личный и чужие профили) */}
             <Route path="profile" element={<Profile />}>
