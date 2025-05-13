@@ -1,6 +1,7 @@
 ﻿using Foodsharing.API.Constants;
 using Foodsharing.API.DTOs;
 using Foodsharing.API.DTOs.Announcement;
+using Foodsharing.API.DTOs.Parthner;
 using Foodsharing.API.Interfaces;
 using Foodsharing.API.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -54,5 +55,38 @@ public class ParthnershipController : ControllerBase
     {
         var application = await _partnershipService.GetPartnershipApplicationByIdAsync(applicationId, cancellationToken);
         return Ok(application);
+    }
+
+    [HttpPut("application/accept")]
+    [Authorize(Roles = RolesConsts.Admin)]
+    public async Task<IActionResult> AcceptApplicationAsync(AcceptApplicationRequest request, CancellationToken cancellationToken = default)
+    {
+        var res = await _partnershipService.AcceptApplicationAsync(request, cancellationToken);
+        if (res.Success)
+            return Ok(res.Message);
+        else
+            return BadRequest(res.Message);
+    }
+
+    [HttpPut("application/reject")]
+    [Authorize(Roles = RolesConsts.Admin)]
+    public async Task<ActionResult> RejectApplicationAsync(AcceptApplicationRequest request, CancellationToken cancellationToken = default)
+    {
+        var res = await _partnershipService.RejectApplicationAsync(request, cancellationToken);
+        if (res.Success)
+            return Ok(res.Message);
+        else
+            return BadRequest(res.Message);
+    }
+
+    [HttpPost("createRepresentative")]
+    [Authorize(Roles = RolesConsts.Admin)]
+    public async Task<ActionResult<LoginDTO>> CreateRepresentativeOrganizationAsync(Guid orgId, CancellationToken cancellationToken)
+    {
+        var res = await _partnershipService.CreateRepresentativeOrganizationAsync(orgId, cancellationToken);
+        if (res is null)
+            return BadRequest("Не удалось создать представителя организации");
+
+        return Ok(res);
     }
 }

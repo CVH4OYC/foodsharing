@@ -23,7 +23,9 @@ public class Repository<T> : IRepository<T> where T : class
 
     public async Task<T> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await context.FindAsync<T>(id, cancellationToken);
+        return await context.Set<T>()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id, cancellationToken);
     }
 
     public async Task AddAsync(T entity, CancellationToken cancellationToken = default)

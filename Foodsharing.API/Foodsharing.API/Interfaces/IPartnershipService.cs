@@ -1,4 +1,5 @@
 ﻿using Foodsharing.API.DTOs;
+using Foodsharing.API.DTOs.Parthner;
 using Foodsharing.API.Infrastructure;
 using Foodsharing.API.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -23,4 +24,10 @@ public interface IPartnershipService
         CancellationToken cancellationToken);
 
     Task<PartnershipApplicationDTO?> GetPartnershipApplicationByIdAsync(Guid applicationId, CancellationToken cancellationToken);
+
+    Task<OperationResult> AcceptApplicationAsync(AcceptApplicationRequest request, CancellationToken cancellationToken);
+
+    Task<OperationResult> RejectApplicationAsync(AcceptApplicationRequest request, CancellationToken cancellationToken);
+
+    Task<LoginDTO> CreateRepresentativeOrganizationAsync(Guid orgId, CancellationToken cancellationToken);
 }

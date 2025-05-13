@@ -1,39 +1,45 @@
 ﻿using Foodsharing.API.Constants;
+using Foodsharing.API.Controllers;
 using Foodsharing.API.DTOs;
 using Foodsharing.API.DTOs.Announcement;
+using Foodsharing.API.DTOs.Parthner;
+using Foodsharing.API.Extensions;
 using Foodsharing.API.Infrastructure;
 using Foodsharing.API.Interfaces;
 using Foodsharing.API.Models;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Foodsharing.API.Services;
 
 public class PartnershipService : IPartnershipService
 {
-    private readonly IAddressService _addressService;
     private readonly IPartnershipRepository _partnershipRepository;
     private readonly IUserService _userService;
     private readonly IOrganizationService _organizationService;
     private readonly IStatusesRepository _statusesRepository;
-    private readonly IImageService _imageService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IStringGenerator _stringGenerator;
 
     public PartnershipService(IAddressService addressService,
                               IPartnershipRepository partnershipRepository,
                               IUserService userService,
                               IOrganizationService organizationRepository,
                               IStatusesRepository statusesRepository,
-                              IImageService imageService)
+                              IImageService imageService,
+                              IHttpContextAccessor httpContextAccessor,
+                              IStringGenerator stringGenerator)
     {
-        _addressService = addressService;
         _partnershipRepository = partnershipRepository;
         _userService = userService;
         _organizationService = organizationRepository;
         _statusesRepository = statusesRepository;
-        _imageService = imageService;
+        _httpContextAccessor = httpContextAccessor;
+        _stringGenerator = stringGenerator;
     }
 
     public async Task<OperationResult> ProccessPartnershipApplicationAsync(CreatePartnershipApplicationDTO dto, CancellationToken cancellationToken)
     {
-        Organization newOrganization = await CreateOrganizationAsync(dto, cancellationToken);
+        Organization newOrganization = await _organizationService.CreateOrganizationAsync(dto, cancellationToken);
 
         await _organizationService.AddAsync(newOrganization, cancellationToken);
 
@@ -59,27 +65,7 @@ public class PartnershipService : IPartnershipService
         return newPartnershipApplication;
     }
 
-    private async Task<Organization> CreateOrganizationAsync(CreatePartnershipApplicationDTO dto, CancellationToken cancellationToken)
-    {
-        var addressId = await _addressService.ProcessAddressAsync(dto.Organization.Address);
-        var notActiveStatus = await _statusesRepository.GetOrganizationStatusByName(OrganizationStatusesConsts.IsNotActive, cancellationToken);
-        var imagePath = await _imageService.SaveImageAsync(dto.Organization.ImageFile, PathsConsts.AnnouncementsFolder);
 
-        var newOrganization = new Organization
-        {
-            Name = dto.Organization.Name,
-            AddressId = addressId,
-            Phone = dto.Organization.Phone,
-            Email = dto.Organization.Email,
-            Website = dto.Organization.Website,
-            Description = dto.Organization.Description,
-            OrganizationFormId = dto.Organization.OrganizationFormId,
-            OrganizationStatusId = notActiveStatus.Id,
-            LogoImage = imagePath
-        };
-
-        return newOrganization;
-    }
 
     public async Task<List<PartnershipApplicationDTO>> GetPartnershipApplicationsAsync(string? search, string? sortBy, int page, int limit, string? statusFilter, CancellationToken cancellationToken)
     {
@@ -144,5 +130,81 @@ public class PartnershipService : IPartnershipService
 
             Comment = application.Comment
         };
+    }
+
+    public async Task<OperationResult> AcceptApplicationAsync(AcceptApplicationRequest request, CancellationToken cancellationToken)
+    {
+        var app = await _partnershipRepository.GetByIdAsync(request.applicationId, cancellationToken);
+
+        if (await IsApplicationReview(app, cancellationToken))
+            return new OperationResult { Success = false, Message = "Заявка уже рассмотрена" };
+
+        var currentAdminId = _httpContextAccessor.HttpContext?.User.GetUserId();
+
+        var isReviewedStatus = await _statusesRepository.GetPartnershipApplicationStatusByName(PartnershipApplicationStatusesConsts.IsReviewed, cancellationToken);
+
+        app.Comment = request.Comment;
+        app.ReviewedById = currentAdminId;
+        app.ReviewedAt = DateTime.UtcNow;
+        app.StatusId = isReviewedStatus.Id;
+
+        await _partnershipRepository.UpdateAsync(app, cancellationToken);
+
+        await _organizationService.ActivateOrganizationAsync(app.OrganizationId, cancellationToken);
+
+        return new OperationResult { Success = true, Message = "Заявка успешно принята" };
+    }
+
+    private async Task<bool> IsApplicationReview(PartnershipApplication app, CancellationToken cancellationToken)
+    {
+        var reviewedStatus = await _statusesRepository.GetPartnershipApplicationStatusByName(PartnershipApplicationStatusesConsts.IsReviewed, cancellationToken);
+        return app.StatusId == reviewedStatus.Id;
+    }
+
+    public async Task<OperationResult> RejectApplicationAsync(AcceptApplicationRequest request, CancellationToken cancellationToken)
+    {
+        var app = await _partnershipRepository.GetByIdAsync(request.applicationId, cancellationToken);
+
+        if (await IsApplicationReview(app, cancellationToken))
+            return new OperationResult { Success = false, Message = "Заявка уже рассмотрена" };
+
+        var currentAdminId = _httpContextAccessor.HttpContext?.User.GetUserId();
+
+        var isReviewedStatus = await _statusesRepository.GetPartnershipApplicationStatusByName(PartnershipApplicationStatusesConsts.IsReviewed, cancellationToken);
+
+        app.Comment = request.Comment;
+        app.ReviewedById = currentAdminId;
+        app.ReviewedAt = DateTime.UtcNow;
+        app.StatusId = isReviewedStatus.Id;
+
+        await _partnershipRepository.UpdateAsync(app, cancellationToken);
+
+        return new OperationResult { Success = true, Message = "Заявка успешно отклонена" };
+    }
+
+    public async Task<LoginDTO> CreateRepresentativeOrganizationAsync(Guid orgId, CancellationToken cancellationToken)
+    {
+        var org = await _organizationService.GetOrgNameByIdAsync(orgId, cancellationToken);
+
+        var representativeRegData = new RegisterDTO
+        {
+            FirstName = "Имя",
+            Bio = $"Представитель организации {org}",
+            UserName = _stringGenerator.GenerateRandomString(8),
+            Password = _stringGenerator.GenerateRandomString(8),
+        };
+
+        var resReg = await _userService.RegisterAsync(representativeRegData, RolesConsts.RepresentativeOrganization, cancellationToken);
+
+        if (resReg.Success)
+        {
+            return new LoginDTO
+            {
+                UserName = representativeRegData.UserName,
+                Password = representativeRegData.Password
+            };
+        }
+
+        return new LoginDTO();
     }
 }
