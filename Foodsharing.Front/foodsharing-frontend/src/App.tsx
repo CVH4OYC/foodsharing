@@ -12,6 +12,9 @@ import AdFormPage from "./pages/AdFormPage";
 import UserProfilePage from "./pages/UserProfilePage";
 import { AuthProvider } from "./context/AuthContext";
 import BusinessPage from "./pages/BusinessPage";
+import PartnershipApplicationsPage from "./pages/PartnershipApplicationsPage";
+
+import RequireAdminRoute from "./components/RequireAdminRoute";
 
 function App() {
   return (
@@ -28,7 +31,14 @@ function App() {
             <Route path="ads/edit/:announcementId" element={<AdFormPage />} />
             <Route path="ads/:announcementId" element={<AdPage />} />
             <Route path="/business" element={<BusinessPage />} />
-
+            <Route
+              path="/applications"
+              element={
+                <RequireAdminRoute>
+                  <PartnershipApplicationsPage />
+                </RequireAdminRoute>
+              }
+            />
             {/* Профиль пользователя (личный и чужие профили) */}
             <Route path="profile" element={<Profile />}>
               <Route path="ads" element={<ProfileAdsSection />} />

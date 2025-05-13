@@ -5,7 +5,7 @@ import { API } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
 const Header = () => {
-  const { isAuth, logout } = useAuth();
+  const { isAuth, logout, hasRole } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -65,8 +65,14 @@ const Header = () => {
           {/* Навигация */}
           <nav className="hidden md:flex items-center gap-6">
             <Link to="/ads" className="hover:text-primary">Объявления</Link>
-            <Link to="/business" className="hover:text-primary">Бизнесу</Link>
-            <Link to="/about" className="hover:text-primary">О нас</Link>
+            {hasRole("Admin") ? (
+              <Link to="/applications" className="hover:text-primary">Заявки на партнёрство</Link>
+            ) : (
+              <>
+                <Link to="/business" className="hover:text-primary">Бизнесу</Link>
+                <Link to="/about" className="hover:text-primary">О нас</Link>
+              </>
+            )}
           </nav>
 
           {/* Авторизация (desktop) */}
@@ -99,45 +105,53 @@ const Header = () => {
 
         {/* Мобильное меню */}
         {isMenuOpen && (
-          <div
-            ref={menuRef}
-            className="md:hidden absolute bg-white w-full left-0 px-4 pb-4 shadow-lg z-30"
-          >
-            <div className="pt-2 space-y-4">
-              {isAuth ? (
-                <>
-                  <Link to="/chats" className="block hover:text-primary">Чаты</Link>
-                  <Link to="/favorites" className="block hover:text-primary">Избранное</Link>
-                  <Link to="/profile" className="block hover:text-primary">Профиль</Link>
-                </>
-              ) : (
-                <>
-                  <Link to="/ads" className="block hover:text-primary">Объявления</Link>
-                  <Link to="/business" className="block hover:text-primary">Бизнесу</Link>
-                  <Link to="/about" className="block hover:text-primary">О нас</Link>
-                </>
-              )}
+  <div
+    ref={menuRef}
+    className="md:hidden absolute bg-white w-full left-0 px-4 pb-4 shadow-lg z-30"
+  >
+    <div className="pt-2 space-y-4">
+      {isAuth ? (
+        <>
+          <Link to="/chats" className="block hover:text-primary">Чаты</Link>
+          <Link to="/favorites" className="block hover:text-primary">Избранное</Link>
+          <Link to="/profile" className="block hover:text-primary">Профиль</Link>
+          {hasRole("Admin") ? (
+            <Link to="/applications" className="block hover:text-primary">Заявки на партнёрство</Link>
+          ) : (
+            <>
+              <Link to="/business" className="block hover:text-primary">Бизнесу</Link>
+              <Link to="/about" className="block hover:text-primary">О нас</Link>
+            </>
+          )}
+        </>
+      ) : (
+        <>
+          <Link to="/ads" className="block hover:text-primary">Объявления</Link>
+          <Link to="/business" className="block hover:text-primary">Бизнесу</Link>
+          <Link to="/about" className="block hover:text-primary">О нас</Link>
+        </>
+      )}
 
-              <div className="pt-4 border-t">
-                {isAuth ? (
-                  <button
-                    onClick={handleLogout}
-                    className="block w-full text-left hover:text-primary py-2"
-                  >
-                    Выйти
-                  </button>
-                ) : (
-                  <>
-                    <Link to="/login" className="block py-2 hover:text-primary">Войти</Link>
-                    <Link to="/register" className="block bg-primary text-white px-4 py-2 rounded-xl mt-2">
-                      Зарегистрироваться
-                    </Link>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
+      <div className="pt-4 border-t">
+        {isAuth ? (
+          <button
+            onClick={handleLogout}
+            className="block w-full text-left hover:text-primary py-2"
+          >
+            Выйти
+          </button>
+        ) : (
+          <>
+            <Link to="/login" className="block py-2 hover:text-primary">Войти</Link>
+            <Link to="/register" className="block bg-primary text-white px-4 py-2 rounded-xl mt-2">
+              Зарегистрироваться
+            </Link>
+          </>
         )}
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </header>
   );

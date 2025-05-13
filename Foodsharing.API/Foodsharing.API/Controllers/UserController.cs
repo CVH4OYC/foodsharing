@@ -4,8 +4,6 @@ using Foodsharing.API.Constants;
 using Foodsharing.API.Services;
 using Foodsharing.API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Foodsharing.API.DTOs.Announcement;
-using System.Threading.Tasks;
 using Foodsharing.API.Infrastructure;
 using System.Security.Claims;
 
@@ -98,7 +96,7 @@ public class UserController : ControllerBase
 
     [HttpGet("me")]
     [Authorize]
-    public IActionResult GetCurrentUser()
+    public ActionResult<AuthDTO> GetCurrentUser()
     {
         var userId = User.FindFirst("userId")?.Value;
         if (string.IsNullOrEmpty(userId))
@@ -108,11 +106,12 @@ public class UserController : ControllerBase
 
         var roles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
 
-        return Ok(new
+        var dto = new AuthDTO
         {
-            userId,
-            roles
-        });
+            UserId = userId,
+            Roles = roles,
+        };
+        return Ok(dto);
     }
 
     [HttpGet("my")]

@@ -41,8 +41,9 @@ public class PartnershipRepository : Repository<PartnershipApplication>, IPartne
 
         if (!string.IsNullOrWhiteSpace(search))
         {
+            var lowered = search.ToLower();
             query = query.Where(p =>
-                p.Organization.Name.Contains(search));
+                p.Organization.Name.ToLower().Contains(lowered));
         }
 
         query = sortBy switch
@@ -55,7 +56,7 @@ public class PartnershipRepository : Repository<PartnershipApplication>, IPartne
 
         var skip = (page - 1) * limit;
         query = query.Skip(skip).Take(limit);
-
+        Console.WriteLine(query.ToQueryString());
         return await query.ToListAsync(cancellationToken);
     }
 }
