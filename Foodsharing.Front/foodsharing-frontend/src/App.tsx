@@ -13,6 +13,7 @@ import UserProfilePage from "./pages/UserProfilePage";
 import { AuthProvider } from "./context/AuthContext";
 import BusinessPage from "./pages/BusinessPage";
 import PartnershipApplicationsPage from "./pages/PartnershipApplicationsPage";
+import PartnershipApplicationDetailPage from "./pages/PartnershipApplicationDetailPage";
 
 import RequireAdminRoute from "./components/RequireAdminRoute";
 
@@ -38,6 +39,12 @@ function App() {
                   <PartnershipApplicationsPage />
                 </RequireAdminRoute>
               }
+            />
+            <Route path="/applications/:applicationId" element={
+              <RequireAdminRoute>
+                <PartnershipApplicationDetailPage />
+              </RequireAdminRoute>
+            }
             />
             {/* Профиль пользователя (личный и чужие профили) */}
             <Route path="profile" element={<Profile />}>

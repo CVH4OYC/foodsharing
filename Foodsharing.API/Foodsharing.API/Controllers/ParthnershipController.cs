@@ -47,4 +47,12 @@ public class ParthnershipController : ControllerBase
         var applications = await _partnershipService.GetPartnershipApplicationsAsync(search, sortBy, page, limit, statusFilter, cancellationToken);
         return Ok(applications);
     }
+
+    [HttpGet("application/{applicationId}")]
+    [Authorize(Roles = RolesConsts.Admin)]
+    public async Task<ActionResult<PartnershipApplicationDTO>> GetApplicationByIdAsync(Guid applicationId, CancellationToken cancellationToken = default)
+    {
+        var application = await _partnershipService.GetPartnershipApplicationByIdAsync(applicationId, cancellationToken);
+        return Ok(application);
+    }
 }

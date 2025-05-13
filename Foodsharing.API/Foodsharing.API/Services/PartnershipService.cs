@@ -1,5 +1,6 @@
 ﻿using Foodsharing.API.Constants;
 using Foodsharing.API.DTOs;
+using Foodsharing.API.DTOs.Announcement;
 using Foodsharing.API.Infrastructure;
 using Foodsharing.API.Interfaces;
 using Foodsharing.API.Models;
@@ -86,6 +87,7 @@ public class PartnershipService : IPartnershipService
 
         return applications.Select(p => new PartnershipApplicationDTO
         {
+            Id = p.Id,
             OrganizationId = p.OrganizationId,
             Organization = new OrganizationDTO
             {
@@ -96,5 +98,51 @@ public class PartnershipService : IPartnershipService
             SubmittedAt = p.SubmittedAt,
             Status = p.Status.Name,
         }).ToList();
+    }
+
+    public async Task<PartnershipApplicationDTO?> GetPartnershipApplicationByIdAsync(Guid applicationId, CancellationToken cancellationToken)
+    {
+        var application = await _partnershipRepository.GetPartnershipApplicationByIdAsync(applicationId, cancellationToken);
+
+        return application is null ? null : new PartnershipApplicationDTO
+        {
+            Id = application.Id,
+            OrganizationId = application.OrganizationId,
+            Organization = new OrganizationDTO
+            {
+                Id = application.OrganizationId,
+                Name = application.Organization.Name,
+                AddressId = application.Organization.AddressId,
+                Address = new AddressDTO
+                {
+                    AddressId = application.Organization.AddressId,
+                    Region = application.Organization.Address.Region,
+                    City = application.Organization.Address.City,
+                    Street = application.Organization.Address.Street,
+                    House = application.Organization.Address.House
+                },
+                Phone = application.Organization.Phone,
+                Email = application.Organization.Email,
+                Website = application.Organization.Website,
+                Description = application.Organization.Description,
+                OrganizationForm = application.Organization.OrganizationForm.OrganizationFormShortName,
+                LogoImage = application.Organization.LogoImage
+            },
+            Phone = application.Phone,
+            Email = application.Email,
+            SubmittedAt = application.SubmittedAt,
+            Status = application.Status.Name,
+            ReviewedAt = application.ReviewedAt,
+            ReviewedBy = application.ReviewedBy is null ? null : new UserDTO
+            {
+                UserId = application.ReviewedBy.Id,
+                UserName = application.ReviewedBy.UserName,
+                LastName = application.ReviewedBy.Profile.LastName,
+                FirstName = application.ReviewedBy.Profile.FirstName,
+                Image = application.ReviewedBy.Profile.Image
+            },
+
+            Comment = application.Comment
+        };
     }
 }

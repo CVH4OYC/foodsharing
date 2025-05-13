@@ -1,5 +1,6 @@
 ﻿using Foodsharing.API.DTOs;
 using Foodsharing.API.Infrastructure;
+using Foodsharing.API.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Foodsharing.API.Interfaces;
@@ -20,4 +21,6 @@ public interface IPartnershipService
         int limit,
         string? statusFilter,
         CancellationToken cancellationToken);
+
+    Task<PartnershipApplicationDTO?> GetPartnershipApplicationByIdAsync(Guid applicationId, CancellationToken cancellationToken);
 }

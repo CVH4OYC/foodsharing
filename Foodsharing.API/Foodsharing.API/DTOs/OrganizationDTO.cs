@@ -53,10 +53,10 @@ public class OrganizationDTO : EntityBase
 
     public string? OrganizationStatus { get; set; }
 
-    /// <summary>
-    /// Навигационное свойство для связи с таблицей RepresentativeOrganization
-    /// </summary>
-    public List<RepresentativeOrganization>? Representatives { get; set; }
+    ///// <summary>
+    ///// Навигационное свойство для связи с таблицей RepresentativeOrganization
+    ///// </summary>
+    //public List<RepresentativeOrganization>? Representatives { get; set; }
 
     /// <summary>
     /// Путь к лого компании

@@ -1,9 +1,10 @@
-﻿using Foodsharing.API.Models;
+﻿using Foodsharing.API.Abstract;
+using Foodsharing.API.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace Foodsharing.API.DTOs;
 
-public class PartnershipApplicationDTO
+public class PartnershipApplicationDTO : EntityBase
 {
     /// <summary>
     /// Id организации, подающей заявку
@@ -46,7 +47,7 @@ public class PartnershipApplicationDTO
     /// <summary>
     /// Модератор/админ
     /// </summary>
-    public User? ReviewedBy { get; set; }
+    public UserDTO? ReviewedBy { get; set; }
 
     /// <summary>
     /// Дата рассмотрения

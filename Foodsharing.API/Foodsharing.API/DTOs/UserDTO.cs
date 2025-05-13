@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Foodsharing.API.DTOs.Announcement;
+namespace Foodsharing.API.DTOs;
 
-public class UserForAnnouncementDTO
+public class UserDTO
 {
     public Guid? UserId { get; set; }
 

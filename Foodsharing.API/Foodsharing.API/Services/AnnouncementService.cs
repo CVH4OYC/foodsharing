@@ -175,7 +175,7 @@ public class AnnouncementService : IAnnouncementService
                 Color = a.Category.Color,
                 ParentId = a.Category.ParentId,
             },
-            User = new UserForAnnouncementDTO
+            User = new UserDTO
             {
                 UserId = a.UserId,
                 UserName = a.User.UserName,
@@ -219,7 +219,7 @@ public class AnnouncementService : IAnnouncementService
                 Color = announcement.Category.Color,
                 ParentId = announcement.Category.ParentId,
             },
-            User = new UserForAnnouncementDTO
+            User = new UserDTO
             {
                 UserId = announcement.UserId,
                 UserName = announcement.User.UserName,
@@ -293,7 +293,7 @@ public class AnnouncementService : IAnnouncementService
                 Color = a.Category.Color,
                 ParentId = a.Category.ParentId,
             },
-            User = new UserForAnnouncementDTO
+            User = new UserDTO
             {
                 UserId = a.UserId,
                 UserName = a.User.UserName,

@@ -1,4 +1,5 @@
 ﻿using Foodsharing.API.Constants;
+using Foodsharing.API.Controllers;
 using Foodsharing.API.Data;
 using Foodsharing.API.DTOs;
 using Foodsharing.API.Interfaces;
@@ -58,5 +59,18 @@ public class PartnershipRepository : Repository<PartnershipApplication>, IPartne
         query = query.Skip(skip).Take(limit);
         Console.WriteLine(query.ToQueryString());
         return await query.ToListAsync(cancellationToken);
+    }
+
+    public async Task<PartnershipApplication?> GetPartnershipApplicationByIdAsync(Guid applicationId, CancellationToken cancellationToken)
+    {
+        return await context.Set<PartnershipApplication>()
+            .Include(p => p.Organization)
+                .ThenInclude(o => o.OrganizationForm)
+            .Include(p => p.Organization)
+                .ThenInclude(o => o.Address)
+            .Include(p => p.Status)
+            .Include(p => p.ReviewedBy)
+                .ThenInclude(r => r.Profile)
+            .FirstOrDefaultAsync(p => p.Id == applicationId, cancellationToken);
     }
 }

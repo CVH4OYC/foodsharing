@@ -13,4 +13,6 @@ public interface IPartnershipRepository : IRepository<PartnershipApplication>
         int limit,
         string? statusFilter,
         CancellationToken cancellationToken);
+
+    Task<PartnershipApplication?> GetPartnershipApplicationByIdAsync(Guid applicationId, CancellationToken cancellationToken);
 }

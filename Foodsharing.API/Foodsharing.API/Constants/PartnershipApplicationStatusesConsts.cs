@@ -6,5 +6,5 @@
 public static class PartnershipApplicationStatusesConsts
 {
     public const string IsPending = "Рассматривается";
-    public const string IsReviewed = "Рассмотренно";
+    public const string IsReviewed = "Рассмотрено";
 }

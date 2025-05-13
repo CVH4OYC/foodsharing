@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { API } from "../services/api";
+import { Link } from "react-router-dom";
 
 const PartnershipApplicationsPage = () => {
   const [applications, setApplications] = useState([]);
@@ -95,17 +96,19 @@ const PartnershipApplicationsPage = () => {
 
       {/* Строки заявок */}
       {applications.map((app: any, index) => (
-        <div
-          key={app.organizationId}
-          className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center border-b px-4 py-3 text-sm hover:bg-gray-50 transition"
-        >
-          <div className="font-medium text-gray-700">
-            {(page - 1) * limit + index + 1}
-          </div>
-          <div>{app.organization?.name || "—"}</div>
-          <div>{app.submittedAt ? new Date(app.submittedAt).toLocaleDateString("ru-RU") : "—"}</div>
-          <div className="text-sm text-gray-600">{app.status || "Неизвестно"}</div>
-        </div>
+        <Link to={`/applications/${app.id}`} className="contents">
+            <div
+            key={app.organizationId}
+            className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center border-b px-4 py-3 text-sm hover:bg-gray-50 transition"
+            >
+            <div className="font-medium text-gray-700">
+                {(page - 1) * limit + index + 1}
+            </div>
+            <div>{app.organization?.name || "—"}</div>
+            <div>{app.submittedAt ? new Date(app.submittedAt).toLocaleDateString("ru-RU") : "—"}</div>
+            <div className="text-sm text-gray-600">{app.status || "Неизвестно"}</div>
+            </div>
+        </Link>
       ))}
 
       {/* Навигация */}

@@ -41,7 +41,7 @@ public class AnnouncementDTO
 
     public CategoryForAnnouncement Category { get; set; } = null!;
 
-    public UserForAnnouncementDTO User { get; set; } = null!;
+    public UserDTO User { get; set; } = null!;
 
     public string Status { get; set; } = null!;
 
