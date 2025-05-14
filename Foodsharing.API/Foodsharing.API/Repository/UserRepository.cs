@@ -32,4 +32,10 @@ public class UserRepository : Repository<User>, IUserRepository
         await context.AddAsync(profile, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task AddRepresentativeAsync(RepresentativeOrganization representativeOrganization, CancellationToken cancellationToken)
+    {
+        await context.AddAsync(representativeOrganization, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+    }
 }

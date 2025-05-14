@@ -14,27 +14,21 @@ namespace Foodsharing.API.Services;
 public class PartnershipService : IPartnershipService
 {
     private readonly IPartnershipRepository _partnershipRepository;
-    private readonly IUserService _userService;
     private readonly IOrganizationService _organizationService;
     private readonly IStatusesRepository _statusesRepository;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IStringGenerator _stringGenerator;
 
     public PartnershipService(IAddressService addressService,
                               IPartnershipRepository partnershipRepository,
-                              IUserService userService,
                               IOrganizationService organizationRepository,
                               IStatusesRepository statusesRepository,
                               IImageService imageService,
-                              IHttpContextAccessor httpContextAccessor,
-                              IStringGenerator stringGenerator)
+                              IHttpContextAccessor httpContextAccessor)
     {
         _partnershipRepository = partnershipRepository;
-        _userService = userService;
         _organizationService = organizationRepository;
         _statusesRepository = statusesRepository;
         _httpContextAccessor = httpContextAccessor;
-        _stringGenerator = stringGenerator;
     }
 
     public async Task<OperationResult> ProccessPartnershipApplicationAsync(CreatePartnershipApplicationDTO dto, CancellationToken cancellationToken)
@@ -180,31 +174,5 @@ public class PartnershipService : IPartnershipService
         await _partnershipRepository.UpdateAsync(app, cancellationToken);
 
         return new OperationResult { Success = true, Message = "Заявка успешно отклонена" };
-    }
-
-    public async Task<LoginDTO> CreateRepresentativeOrganizationAsync(Guid orgId, CancellationToken cancellationToken)
-    {
-        var org = await _organizationService.GetOrgNameByIdAsync(orgId, cancellationToken);
-
-        var representativeRegData = new RegisterDTO
-        {
-            FirstName = "Имя",
-            Bio = $"Представитель организации {org}",
-            UserName = _stringGenerator.GenerateRandomString(8),
-            Password = _stringGenerator.GenerateRandomString(8),
-        };
-
-        var resReg = await _userService.RegisterAsync(representativeRegData, RolesConsts.RepresentativeOrganization, cancellationToken);
-
-        if (resReg.Success)
-        {
-            return new LoginDTO
-            {
-                UserName = representativeRegData.UserName,
-                Password = representativeRegData.Password
-            };
-        }
-
-        return new LoginDTO();
     }
 }

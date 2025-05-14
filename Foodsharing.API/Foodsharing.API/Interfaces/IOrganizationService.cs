@@ -16,4 +16,10 @@ public interface IOrganizationService
     Task<Organization> CreateOrganizationAsync(CreatePartnershipApplicationDTO dto, CancellationToken cancellationToken);
 
     Task<string> GetOrgNameByIdAsync(Guid orgId, CancellationToken cancellationToken);
+
+    Task<LoginDTO> CreateRepresentativeOrganizationAsync(Guid orgId, CancellationToken cancellationToken);
+
+    Task<OrganizationDTO?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+
+    Task<IEnumerable<UserDTO>?> GetRepresentativesByOrgIdAsync (Guid orgId, CancellationToken cancellationToken);
 }

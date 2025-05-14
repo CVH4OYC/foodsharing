@@ -78,15 +78,4 @@ public class ParthnershipController : ControllerBase
         else
             return BadRequest(res.Message);
     }
-
-    [HttpPost("createRepresentative")]
-    [Authorize(Roles = RolesConsts.Admin)]
-    public async Task<ActionResult<LoginDTO>> CreateRepresentativeOrganizationAsync(Guid orgId, CancellationToken cancellationToken)
-    {
-        var res = await _partnershipService.CreateRepresentativeOrganizationAsync(orgId, cancellationToken);
-        if (res is null)
-            return BadRequest("Не удалось создать представителя организации");
-
-        return Ok(res);
-    }
 }

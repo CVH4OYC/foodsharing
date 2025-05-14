@@ -28,6 +28,4 @@ public interface IPartnershipService
     Task<OperationResult> AcceptApplicationAsync(AcceptApplicationRequest request, CancellationToken cancellationToken);
 
     Task<OperationResult> RejectApplicationAsync(AcceptApplicationRequest request, CancellationToken cancellationToken);
-
-    Task<LoginDTO> CreateRepresentativeOrganizationAsync(Guid orgId, CancellationToken cancellationToken);
 }

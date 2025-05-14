@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="DTOs\Новая папка\" />
     <Folder Include="wwwroot\Pictures\Avatars\" />
     <Folder Include="wwwroot\Pictures\Announcements\" />
   </ItemGroup>

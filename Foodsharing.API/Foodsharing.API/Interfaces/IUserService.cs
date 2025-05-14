@@ -1,5 +1,6 @@
 ﻿using Foodsharing.API.DTOs;
 using Foodsharing.API.Infrastructure;
+using Foodsharing.API.Models;
 
 namespace Foodsharing.API.Interfaces;
 
@@ -24,4 +25,8 @@ public interface IUserService
     Task<UserWithProfileDTO> GetMyProfileAsync(CancellationToken cancellationToken);
 
     Task<UserWithProfileDTO> GetOtherProfileAsync(Guid userId, CancellationToken cancellationToken);
+
+    Task<User?> GetByUserNameAsync(string userName, CancellationToken cancellationToken);
+
+    Task AddRepresentativeAsync(Guid userId, Guid orgId, CancellationToken cancellationToken);
 }

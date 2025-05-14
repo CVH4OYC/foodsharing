@@ -21,4 +21,6 @@ public interface IUserRepository : IRepository<User>
     Task<List<string>> GetUserRolesAsync(Guid userId, CancellationToken cancellationToken);
 
     Task AddProfileAsync(Profile profile, CancellationToken cancellationToken);
+
+    Task AddRepresentativeAsync(RepresentativeOrganization representativeOrganization, CancellationToken cancellationToken);
 }

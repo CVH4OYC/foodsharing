@@ -1,5 +1,7 @@
 ﻿using Foodsharing.API.Constants;
 using Foodsharing.API.DTOs;
+using Foodsharing.API.DTOs.Announcement;
+using Foodsharing.API.Infrastructure;
 using Foodsharing.API.Interfaces;
 using Foodsharing.API.Models;
 
@@ -11,16 +13,22 @@ public class OrganizationService : IOrganizationService
     private readonly IStatusesRepository _statusesRepository;
     private readonly IAddressService _addressService;
     private readonly IImageService _imageService;
+    private readonly IStringGenerator _stringGenerator;
+    private readonly IUserService _userService;
 
     public OrganizationService(IOrganizationRepository organizationRepository,
                                IStatusesRepository statusesRepository,
                                IAddressService addressService,
-                               IImageService imageService)
+                               IImageService imageService,
+                               IStringGenerator stringGenerator,
+                               IUserService userService)
     {
         _organizationRepository = organizationRepository;
         _statusesRepository = statusesRepository;
         _addressService = addressService;
         _imageService = imageService;
+        _stringGenerator = stringGenerator;
+        _userService = userService;
     }
 
     public async Task AddAsync(Organization organization, CancellationToken cancellationToken)
@@ -77,4 +85,74 @@ public class OrganizationService : IOrganizationService
         return org.Name;
     }
 
+    public async Task<LoginDTO> CreateRepresentativeOrganizationAsync(Guid orgId, CancellationToken cancellationToken)
+    {
+        var org = await GetOrgNameByIdAsync(orgId, cancellationToken);
+
+        var representativeRegData = new RegisterDTO
+        {
+            FirstName = "Имя",
+            Bio = $"Представитель организации {org}",
+            UserName = _stringGenerator.GenerateRandomString(8),
+            Password = _stringGenerator.GenerateRandomString(8),
+        };
+
+        var resReg = await _userService.RegisterAsync(representativeRegData, RolesConsts.RepresentativeOrganization, cancellationToken);
+
+        var user = await _userService.GetByUserNameAsync(representativeRegData.UserName, cancellationToken);
+
+        await _userService.AddRepresentativeAsync(user.Id, orgId, cancellationToken);
+
+        if (resReg.Success)
+        {
+            return new LoginDTO
+            {
+                UserName = representativeRegData.UserName,
+                Password = representativeRegData.Password
+            };
+        }
+
+        return new LoginDTO();
+    }
+
+    public async Task<OrganizationDTO?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var org = await _organizationRepository.GetOrganizationByIdAsync(id, cancellationToken);
+
+        return org is null ? null : new OrganizationDTO
+        {
+            Id = org.Id,
+            Name = org.Name,
+            Address = new AddressDTO
+            {
+                Region = org.Address.Region,
+                City = org.Address.City,
+                Street = org.Address.Street,
+                House = org.Address.House
+            },
+            Phone = org.Phone,
+            Email = org.Email,
+            Website = org.Website,
+            Description = org.Description,
+            OrganizationForm = org.OrganizationForm.OrganizationFormFullName,
+            OrganizationStatus = org.OrganizationStatus.Name,
+            LogoImage = org.LogoImage,
+        };
+
+
+    }
+    public async Task<IEnumerable<UserDTO>?> GetRepresentativesByOrgIdAsync(Guid orgId, CancellationToken cancellationToken)
+    {
+        var representatives = await _organizationRepository.GetRepresentativesByOrgIdAsync(orgId, cancellationToken);
+
+        return representatives is null ? null : representatives.Select(
+            r => new UserDTO
+            {
+                UserId = r.User.Id,
+                UserName = r.User.UserName,
+                FirstName = r.User.Profile?.FirstName,
+                LastName = r.User.Profile?.LastName,
+                Image = r.User.Profile?.Image
+            }).ToList();
+    }
 }

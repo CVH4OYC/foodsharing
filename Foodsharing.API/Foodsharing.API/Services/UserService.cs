@@ -94,7 +94,7 @@ public class UserService : IUserService
     /// <returns>Результат операции типа <see cref="OperationResult"/></returns>
     public async Task<OperationResult> LoginAsync(string userName, string password, CancellationToken cancellationToken = default)
     {
-        var user = await userRepository.GetByUserNameAsync(userName, cancellationToken);
+        var user = await GetByUserNameAsync(userName, cancellationToken);
         if (user == null)
             return OperationResult.FailureResult("Пользователь с таким именем не найден");
         var result = passwordHasher.Verify(password, user.Password);
@@ -128,5 +128,21 @@ public class UserService : IUserService
             FirstName = profile.FirstName,
             LastName = profile.LastName,
         };
+    }
+
+    public async Task<User?> GetByUserNameAsync(string userName, CancellationToken cancellationToken)
+    {
+        return await userRepository.GetByUserNameAsync(userName, cancellationToken);
+    }
+
+    public async Task AddRepresentativeAsync(Guid userId, Guid orgId, CancellationToken cancellationToken)
+    {
+        var representative = new RepresentativeOrganization
+        {
+            UserId = userId,
+            OrganizationId = orgId,
+        };
+
+        await userRepository.AddRepresentativeAsync(representative, cancellationToken);
     }
 }
