@@ -16,6 +16,11 @@ import PartnershipApplicationsPage from "./pages/PartnershipApplicationsPage";
 import PartnershipApplicationDetailPage from "./pages/PartnershipApplicationDetailPage";
 
 import RequireAdminRoute from "./components/RequireAdminRoute";
+import OrganizationProfilePage from "./pages/OrganizationProfilePage";
+import OrganizationAdminPage from "./pages/OrganizationAdminPage";
+import OrgAnnouncementsPage from "./components/OrgAnnouncementsPage";
+import OrgInfoPage from "./components/OrgInfoPage";
+import OrgRepresentativesPage from "./components/OrgRepresentativesPage";
 
 function App() {
   return (
@@ -32,6 +37,19 @@ function App() {
             <Route path="ads/edit/:announcementId" element={<AdFormPage />} />
             <Route path="ads/:announcementId" element={<AdPage />} />
             <Route path="/business" element={<BusinessPage />} />
+            <Route path="/organizations/:orgId" element={<OrganizationProfilePage />} />
+            <Route
+              path="/admin/organizations/:orgId"
+              element={
+                <RequireAdminRoute>
+                  <OrganizationAdminPage />
+                </RequireAdminRoute>
+              }
+            >
+              <Route path="announcements" element={<OrgAnnouncementsPage />} />
+              <Route path="info" element={<OrgInfoPage />} />
+              <Route path="representatives" element={<OrgRepresentativesPage />} />
+            </Route>
             <Route
               path="/applications"
               element={
