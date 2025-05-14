@@ -78,7 +78,7 @@ public class AnnouncementService : IAnnouncementService
     public async Task<IEnumerable<AnnouncementDTO>> GetAnnouncementsAsync(
         Guid? categoryId = null,
         string? search = null,
-        string? statusFilter = null, // заменили isBooked на string
+        string? statusFilter = null, 
         string? sortBy = null,
         int page = 1,
         int limit = 10,
@@ -175,14 +175,21 @@ public class AnnouncementService : IAnnouncementService
                 Color = a.Category.Color,
                 ParentId = a.Category.ParentId,
             },
-            User = new UserDTO
+            User = a.User.Representative is null ? new UserDTO
             {
                 UserId = a.UserId,
                 UserName = a.User.UserName,
                 FirstName = a.User.Profile.FirstName,
                 LastName = a.User.Profile.LastName,
                 Image = a.User.Profile.Image
-            }
+            } : null,
+            Organization = a.User.Representative != null ? new OrganizationDTO
+            {
+                Name = a.User.Representative.Organization.Name,
+                LogoImage = a.User.Representative.Organization.LogoImage,
+                Id = a.User.Representative.Organization.Id
+            } : null,
+
         });
     }
 
@@ -227,6 +234,12 @@ public class AnnouncementService : IAnnouncementService
                 LastName = announcement.User.Profile.LastName,
                 Image = announcement.User.Profile.Image
             },
+            Organization = announcement.User.Representative != null ? new OrganizationDTO
+            {
+                Name = announcement.User.Representative.Organization.Name,
+                LogoImage = announcement.User.Representative.Organization.LogoImage,
+                Id = announcement.User.Representative.Organization.Id
+            } : null,
             IsBookedByCurrentUser = activeBooking is not null && activeBooking?.RecipientId == currentUserId
         };
     }

@@ -41,9 +41,11 @@ public class AnnouncementDTO
 
     public CategoryForAnnouncement Category { get; set; } = null!;
 
-    public UserDTO User { get; set; } = null!;
+    public UserDTO? User { get; set; }
 
     public string Status { get; set; } = null!;
 
     public bool IsBookedByCurrentUser { get; set; } 
+
+    public OrganizationDTO? Organization { get; set; }
 }

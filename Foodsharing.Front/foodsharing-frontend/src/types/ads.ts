@@ -1,4 +1,10 @@
 // src/types/ads.ts
+export interface OrganizationShort {
+  id: string;
+  name: string;
+  logoImage?: string;
+}
+
 export interface Category {
   id: string;
   name: string;
@@ -32,7 +38,8 @@ export interface Announcement {
     name: string;
     color: string;
   };
-  user: UserShort;
+  user: UserShort | null; // теперь может быть null
+  organization?: OrganizationShort | null; // может быть передано, если пользователь — представитель
   address: Address;
   dateCreation: string;
   expirationDate?: string;
@@ -49,11 +56,12 @@ export interface UserProfile {
   image?: string;
 }
 
-export interface AdCardProps extends Omit<Announcement, 'dateCreation'> {
+export interface AdCardProps extends Omit<Announcement, 'dateCreation' | 'user'> {
   date?: string;
-  location?: string;
-  categoryName?: string;
   categoryColor?: string;
-  author?: string;
-  authorImage?: string;
+  owner?: {
+    name: string;
+    image: string;
+    link: string | null;
+  };
 }

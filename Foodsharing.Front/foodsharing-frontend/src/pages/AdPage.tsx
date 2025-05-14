@@ -19,7 +19,7 @@ const AdPage = () => {
   const [messageType, setMessageType] = useState<"success" | "error">("success");
   const menuRef = useRef<HTMLDivElement | null>(null);
 
-  const isOwner = ad?.user.userId === currentUserId;
+  const isOwner = ad?.user != null && ad.user.userId === currentUserId;
 
   const showTempMessage = (msg: string, type: "success" | "error") => {
     setMessage(msg);
@@ -271,77 +271,102 @@ const AdPage = () => {
             </div>
 
             <div className="border-t pt-6">
-              <p className="text-sm text-gray-500 mb-4">Автор объявления</p>
-              <Link
-                  to={`/profile/user/${ad.user.userId}`}
-                  className="flex items-center gap-4 mb-6 hover:bg-gray-50 p-2 rounded-lg transition"
-                >
-                  {ad.user.image ? (
+                <p className="text-sm text-gray-500 mb-4">Автор объявления</p>
+
+                {/* Автор (пользователь) */}
+                {ad.user && (
+                  <Link
+                    to={`/profile/user/${ad.user.userId}`}
+                    className="flex items-center gap-4 mb-4 hover:bg-gray-50 p-2 rounded-lg transition"
+                  >
                     <img
-                      src={`${StaticAPI.defaults.baseURL}${ad.user.image}`}
+                      src={
+                        ad.user.image
+                          ? `${StaticAPI.defaults.baseURL}${ad.user.image}`
+                          : "/default-avatar.png"
+                      }
                       alt={ad.user.userName}
                       className="w-12 h-12 rounded-full object-cover"
                     />
-                  ) : (
-                    <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                      <span className="font-medium">{ad.user.userName?.[0]?.toUpperCase() || "U"}</span>
+                    <div>
+                      <p className="font-medium">{ad.user.userName}</p>
                     </div>
-                  )}
-                  <div>
-                    <p className="font-medium">{ad.user.userName}</p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-yellow-500">★ 5,0</span>
-                    </div>
-                  </div>
-                </Link>
+                  </Link>
+                )}
 
-              {!isOwner ? (
-                ad.status === "Забронировано" && !ad.isBookedByCurrentUser ? (
-                  <div className="bg-gray-200 text-gray-700 py-3 px-6 rounded-xl text-center font-medium">
-                    Забронировано
-                  </div>
-                ) : (
-                  <div className="flex gap-4">
-                    {ad.isBookedByCurrentUser ? (
-                      <button
-                        className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-xl font-medium transition-colors"
-                        onClick={() => handleAuthRedirect(handleUnbooking)}
-                      >
-                        Отменить бронь
-                      </button>
-                    ) : (
-                      <button
-                        className="flex-1 bg-primary hover:bg-green-600 text-white py-3 px-6 rounded-xl font-medium transition-colors"
-                        onClick={() => handleAuthRedirect(handleBooking)}
-                      >
-                        Забронировать
-                      </button>
-                    )}
-                    <button
-                      className="flex-1 border-2 border-primary text-primary bg-white hover:bg-gray-50 py-3 px-6 rounded-xl font-medium"
-                      onClick={() => handleAuthRedirect(() => console.log("Написать..."))}
+                {/* Организация */}
+                {ad.organization && (
+                  <>
+                    <p className="text-sm text-gray-500 mb-2">Организация</p>
+                    <Link
+                      to={`/organizations/${ad.organization.id}`}
+                      className="flex items-center gap-4 mb-6 hover:bg-gray-50 p-2 rounded-lg transition"
                     >
-                      Написать
-                    </button>
-                  </div>
-                )
-              ) : (
-                    <div className="space-y-3">
-                      <div className="text-sm text-gray-600">
-                        Статус: <span className="font-medium">{ad.status || "активно"}</span>
+                      <img
+                        src={
+                          ad.organization.logoImage
+                            ? `${StaticAPI.defaults.baseURL}${ad.organization.logoImage}`
+                            : "/default-logo.png"
+                        }
+                        alt={ad.organization.name}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                      <div>
+                        <p className="font-medium">{ad.organization.name}</p>
                       </div>
+                    </Link>
+                  </>
+                )}
 
-                      {ad.status === "Забронировано" && (
+                {/* Кнопки действий */}
+                {!isOwner ? (
+                  ad.status === "Забронировано" && !ad.isBookedByCurrentUser ? (
+                    <div className="bg-gray-200 text-gray-700 py-3 px-6 rounded-xl text-center font-medium">
+                      Забронировано
+                    </div>
+                  ) : (
+                    <div className="flex gap-4">
+                      {ad.isBookedByCurrentUser ? (
                         <button
-                          className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 px-6 rounded-xl font-medium transition-colors"
-                          onClick={handleCompleteTransaction}
+                          className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-xl font-medium transition-colors"
+                          onClick={() => handleAuthRedirect(handleUnbooking)}
                         >
-                          Завершить обмен
+                          Отменить бронь
+                        </button>
+                      ) : (
+                        <button
+                          className="flex-1 bg-primary hover:bg-green-600 text-white py-3 px-6 rounded-xl font-medium transition-colors"
+                          onClick={() => handleAuthRedirect(handleBooking)}
+                        >
+                          Забронировать
                         </button>
                       )}
+                      <button
+                        className="flex-1 border-2 border-primary text-primary bg-white hover:bg-gray-50 py-3 px-6 rounded-xl font-medium"
+                        onClick={() => handleAuthRedirect(() => console.log("Написать..."))}
+                      >
+                        Написать
+                      </button>
                     </div>
-              )}
-            </div>
+                  )
+                ) : (
+                  <div className="space-y-3">
+                    <div className="text-sm text-gray-600">
+                      Статус: <span className="font-medium">{ad.status || "активно"}</span>
+                    </div>
+
+                    {ad.status === "Забронировано" && (
+                      <button
+                        className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 px-6 rounded-xl font-medium transition-colors"
+                        onClick={handleCompleteTransaction}
+                      >
+                        Завершить обмен
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
           </div>
         </div>
       </div>

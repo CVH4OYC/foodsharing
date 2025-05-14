@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { AdCardProps } from "../types/ads";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const AdCard: FC<AdCardProps> = ({
   announcementId,
@@ -9,9 +9,9 @@ const AdCard: FC<AdCardProps> = ({
   image,
   categoryColor = "#4CAF50",
   category,
-  user,
   date,
   address,
+  owner,
 }) => {
   const navigate = useNavigate();
 
@@ -76,17 +76,18 @@ const AdCard: FC<AdCardProps> = ({
         )}
 
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+        {owner && (
           <div
             className="flex items-center gap-2"
             onClick={(e) => {
               e.stopPropagation();
-              navigate(`/profile/user/${user?.userId}`);
+              if (owner.link) navigate(owner.link);
             }}
           >
-            {user?.image ? (
+            {owner.image ? (
               <img
-                src={user.image}
-                alt={user.userName}
+                src={owner.image}
+                alt={owner.name}
                 className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = "/default-avatar.png";
@@ -95,14 +96,16 @@ const AdCard: FC<AdCardProps> = ({
             ) : (
               <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
                 <span className="text-sm text-gray-600 font-medium">
-                  {user?.userName?.[0]?.toUpperCase() || "U"}
+                  {owner.name?.[0]?.toUpperCase() || "U"}
                 </span>
               </div>
             )}
             <span className="text-sm text-primary hover:underline truncate">
-              {user?.userName}
+              {owner.name}
             </span>
           </div>
+        )}
+
           <span className="text-sm text-gray-500">{date}</span>
         </div>
       </div>
