@@ -31,6 +31,7 @@ public class ChatRepository : Repository<Chat>, IChatRepository
                 .ThenInclude(u => u.Profile)
             .Include(c => c.Messages.OrderByDescending(m => m.Date).Take(1))
                 .ThenInclude(m => m.Status)
+            .Where(c => c.FirstUserId == currentUserId ||  c.SecondUserId == currentUserId)
             .ToListAsync(cancellationToken);
     }
 }
