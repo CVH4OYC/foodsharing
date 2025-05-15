@@ -1,4 +1,5 @@
 ﻿using Foodsharing.API.DTOs;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Foodsharing.API.Interfaces.Services;
 
@@ -23,4 +24,11 @@ public interface IChatService
     /// </summary>
     /// <returns></returns>
     Task<IEnumerable<ChatDTO>?> GetMyChatsAsync(CancellationToken cancellationToken);
+
+    Task<ChatWithMessagesDTO?> GetChatWithMessagesAsync(
+        Guid chatId,
+        int page,
+        int pageSize,
+        string? search,
+        CancellationToken cancellationToken = default);
 }

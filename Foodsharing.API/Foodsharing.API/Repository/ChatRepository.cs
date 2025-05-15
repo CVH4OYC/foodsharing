@@ -22,6 +22,35 @@ public class ChatRepository : Repository<Chat>, IChatRepository
             cancellationToken);
     }
 
+    public async Task<Chat?> GetChatWithMessagesAsync(Guid chatId, int page, int pageSize, string? search, CancellationToken cancellationToken)
+    {
+        var chat = await context.Set<Chat>()
+            .Include(c => c.FirstUser).ThenInclude(u => u.Profile)
+            .Include(c => c.SecondUser).ThenInclude(u => u.Profile)
+            .FirstOrDefaultAsync(c => c.Id == chatId, cancellationToken);
+
+        if (chat == null) return null;
+
+        var messagesQuery = context.Set<Message>()
+            .Where(m => m.ChatId == chatId);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            messagesQuery = messagesQuery.Where(m => m.Text != null && m.Text.Contains(search));
+        }
+
+        var messages = await messagesQuery
+            .Include(m => m.Status)
+            .OrderByDescending(m => m.Date)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        chat.Messages = messages;
+        return chat;
+    }
+
+
     public async Task<IEnumerable<Chat>?> GetMyChatsAsync(Guid currentUserId, CancellationToken cancellationToken)
     {
         return await context.Set<Chat>()

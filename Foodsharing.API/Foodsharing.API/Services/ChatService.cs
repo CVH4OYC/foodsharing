@@ -98,4 +98,53 @@ public class ChatService : IChatService
 
         return chat.Id;
     }
+
+    public async Task<ChatWithMessagesDTO?> GetChatWithMessagesAsync(Guid chatId, int page = 1, int pageSize = 20, string? search = null, CancellationToken cancellationToken = default)
+    {
+        var currentUserId = _httpContextAccessor.HttpContext?.User.GetUserId();
+        if (currentUserId == null)
+        {
+            throw new Exception("Пользователь не авторизован");
+        }
+
+        var chat = await _chatRepository.GetChatWithMessagesAsync(chatId, page, pageSize, search, cancellationToken);
+
+        if (chat is null)
+            return null;
+
+        if (chat.FirstUserId != currentUserId && chat.SecondUserId != currentUserId)
+            throw new Exception("Попытка получения чужого чата с сообщениями");
+
+        var interlocutor = chat.FirstUserId == currentUserId ? chat.SecondUser : chat.FirstUser;
+
+        return new ChatWithMessagesDTO
+        {
+            Id = chat.Id,
+            Interlocutor = new UserDTO
+            {
+                UserId = interlocutor.Id,
+                UserName = interlocutor.UserName,
+                FirstName = interlocutor.Profile.FirstName,
+                LastName = interlocutor.Profile.LastName,
+                Image = interlocutor.Profile.Image
+            },
+            Messages = chat.Messages?.Select(m => new MessageDTO
+            {
+                IsMy = m.SenderId == currentUserId,
+                Sender = new UserDTO
+                {
+                    UserId = m.Sender.Id,
+                    UserName = m.Sender.UserName,
+                    FirstName = m.Sender.Profile.FirstName,
+                    LastName = m.Sender.Profile.LastName,
+                    Image = m.Sender.Profile.Image
+                },
+                Text = m.Text,
+                Date = m.Date,
+                Status = m.Status?.Name,
+                Image = m.Image,
+                File = m.File
+            }) ?? Enumerable.Empty<MessageDTO>()
+        };
+    }
 }

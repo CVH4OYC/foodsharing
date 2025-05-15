@@ -1,4 +1,5 @@
 ﻿using Foodsharing.API.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Foodsharing.API.Interfaces.Repositories;
 
@@ -12,4 +13,11 @@ public interface IChatRepository : IRepository<Chat>
     Task<Chat?> GetChatByInterlocutorsIdsAsync(Guid userId1, Guid userId2, CancellationToken cancellationToken);
 
     Task<IEnumerable<Chat>?> GetMyChatsAsync(Guid currentUserId, CancellationToken cancellationToken);
+
+    Task<Chat?> GetChatWithMessagesAsync(
+        Guid chatId,
+        int page,
+        int pageSize,
+        string? search,
+        CancellationToken cancellationToken);
 }

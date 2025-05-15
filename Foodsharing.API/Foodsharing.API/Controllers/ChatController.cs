@@ -26,14 +26,13 @@ public class ChatController : ControllerBase
     public async Task<ActionResult<Guid>> GetChatIdWithUserAsync(Guid otherUserId, CancellationToken cancellationToken)
     {
         var chatId = await _chatService.GetChatIdWithUserAsync(otherUserId, cancellationToken);
-        
-        if (chatId == null) 
+
+        if (chatId == null)
             return NotFound();
-            
+
         return Ok(chatId);
     }
 
-    // Получить все чаты текущего пользователя
     [HttpGet("my")]
     [Authorize]
     public async Task<ActionResult<IEnumerable<ChatDTO>>> GetMyChats(CancellationToken cancellationToken)
@@ -44,10 +43,27 @@ public class ChatController : ControllerBase
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> CreateChatAsync(Guid otherUserId, CancellationToken cancellationToken)
+    public async Task<ActionResult<Guid>> CreateChatAsync(Guid otherUserId, CancellationToken cancellationToken)
     {
         var chatId = await _chatService.CreateChatWithUserAsync(otherUserId, cancellationToken);
 
         return Ok(chatId);
+    }
+
+    [HttpGet("{chatId}")]
+    [Authorize]
+    public async Task<ActionResult<ChatWithMessagesDTO>> GetChatWithMessagesByIdAsync(
+                                                            Guid chatId,
+                                                            [FromQuery] int page = 1,
+                                                            [FromQuery] int pageSize = 20,
+                                                            [FromQuery] string? search = null,
+                                                            CancellationToken cancellationToken = default)
+    {
+        var chat = await _chatService.GetChatWithMessagesAsync(chatId, page, pageSize, search, cancellationToken);
+
+        if (chat == null)
+            return NotFound();
+
+        return Ok(chat);
     }
 }
