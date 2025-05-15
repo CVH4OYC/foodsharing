@@ -1,6 +1,6 @@
 ﻿using Foodsharing.API.DTOs;
 using Foodsharing.API.DTOs.Announcement;
-using Foodsharing.API.Interfaces;
+using Foodsharing.API.Interfaces.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

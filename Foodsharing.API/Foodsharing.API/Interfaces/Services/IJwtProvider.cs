@@ -1,6 +1,6 @@
 ﻿using Foodsharing.API.Models;
 
-namespace Foodsharing.API.Interfaces;
+namespace Foodsharing.API.Interfaces.Services;
 
 /// <summary>
 /// Интерфейс провайдера для генерации jwt-токенов

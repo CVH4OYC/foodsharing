@@ -1,4 +1,4 @@
-﻿using Foodsharing.API.Interfaces;
+﻿using Foodsharing.API.Interfaces.Services;
 
 namespace Foodsharing.API.Infrastructure;
 

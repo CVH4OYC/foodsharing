@@ -1,5 +1,5 @@
 ﻿using Foodsharing.API.Constants;
-using Foodsharing.API.Interfaces;
+using Foodsharing.API.Interfaces.Services;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;

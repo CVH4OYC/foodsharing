@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Foodsharing.API.Interfaces;
+namespace Foodsharing.API.Interfaces.Repositories;
 
 /// <summary>
 /// Интерфейс универсального репозитория

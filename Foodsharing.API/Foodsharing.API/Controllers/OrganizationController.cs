@@ -1,7 +1,7 @@
 ﻿using Foodsharing.API.Constants;
 using Foodsharing.API.DTOs;
 using Foodsharing.API.DTOs.Announcement;
-using Foodsharing.API.Interfaces;
+using Foodsharing.API.Interfaces.Services;
 using Foodsharing.API.Models;
 using Foodsharing.API.Services;
 using Microsoft.AspNetCore.Authorization;

@@ -1,7 +1,7 @@
 ﻿using Foodsharing.API.DTOs;
 using Foodsharing.API.Models;
 
-namespace Foodsharing.API.Interfaces;
+namespace Foodsharing.API.Interfaces.Services;
 
 public interface IOrganizationService
 {

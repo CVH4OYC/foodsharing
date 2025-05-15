@@ -3,7 +3,8 @@ using Foodsharing.API.Constants;
 using Foodsharing.API.Data;
 using Foodsharing.API.Extensions;
 using Foodsharing.API.Infrastructure;
-using Foodsharing.API.Interfaces;
+using Foodsharing.API.Interfaces.Repositories;
+using Foodsharing.API.Interfaces.Services;
 using Foodsharing.API.Models;
 using Foodsharing.API.Repository;
 using Foodsharing.API.Services;
@@ -34,6 +35,8 @@ builder.Services.AddScoped<IStatusesRepository, StatusesRepository>();
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>();
 builder.Services.AddScoped<IPartnershipRepository, PartnershipRepository>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
+
 
 
 builder.Services.AddScoped<IUserService,UserService>();
@@ -47,6 +50,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IPartnershipService, PartnershipService>();
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
+builder.Services.AddScoped<IChatService, ChatService>();
 
 builder.Services.AddHttpContextAccessor();
 

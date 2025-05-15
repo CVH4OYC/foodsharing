@@ -2,7 +2,7 @@
 using Foodsharing.API.Models;
 using Foodsharing.API.Services;
 
-namespace Foodsharing.API.Interfaces;
+namespace Foodsharing.API.Interfaces.Repositories;
 
 public interface IPartnershipRepository : IRepository<PartnershipApplication>
 {

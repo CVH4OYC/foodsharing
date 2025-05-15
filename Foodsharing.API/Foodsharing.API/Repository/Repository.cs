@@ -1,5 +1,5 @@
 ﻿using Foodsharing.API.Data;
-using Foodsharing.API.Interfaces;
+using Foodsharing.API.Interfaces.Repositories;
 using Foodsharing.API.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;

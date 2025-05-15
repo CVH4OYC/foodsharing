@@ -1,4 +1,4 @@
-﻿using Foodsharing.API.Interfaces;
+﻿using Foodsharing.API.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

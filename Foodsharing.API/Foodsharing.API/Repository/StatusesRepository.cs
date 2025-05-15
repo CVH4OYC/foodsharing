@@ -1,9 +1,9 @@
 ﻿using Foodsharing.API.Constants;
 using System.Threading;
 using Foodsharing.API.Data;
-using Foodsharing.API.Interfaces;
 using Foodsharing.API.Models;
 using Microsoft.EntityFrameworkCore;
+using Foodsharing.API.Interfaces.Repositories;
 
 namespace Foodsharing.API.Repository;
 

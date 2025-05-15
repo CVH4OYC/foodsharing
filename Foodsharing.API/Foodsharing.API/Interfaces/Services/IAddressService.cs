@@ -1,6 +1,6 @@
 ﻿using Foodsharing.API.DTOs;
 
-namespace Foodsharing.API.Interfaces;
+namespace Foodsharing.API.Interfaces.Services;
 
 public interface IAddressService
 {

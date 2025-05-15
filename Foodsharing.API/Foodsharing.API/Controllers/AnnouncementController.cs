@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using Foodsharing.API.DTOs.Announcement;
-using Foodsharing.API.Interfaces;
+using Foodsharing.API.Interfaces.Services;
 using Foodsharing.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

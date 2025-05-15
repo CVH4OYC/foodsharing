@@ -1,4 +1,4 @@
-﻿namespace Foodsharing.API.Interfaces;
+﻿namespace Foodsharing.API.Interfaces.Services;
 
 public interface IPasswordHasher
 {

@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Foodsharing.API.Constants;
 using Foodsharing.API.Services;
-using Foodsharing.API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Foodsharing.API.Infrastructure;
 using System.Security.Claims;
+using Foodsharing.API.Interfaces.Services;
 
 namespace Foodsharing.API.Controllers;
 [Route("api/[controller]")]

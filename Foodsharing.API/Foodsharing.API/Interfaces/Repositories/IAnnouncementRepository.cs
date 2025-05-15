@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Foodsharing.API.Models;
 
-namespace Foodsharing.API.Interfaces;
+namespace Foodsharing.API.Interfaces.Repositories;
 
 public interface IAnnouncementRepository : IRepository<Announcement>
 {
