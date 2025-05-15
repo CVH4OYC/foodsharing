@@ -22,6 +22,8 @@ import OrgAnnouncementsPage from "./components/OrgAnnouncementsPage";
 import OrgInfoPage from "./components/OrgInfoPage";
 import OrgRepresentativesPage from "./components/OrgRepresentativesPage";
 import ChatsPage from "./pages/ChatsPage";
+import ChatWindow from "./components/chat/ChatWindow";
+import ChatWindowPage from "./pages/ChatWindowPage";
 
 function App() {
   return (
@@ -66,7 +68,9 @@ function App() {
             }
             />
 
-            <Route path="/chats" element={<ChatsPage />} />
+            <Route path="/chats" element={<ChatsPage />}>
+              <Route path=":chatId" element={<ChatWindowPage />} />
+            </Route>
             {/* Профиль пользователя (личный и чужие профили) */}
             <Route path="profile" element={<Profile />}>
               <Route path="ads" element={<ProfileAdsSection />} />

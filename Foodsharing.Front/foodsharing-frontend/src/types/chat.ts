@@ -12,6 +12,12 @@ export interface ChatDTO {
     image?: string;
   }
   
+  export interface ChatWithMessagesDTO {
+    id: string;
+    interlocutor: UserDTO;
+    messages: MessageDTO[] | null;
+  }
+  
   export interface MessageDTO {
     isMy: boolean;
     sender: UserDTO;

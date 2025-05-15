@@ -27,6 +27,35 @@ const AdPage = () => {
     setTimeout(() => setMessage(null), 4000);
   };
 
+  const getOrCreateChatWithUser = async (otherUserId: string) => {
+    try {
+      const res = await API.get(`/chat/with/${otherUserId}`);
+      return res.data; // чат уже есть
+    } catch (err: any) {
+      if (err?.response?.status === 404) {
+        // Чат не найден — создаём
+        const createRes = await API.post(`/chat`, null, {
+          params: { otherUserId }
+        });
+        return createRes.data;
+      } else {
+        throw err; // другая ошибка (напр. 500 или 403)
+      }
+    }
+  };
+
+  const handleOpenChat = async () => {
+    if (!ad?.user?.userId) return;
+
+    try {
+      const chatId = await getOrCreateChatWithUser(ad.user.userId);
+      navigate(`/chats/${chatId}`);
+    } catch (err) {
+      showTempMessage("Не удалось открыть чат", "error");
+      console.error(err);
+    }
+  };
+
   const fetchAd = async () => {
     try {
       const response = await API.get(`/Announcement/${announcementId}`);
@@ -341,12 +370,14 @@ const AdPage = () => {
                           Забронировать
                         </button>
                       )}
-                      <button
-                        className="flex-1 border-2 border-primary text-primary bg-white hover:bg-gray-50 py-3 px-6 rounded-xl font-medium"
-                        onClick={() => handleAuthRedirect(() => console.log("Написать..."))}
-                      >
-                        Написать
-                      </button>
+                      {ad.user ? (
+                        <button
+                          className="flex-1 border-2 border-primary text-primary bg-white hover:bg-gray-50 py-3 px-6 rounded-xl font-medium"
+                          onClick={() => handleAuthRedirect(handleOpenChat)}
+                        >
+                          Написать
+                        </button>
+                      ) : null}
                     </div>
                   )
                 ) : (

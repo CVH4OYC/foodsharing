@@ -1,15 +1,15 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 import { ChatDTO } from "../../types/chat";
 import ChatListItem from "./ChatListItem";
 
 interface Props {
   chats: ChatDTO[];
   loading: boolean;
+  selectedChatId: string | null;
+  onSelectChat: (chatId: string) => void;
 }
 
-const ChatList: FC<Props> = ({ chats, loading }) => {
-  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
-
+const ChatList: FC<Props> = ({ chats, loading, selectedChatId, onSelectChat }) => {
   return (
     <aside className="w-[300px] border-r overflow-y-auto">
       <h2 className="text-lg font-bold p-4">Чаты</h2>
@@ -24,7 +24,7 @@ const ChatList: FC<Props> = ({ chats, loading }) => {
               key={chat.id}
               chat={chat}
               selected={chat.id === selectedChatId}
-              onSelect={() => setSelectedChatId(chat.id)}
+              onSelect={() => onSelectChat(chat.id)}
             />
           ))}
         </ul>
