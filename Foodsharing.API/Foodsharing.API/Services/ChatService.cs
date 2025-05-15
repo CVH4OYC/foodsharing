@@ -28,26 +28,31 @@ public class ChatService : IChatService
 
         var myChats = await _chatRepository.GetMyChatsAsync((Guid)currentUserId, cancellationToken);
 
-        return myChats.Select(c => new ChatDTO
+        return myChats.Select(c =>
         {
-            Id = c.Id,
-            Interlocutor = new UserDTO
+            var lastMessage = c.Messages?.FirstOrDefault();
+
+            return new ChatDTO
             {
-                UserId = c.SecondUser.Id,
-                UserName = c.SecondUser.UserName,
-                FirstName = c.SecondUser.Profile.FirstName,
-                LastName = c.SecondUser.Profile.LastName,
-                Image = c.SecondUser.Profile.Image
-            },
-            Message = new MessageDTO
-            {
-                IsMy = currentUserId == c.Messages.FirstOrDefault().SenderId,
-                Text = c.Messages.FirstOrDefault().Text,
-                Date = c.Messages.FirstOrDefault().Date,
-                Status = c.Messages.FirstOrDefault().Status.Name,
-                Image = c.Messages.FirstOrDefault().Image,
-                File = c.Messages.FirstOrDefault().File
-            }
+                Id = c.Id,
+                Interlocutor = new UserDTO
+                {
+                    UserId = c.SecondUser.Id,
+                    UserName = c.SecondUser.UserName,
+                    FirstName = c.SecondUser.Profile.FirstName,
+                    LastName = c.SecondUser.Profile.LastName,
+                    Image = c.SecondUser.Profile.Image
+                },
+                Message = lastMessage == null ? null : new MessageDTO
+                {
+                    IsMy = currentUserId == lastMessage.SenderId,
+                    Text = lastMessage.Text,
+                    Date = lastMessage.Date,
+                    Status = lastMessage.Status?.Name,
+                    Image = lastMessage.Image,
+                    File = lastMessage.File
+                }
+            };
         });
     }
 

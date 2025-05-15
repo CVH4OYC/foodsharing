@@ -21,6 +21,7 @@ import OrganizationAdminPage from "./pages/OrganizationAdminPage";
 import OrgAnnouncementsPage from "./components/OrgAnnouncementsPage";
 import OrgInfoPage from "./components/OrgInfoPage";
 import OrgRepresentativesPage from "./components/OrgRepresentativesPage";
+import ChatsPage from "./pages/ChatsPage";
 
 function App() {
   return (
@@ -64,6 +65,8 @@ function App() {
               </RequireAdminRoute>
             }
             />
+
+            <Route path="/chats" element={<ChatsPage />} />
             {/* Профиль пользователя (личный и чужие профили) */}
             <Route path="profile" element={<Profile />}>
               <Route path="ads" element={<ProfileAdsSection />} />
