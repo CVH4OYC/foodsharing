@@ -3,6 +3,7 @@ using Foodsharing.API.Extensions;
 using Foodsharing.API.Interfaces.Repositories;
 using Foodsharing.API.Interfaces.Services;
 using Foodsharing.API.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace Foodsharing.API.Services;
@@ -56,7 +57,7 @@ public class ChatService : IChatService
         });
     }
 
-    public async Task<Guid> GetOrCreateChatWithUserAsync(Guid otherUserId, CancellationToken cancellationToken)
+    public async Task<Guid?> GetChatIdWithUserAsync(Guid otherUserId, CancellationToken cancellationToken)
     {
         var currentUserId = _httpContextAccessor.HttpContext?.User.GetUserId();
         if (currentUserId == null)
@@ -67,15 +68,33 @@ public class ChatService : IChatService
         var chat = await _chatRepository.GetChatByInterlocutorsIdsAsync(otherUserId, (Guid)currentUserId, cancellationToken);
 
         if (chat == null)
-        {
-            chat = new Chat
-            {
-                FirstUserId = (Guid)currentUserId,
-                SecondUserId = otherUserId,
-            };
+            return null;
 
-            await _chatRepository.AddAsync(chat, cancellationToken);
+        return chat.Id;
+    }
+
+    public async Task<Guid> CreateChatWithUserAsync(Guid otherUserId, CancellationToken cancellationToken)
+    {
+        var currentUserId = _httpContextAccessor.HttpContext?.User.GetUserId();
+        if (currentUserId == null)
+        {
+            throw new Exception("Пользователь не авторизован");
         }
+
+        var chat = await _chatRepository.GetChatByInterlocutorsIdsAsync(otherUserId, (Guid)currentUserId, cancellationToken);
+
+        if (chat is not null)
+        {
+            throw new Exception("У вас уже есть чат с этим пользователем");
+        }
+
+        chat = new Chat
+        {
+            FirstUserId = (Guid)currentUserId,
+            SecondUserId = otherUserId,
+        };
+
+        await _chatRepository.AddAsync(chat, cancellationToken);
 
         return chat.Id;
     }

@@ -5,11 +5,18 @@ namespace Foodsharing.API.Interfaces.Services;
 public interface IChatService
 {
     /// <summary>
-    /// Получить id чата, если его нет, то создать новый
+    /// Получить id чата
     /// </summary>
     /// <param name="otherUserId">id другого пользователя</param>
     /// <returns></returns>
-    Task<Guid> GetOrCreateChatWithUserAsync(Guid otherUserId, CancellationToken cancellationToken);
+    Task<Guid?> GetChatIdWithUserAsync(Guid otherUserId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Создать чат с пользователем
+    /// </summary>
+    /// <param name="otherUserId">id другого пользователя</param>
+    /// <returns></returns>
+    Task<Guid> CreateChatWithUserAsync(Guid otherUserId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Получить свои чаты

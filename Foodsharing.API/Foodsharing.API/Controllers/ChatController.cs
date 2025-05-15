@@ -23,10 +23,13 @@ public class ChatController : ControllerBase
     /// <returns></returns>
     [HttpGet("with/{otherUserId}")]
     [Authorize]
-    public async Task<ActionResult<Guid>> GetOrCreateChatWithUser(Guid otherUserId, CancellationToken cancellationToken)
+    public async Task<ActionResult<Guid>> GetChatIdWithUserAsync(Guid otherUserId, CancellationToken cancellationToken)
     {
-        var chatId = await _chatService.GetOrCreateChatWithUserAsync(otherUserId, cancellationToken);
-
+        var chatId = await _chatService.GetChatIdWithUserAsync(otherUserId, cancellationToken);
+        
+        if (chatId == null) 
+            return NotFound();
+            
         return Ok(chatId);
     }
 
@@ -37,5 +40,14 @@ public class ChatController : ControllerBase
     {
         var chats = await _chatService.GetMyChatsAsync(cancellationToken);
         return Ok(chats);
+    }
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> CreateChatAsync(Guid otherUserId, CancellationToken cancellationToken)
+    {
+        var chatId = await _chatService.CreateChatWithUserAsync(otherUserId, cancellationToken);
+
+        return Ok(chatId);
     }
 }
