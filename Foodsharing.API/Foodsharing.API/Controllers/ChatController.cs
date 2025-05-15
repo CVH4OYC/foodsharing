@@ -1,4 +1,5 @@
-﻿using Foodsharing.API.Interfaces.Services;
+﻿using Foodsharing.API.DTOs;
+using Foodsharing.API.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,7 @@ public class ChatController : ControllerBase
     /// <returns></returns>
     [HttpGet("with/{otherUserId}")]
     [Authorize]
-    public async Task<IActionResult> GetOrCreateChatWithUser(Guid otherUserId, CancellationToken cancellationToken)
+    public async Task<ActionResult<Guid>> GetOrCreateChatWithUser(Guid otherUserId, CancellationToken cancellationToken)
     {
         var chatId = await _chatService.GetOrCreateChatWithUserAsync(otherUserId, cancellationToken);
 
@@ -32,7 +33,7 @@ public class ChatController : ControllerBase
     // Получить все чаты текущего пользователя
     [HttpGet("my")]
     [Authorize]
-    public async Task<IActionResult> GetMyChats(CancellationToken cancellationToken)
+    public async Task<ActionResult<IEnumerable<ChatDTO>>> GetMyChats(CancellationToken cancellationToken)
     {
         var chats = await _chatService.GetMyChatsAsync(cancellationToken);
         return Ok(chats);
