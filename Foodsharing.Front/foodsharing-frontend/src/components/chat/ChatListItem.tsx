@@ -16,19 +16,24 @@ const ChatListItem: FC<Props> = ({ chat, selected, onSelect }) => {
     ? `${StaticAPI.defaults.baseURL}${interlocutor.image}`
     : null;
 
-  const getStatusIcon = () => {
+const getStatusIcon = () => {
     if (!message) return null;
+    
+    if (!message.isMy && message.status === "Не прочитано") {
+        return <div className="w-2 h-2 rounded-full bg-primary" />;
+    }
+    
     switch (message.status) {
-      case "Прочитано":
-        return <FaCheckDouble className="text-green-500" />;
-      case "Непрочитано":
-        return <FaCheck className="text-gray-500" />;
-      case "Не доставлено":
-        return <FaExclamation className="text-red-500" />;
-      default:
+        case "Прочитано":
+        return message.isMy && <FaCheckDouble className="text-green-500" />;
+        case "Не прочитано":
+        return message.isMy && <FaCheck className="text-gray-500" />;
+        case "Не доставлено":
+        return message.isMy && <FaExclamation className="text-red-500" />;
+        default:
         return null;
     }
-  };
+    };
 
   const initials = interlocutor.firstName?.[0]?.toUpperCase() || "?";
 
