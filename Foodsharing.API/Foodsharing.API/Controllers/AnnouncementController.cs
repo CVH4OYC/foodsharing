@@ -1,11 +1,7 @@
-﻿using System.Runtime.CompilerServices;
-using System.Security.Claims;
-using Foodsharing.API.DTOs.Announcement;
+﻿using Foodsharing.API.DTOs.Announcement;
 using Foodsharing.API.Interfaces.Services;
-using Foodsharing.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Foodsharing.API.Controllers;
 [Route("api/[controller]")]

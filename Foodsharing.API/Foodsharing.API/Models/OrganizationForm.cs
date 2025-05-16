@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Security.Cryptography.X509Certificates;
-using Foodsharing.API.Abstract;
+﻿using Foodsharing.API.Abstract;
 
 namespace Foodsharing.API.Models;
 

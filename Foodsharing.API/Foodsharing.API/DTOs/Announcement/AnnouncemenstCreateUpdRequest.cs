@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Foodsharing.API.Abstract;
 using Foodsharing.API.Extensions.Attributes;
-using Foodsharing.API.Models;
 
 namespace Foodsharing.API.DTOs.Announcement;
 

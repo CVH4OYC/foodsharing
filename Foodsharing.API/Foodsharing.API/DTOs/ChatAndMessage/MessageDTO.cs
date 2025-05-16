@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Foodsharing.API.DTOs;
+namespace Foodsharing.API.DTOs.ChatAndMessage;
 
 public class MessageDTO
 {

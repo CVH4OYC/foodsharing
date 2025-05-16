@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Foodsharing.API.DTOs.Parthner;
+﻿namespace Foodsharing.API.DTOs.Parthner;
 
 public class AcceptApplicationRequest
 {

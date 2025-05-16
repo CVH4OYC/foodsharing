@@ -1,5 +1,4 @@
-﻿using Foodsharing.API.DTOs.Announcement;
-using Foodsharing.API.Infrastructure;
+﻿using Foodsharing.API.Infrastructure;
 
 namespace Foodsharing.API.Interfaces.Services;
 

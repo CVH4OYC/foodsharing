@@ -1,7 +1,5 @@
 ﻿using Foodsharing.API.Constants;
 using Foodsharing.API.DTOs;
-using Foodsharing.API.DTOs.Announcement;
-using Foodsharing.API.Infrastructure;
 using Foodsharing.API.Interfaces.Repositories;
 using Foodsharing.API.Interfaces.Services;
 using Foodsharing.API.Models;

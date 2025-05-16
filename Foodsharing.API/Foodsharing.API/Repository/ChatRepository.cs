@@ -41,7 +41,7 @@ public class ChatRepository : Repository<Chat>, IChatRepository
 
         var messages = await messagesQuery
             .Include(m => m.Status)
-            .OrderByDescending(m => m.Date)
+            .OrderBy(m => m.Date)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);

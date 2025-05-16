@@ -1,5 +1,4 @@
 ﻿using Foodsharing.API.Models;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Foodsharing.API.Interfaces.Repositories;
 

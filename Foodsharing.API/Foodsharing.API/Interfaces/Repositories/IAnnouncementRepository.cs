@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Foodsharing.API.Models;
+﻿using Foodsharing.API.Models;
 
 namespace Foodsharing.API.Interfaces.Repositories;
 

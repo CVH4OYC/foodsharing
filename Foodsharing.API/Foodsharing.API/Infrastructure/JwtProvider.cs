@@ -1,7 +1,6 @@
 ﻿using Foodsharing.API.Interfaces.Repositories;
 using Foodsharing.API.Interfaces.Services;
 using Foodsharing.API.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

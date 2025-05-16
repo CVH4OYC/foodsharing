@@ -1,7 +1,5 @@
 ﻿using Foodsharing.API.Constants;
-using Foodsharing.API.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Foodsharing.API.Controllers;

@@ -1,5 +1,4 @@
-﻿using Foodsharing.API.DTOs;
-using Microsoft.AspNetCore.Mvc;
+﻿using Foodsharing.API.DTOs.ChatAndMessage;
 
 namespace Foodsharing.API.Interfaces.Services;
 

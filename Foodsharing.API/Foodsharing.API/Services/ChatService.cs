@@ -1,10 +1,9 @@
 ﻿using Foodsharing.API.DTOs;
+using Foodsharing.API.DTOs.ChatAndMessage;
 using Foodsharing.API.Extensions;
 using Foodsharing.API.Interfaces.Repositories;
 using Foodsharing.API.Interfaces.Services;
 using Foodsharing.API.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore;
 
 namespace Foodsharing.API.Services;
 

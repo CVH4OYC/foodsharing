@@ -9,4 +9,6 @@ public interface IStatusesRepository
     Task<OrganizationStatus?> GetOrganizationStatusByName(string name, CancellationToken cancellationToken = default);
 
     Task<PartnershipApplicationStatus?> GetPartnershipApplicationStatusByName(string name, CancellationToken cancellationToken = default);
+
+    Task<MessageStatus?> GetMessageStatusByNameAsync(string name, CancellationToken cancellationToken = default);
 }

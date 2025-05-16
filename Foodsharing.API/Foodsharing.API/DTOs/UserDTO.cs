@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Foodsharing.API.DTOs;
+﻿namespace Foodsharing.API.DTOs;
 
 public class UserDTO
 {

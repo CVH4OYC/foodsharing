@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Foodsharing.API.DTOs.Announcement;
+﻿namespace Foodsharing.API.DTOs.Announcement;
 
 public class CategoryForAnnouncement
 {

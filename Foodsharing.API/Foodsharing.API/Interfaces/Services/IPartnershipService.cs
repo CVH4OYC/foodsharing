@@ -1,8 +1,6 @@
 ﻿using Foodsharing.API.DTOs;
 using Foodsharing.API.DTOs.Parthner;
 using Foodsharing.API.Infrastructure;
-using Foodsharing.API.Models;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Foodsharing.API.Interfaces.Services;
 

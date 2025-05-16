@@ -2,8 +2,6 @@
 using Foodsharing.API.Interfaces.Repositories;
 using Foodsharing.API.Interfaces.Services;
 using Foodsharing.API.Models;
-using Foodsharing.API.Repository;
-using Microsoft.EntityFrameworkCore;
 
 namespace Foodsharing.API.Services;
 

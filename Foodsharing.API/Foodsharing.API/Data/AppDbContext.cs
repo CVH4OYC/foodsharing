@@ -1,6 +1,5 @@
 ﻿using Foodsharing.API.Data.ModelsConficurations;
 using Foodsharing.API.Models;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Foodsharing.API.Data;

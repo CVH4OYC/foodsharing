@@ -1,8 +1,4 @@
-﻿using Foodsharing.API.Models;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
-
-namespace Foodsharing.API.Data.ModelsConficurations;
+﻿namespace Foodsharing.API.Data.ModelsConficurations;
 
 //public class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
 //{

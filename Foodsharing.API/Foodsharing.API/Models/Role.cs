@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Foodsharing.API.Abstract;
-using Microsoft.AspNetCore.Identity;
 
 namespace Foodsharing.API.Models;
 

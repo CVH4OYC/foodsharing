@@ -1,5 +1,4 @@
-﻿using Foodsharing.API.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Foodsharing.API.DTOs;
 

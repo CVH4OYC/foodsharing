@@ -1,13 +1,9 @@
-﻿using System.Runtime.CompilerServices;
-using Foodsharing.API.Constants;
-using Foodsharing.API.DTOs.Announcement;
+﻿using Foodsharing.API.Constants;
 using Foodsharing.API.Extensions;
 using Foodsharing.API.Infrastructure;
 using Foodsharing.API.Interfaces.Repositories;
 using Foodsharing.API.Interfaces.Services;
 using Foodsharing.API.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 
 namespace Foodsharing.API.Services;
 

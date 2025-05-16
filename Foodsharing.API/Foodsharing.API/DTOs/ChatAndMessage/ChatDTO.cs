@@ -1,8 +1,8 @@
 ﻿using Foodsharing.API.Abstract;
 
-namespace Foodsharing.API.DTOs;
+namespace Foodsharing.API.DTOs.ChatAndMessage;
 
-public class ChatWithMessagesDTO : EntityBase
+public class ChatDTO : EntityBase
 {
     /// <summary>
     /// Собеседник
@@ -10,7 +10,7 @@ public class ChatWithMessagesDTO : EntityBase
     public UserDTO Interlocutor { get; set; }
 
     /// <summary>
-    /// Сообщения
+    /// Последнее сообщение в чате
     /// </summary>
-    public IEnumerable<MessageDTO>? Messages { get; set; }
+    public MessageDTO? Message { get; set; }
 }

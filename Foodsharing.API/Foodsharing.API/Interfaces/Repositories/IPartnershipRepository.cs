@@ -1,6 +1,4 @@
-﻿using Foodsharing.API.DTOs;
-using Foodsharing.API.Models;
-using Foodsharing.API.Services;
+﻿using Foodsharing.API.Models;
 
 namespace Foodsharing.API.Interfaces.Repositories;
 

@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Foodsharing.API.Extensions.Attributes;
 
 namespace Foodsharing.API.DTOs.Announcement;
 

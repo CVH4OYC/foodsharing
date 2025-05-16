@@ -1,20 +1,15 @@
-using System.Text;
 using Foodsharing.API.Constants;
 using Foodsharing.API.Data;
 using Foodsharing.API.Extensions;
 using Foodsharing.API.Infrastructure;
 using Foodsharing.API.Interfaces.Repositories;
 using Foodsharing.API.Interfaces.Services;
-using Foodsharing.API.Models;
 using Foodsharing.API.Repository;
 using Foodsharing.API.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.CookiePolicy;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +31,7 @@ builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>();
 builder.Services.AddScoped<IPartnershipRepository, PartnershipRepository>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
 
 
@@ -51,6 +47,8 @@ builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IPartnershipService, PartnershipService>();
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IFileService, FileService>();
 
 builder.Services.AddHttpContextAccessor();
 
@@ -104,19 +102,23 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Конфигурация статических файлов
 StaticFileOptions CreateStaticFilesOptions(
-    string folderName,
+    string rootFolder, // Базовая папка (Pictures/Files)
+    string subFolder,  // Подпапка (Avatars/Announcements)
     IWebHostEnvironment env)
 {
+    var fullPath = Path.Combine(
+        env.WebRootPath,
+        rootFolder,
+        subFolder);
+
+    // Создаем папку, если она не существует
+    Directory.CreateDirectory(fullPath);
+
     return new StaticFileOptions
     {
-        FileProvider = new PhysicalFileProvider(
-            Path.Combine(
-                env.WebRootPath,
-                PathsConsts.PicturesFolder,
-                folderName)),
-        RequestPath = $"/{folderName}",
+        FileProvider = new PhysicalFileProvider(fullPath),
+        RequestPath = $"/{rootFolder}/{subFolder}",
         ContentTypeProvider = new FileExtensionContentTypeProvider
         {
             Mappings =
@@ -131,14 +133,26 @@ StaticFileOptions CreateStaticFilesOptions(
     };
 }
 
-// Аватары
+// Для Pictures
 app.UseStaticFiles(CreateStaticFilesOptions(
+    PathsConsts.PicturesFolder,
     PathsConsts.AvatarsFolder,
     app.Environment));
 
-// Объявления
 app.UseStaticFiles(CreateStaticFilesOptions(
+    PathsConsts.PicturesFolder,
     PathsConsts.AnnouncementsFolder,
     app.Environment));
+
+app.UseStaticFiles(CreateStaticFilesOptions(
+    PathsConsts.PicturesFolder,
+    PathsConsts.ChatImagesFolder,
+    app.Environment));
+
+app.UseStaticFiles(CreateStaticFilesOptions(
+    PathsConsts.FilesFolder,
+    PathsConsts.ChatFilesFolder,
+    app.Environment));
+
 
 app.Run();

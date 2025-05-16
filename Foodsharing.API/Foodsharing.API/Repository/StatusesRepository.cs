@@ -1,6 +1,4 @@
-﻿using Foodsharing.API.Constants;
-using System.Threading;
-using Foodsharing.API.Data;
+﻿using Foodsharing.API.Data;
 using Foodsharing.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Foodsharing.API.Interfaces.Repositories;
@@ -37,9 +35,18 @@ public class StatusesRepository : IStatusesRepository
         return status;
     }
 
-    public async Task<PartnershipApplicationStatus> GetPartnershipApplicationStatusByName(string name, CancellationToken cancellationToken = default)
+    public async Task<PartnershipApplicationStatus?> GetPartnershipApplicationStatusByName(string name, CancellationToken cancellationToken = default)
     {
         var status = await context.Set<PartnershipApplicationStatus>()
+            .Where(s => s.Name == name)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return status;
+    }
+
+    public async Task<MessageStatus?> GetMessageStatusByNameAsync(string name, CancellationToken cancellationToken = default)
+    {
+        var status = await context.Set<MessageStatus>()
             .Where(s => s.Name == name)
             .FirstOrDefaultAsync(cancellationToken);
 

@@ -1,7 +1,6 @@
-﻿using Foodsharing.API.DTOs;
+﻿using Foodsharing.API.DTOs.ChatAndMessage;
 using Foodsharing.API.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Foodsharing.API.Controllers;
