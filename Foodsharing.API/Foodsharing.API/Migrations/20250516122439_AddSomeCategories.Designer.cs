@@ -3,6 +3,7 @@ using System;
 using Foodsharing.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Foodsharing.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250516122439_AddSomeCategories")]
+    partial class AddSomeCategories
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -122,64 +125,71 @@ namespace Foodsharing.API.Migrations
                         new
                         {
                             Id = new Guid("2d740f5a-173e-4f1b-974d-c007a2256c37"),
-                            Color = "#FFF0E6",
+                            Color = "",
                             Name = "Молочные продукты"
                         },
                         new
                         {
                             Id = new Guid("3a45831f-89fa-40ce-b236-35adcde88d56"),
-                            Color = "#FFC299",
+                            Color = "",
                             Name = "Сыры",
                             ParentId = new Guid("2d740f5a-173e-4f1b-974d-c007a2256c37")
                         },
                         new
                         {
                             Id = new Guid("863bbb48-1b44-4f05-a380-8995de42b86f"),
-                            Color = "#FFC299",
+                            Color = "",
                             Name = "Сметана",
                             ParentId = new Guid("2d740f5a-173e-4f1b-974d-c007a2256c37")
                         },
                         new
                         {
                             Id = new Guid("c09a6c67-bed1-479c-8a44-6a674ebb2bfa"),
-                            Color = "#FFC299",
+                            Color = "",
                             Name = "Молоко",
                             ParentId = new Guid("2d740f5a-173e-4f1b-974d-c007a2256c37")
                         },
                         new
                         {
                             Id = new Guid("b3d5fb72-7622-4c35-be37-c537d873e640"),
-                            Color = "#E6F7FF",
+                            Color = "",
                             Name = "Напитки"
                         },
                         new
                         {
+                            Id = new Guid("97ca5649-c73a-4a21-9842-b6fb8bd9dcda"),
+                            Color = "",
+                            Name = "Напитки",
+                            ParentId = new Guid("b3d5fb72-7622-4c35-be37-c537d873e640")
+                        },
+                        new
+                        {
                             Id = new Guid("1141deac-fddb-43c5-85e3-6c5b6d7ec314"),
-                            Color = "#F5F5DC",
+                            Color = "",
                             Name = "Консервы"
                         },
                         new
                         {
                             Id = new Guid("7e035d5b-ec79-47a7-9b52-d287da24737b"),
-                            Color = "#E6FFE6",
+                            Color = "",
                             Name = "Домашняя"
                         },
                         new
                         {
                             Id = new Guid("42139ca4-f9fc-41b9-8a89-0a8518177279"),
-                            Color = "#FFF0F5",
+                            Color = "",
                             Name = "Сладкое"
                         },
                         new
                         {
                             Id = new Guid("5a7e69c0-8a42-4f21-ad5d-f793543369d4"),
-                            Color = "#FAF0DC",
+                            Color = "",
                             Name = "Крупа"
                         },
                         new
                         {
                             Id = new Guid("01917a66-9afc-4261-8a94-8cdf29d3256d"),
-                            Color = "#FFE699",
+                            Color = "",
                             Name = "Снеки"
                         });
                 });

@@ -38,7 +38,7 @@ const AdCard: FC<AdCardProps> = ({
             className="absolute top-3 left-3 text-xs font-medium px-3 py-1 rounded-full backdrop-blur-sm shadow-sm"
             style={{
               backgroundColor: `${categoryColor}CC`,
-              color: "#ffffff",
+              color: "#000000",
             }}
           >
             {category.name}

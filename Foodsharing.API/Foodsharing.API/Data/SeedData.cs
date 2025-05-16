@@ -37,28 +37,66 @@ public class SeedData
         modelBuilder.Entity<Category>().HasData(
             new Category
             {
+                Id = new Guid("2d740f5a-173e-4f1b-974d-c007a2256c37"),
+                Name = "Молочные продукты",
+                Color = "#FFF0E6", // светло-кремовый
+            },
+            new Category
+            {
+                Id = new Guid("3a45831f-89fa-40ce-b236-35adcde88d56"),
+                Name = "Сыры",
+                ParentId = new Guid("2d740f5a-173e-4f1b-974d-c007a2256c37"),
+                Color = "#FFC299", // насыщенный кремовый
+            },
+            new Category
+            {
+                Id = new Guid("863bbb48-1b44-4f05-a380-8995de42b86f"),
+                Name = "Сметана",
+                ParentId = new Guid("2d740f5a-173e-4f1b-974d-c007a2256c37"),
+                Color = "#FFC299", // мягкий персиковый
+            },
+            new Category
+            {
+                Id = new Guid("c09a6c67-bed1-479c-8a44-6a674ebb2bfa"),
+                Name = "Молоко",
+                ParentId = new Guid("2d740f5a-173e-4f1b-974d-c007a2256c37"),
+                Color = "#FFC299", // слегка бежевый
+            },
+            new Category
+            {
                 Id = new Guid("b3d5fb72-7622-4c35-be37-c537d873e640"),
-                Name = "Консервы"
+                Name = "Напитки",
+                Color = "#E6F7FF", // светло-голубой
+            },
+            new Category
+            {
+                Id = new Guid("1141deac-fddb-43c5-85e3-6c5b6d7ec314"),
+                Name = "Консервы",
+                Color = "#F5F5DC", // светло-бежевый (бледная олива)
             },
             new Category
             {
                 Id = new Guid("7e035d5b-ec79-47a7-9b52-d287da24737b"),
-                Name = "Домашняя"
+                Name = "Домашняя",
+                Color = "#E6FFE6", // светло-зеленый
             },
             new Category
             {
                 Id = new Guid("42139ca4-f9fc-41b9-8a89-0a8518177279"),
-                Name = "Сладкое"
+                Name = "Сладкое",
+                Color = "#FFF0F5", // лаванда (розовато-светлый)
             },
             new Category
             {
                 Id = new Guid("5a7e69c0-8a42-4f21-ad5d-f793543369d4"),
-                Name = "Крупа"
+                Name = "Крупа",
+                Color = "#FAF0DC", // песочный
             },
             new Category
             {
                 Id = new Guid("01917a66-9afc-4261-8a94-8cdf29d3256d"),
-                Name = "Снеки"
+                Name = "Снеки",
+                Color = "#FFE699", // желтовато-оранжевый
             });
 
         modelBuilder.Entity<TransactionStatus>().HasData(
