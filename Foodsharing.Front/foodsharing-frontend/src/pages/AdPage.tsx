@@ -27,32 +27,20 @@ const AdPage = () => {
     setTimeout(() => setMessage(null), 4000);
   };
 
-  const getOrCreateChatWithUser = async (otherUserId: string) => {
-    try {
-      const res = await API.get(`/chat/with/${otherUserId}`);
-      return res.data; // чат уже есть
-    } catch (err: any) {
-      if (err?.response?.status === 404) {
-        // Чат не найден — создаём
-        const createRes = await API.post(`/chat`, null, {
-          params: { otherUserId }
-        });
-        return createRes.data;
-      } else {
-        throw err; // другая ошибка (напр. 500 или 403)
-      }
-    }
-  };
-
   const handleOpenChat = async () => {
     if (!ad?.user?.userId) return;
-
+  
     try {
-      const chatId = await getOrCreateChatWithUser(ad.user.userId);
+      const res = await API.get(`/chat/with/${ad.user.userId}`);
+      const chatId = res.data;
       navigate(`/chats/${chatId}`);
-    } catch (err) {
-      showTempMessage("Не удалось открыть чат", "error");
-      console.error(err);
+    } catch (err: any) {
+      if (err?.response?.status === 404) {
+        navigate(`/chats/new?userId=${ad.user.userId}`);
+      } else {
+        showTempMessage("Не удалось открыть чат", "error");
+        console.error(err);
+      }
     }
   };
 

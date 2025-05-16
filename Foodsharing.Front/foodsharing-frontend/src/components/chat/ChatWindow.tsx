@@ -1,34 +1,130 @@
-// src/components/chat/ChatWindow.tsx
 import { FC, useEffect, useState } from "react";
-import { ChatWithMessagesDTO, MessageDTO } from "../../types/chat";
+import { ChatWithMessagesDTO } from "../../types/chat";
 import { API, StaticAPI } from "../../services/api";
 
 interface Props {
-  chatId: string;
+  chatId: string | null;
+  interlocutorId?: string;
 }
 
-const ChatWindow: FC<Props> = ({ chatId }) => {
+const ChatWindow: FC<Props> = ({ chatId, interlocutorId }) => {
   const [chat, setChat] = useState<ChatWithMessagesDTO | null>(null);
   const [loading, setLoading] = useState(true);
+  const [tempMessage, setTempMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [creatingChatId, setCreatingChatId] = useState<string | null>(null);
+  const [interlocutorName, setInterlocutorName] = useState<string>("");
+
+  const actualChatId = chatId || creatingChatId;
+
+  const fetchChat = async (id: string) => {
+    setLoading(true);
+    try {
+      const res = await API.get(`/chat/${id}`);
+      setChat(res.data);
+    } catch (err) {
+      console.error("Ошибка загрузки чата", err);
+      setChat(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchInterlocutor = async () => {
+    if (!interlocutorId) return;
+    try {
+      const res = await API.get(`/user/${interlocutorId}`);
+      const user = res.data;
+      setInterlocutorName(`${user.firstName || ""} ${user.lastName || ""}`.trim());
+    } catch (err) {
+      console.error("Ошибка загрузки данных пользователя", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchChat = async () => {
-      setLoading(true);
-      try {
-        const res = await API.get(`/chat/${chatId}`);
-        setChat(res.data);
-      } catch (err) {
-        console.error("Ошибка загрузки чата", err);
-      } finally {
-        setLoading(false);
+    if (chatId) {
+      fetchChat(chatId);
+    } else if (interlocutorId) {
+      fetchInterlocutor();
+      setLoading(false);
+    }
+  }, [chatId, interlocutorId]);
+
+  const handleSend = async () => {
+    if (!tempMessage.trim() || (!actualChatId && !interlocutorId)) return;
+    setSending(true);
+
+    try {
+      let finalChatId = actualChatId;
+
+      if (!finalChatId && interlocutorId) {
+        const res = await API.post("/chat", null, {
+          params: { otherUserId: interlocutorId },
+        });
+        finalChatId = res.data;
+        setCreatingChatId(finalChatId);
+      
+        if (finalChatId) {
+          await fetchChat(finalChatId); 
+        }
       }
-    };
 
-    fetchChat();
-  }, [chatId]);
+      if (!finalChatId) throw new Error("Chat ID is not available");
 
-  if (loading) {
+      await API.post("/message", {
+        chatId: finalChatId,
+        text: tempMessage,
+      });
+
+      setTempMessage("");
+      await fetchChat(finalChatId);
+    } catch (err) {
+      console.error("Ошибка при отправке сообщения", err);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if (loading && !chat) {
     return <div className="flex-1 flex items-center justify-center text-gray-500">Загрузка чата...</div>;
+  }
+
+  if (!chat && interlocutorId) {
+    return (
+      <div className="flex-1 flex flex-col h-full">
+        {/* Шапка */}
+        <div className="border-b px-4 py-3 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-white font-bold">
+            {interlocutorName[0]?.toUpperCase() || "?"}
+          </div>
+          <span className="font-semibold">{interlocutorName || "Новый чат"}</span>
+        </div>
+
+        {/* Пустое тело */}
+        <div className="flex-1 flex items-center justify-center text-gray-400">Напишите первое сообщение</div>
+
+        {/* Футер */}
+        <div className="border-t px-4 py-3">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSend();
+            }}
+          >
+            <input
+              type="text"
+              placeholder="Введите сообщение..."
+              value={tempMessage}
+              onChange={(e) => setTempMessage(e.target.value)}
+              className="w-full border rounded-xl px-4 py-2 outline-none"
+              disabled={sending}
+            />
+          </form>
+        </div>
+      </div>
+    );
   }
 
   if (!chat) {
@@ -36,9 +132,7 @@ const ChatWindow: FC<Props> = ({ chatId }) => {
   }
 
   const { interlocutor, messages } = chat;
-  const avatar = interlocutor.image
-    ? `${StaticAPI.defaults.baseURL}${interlocutor.image}`
-    : null;
+  const avatar = interlocutor.image ? `${StaticAPI.defaults.baseURL}${interlocutor.image}` : null;
   const initials = interlocutor.firstName?.[0]?.toUpperCase() || "?";
 
   return (
@@ -66,7 +160,12 @@ const ChatWindow: FC<Props> = ({ chatId }) => {
               }`}
             >
               <div className="text-sm whitespace-pre-line">{msg.text}</div>
-              <div className="text-xs mt-1 opacity-70 text-right">{new Date(msg.date).toLocaleTimeString()}</div>
+              <div className="text-xs mt-1 opacity-70 text-right">
+                {new Date(msg.date).toLocaleTimeString("ru-RU", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </div>
             </div>
           ))
         ) : (
@@ -74,14 +173,23 @@ const ChatWindow: FC<Props> = ({ chatId }) => {
         )}
       </div>
 
-      {/* Футер (ввод сообщения — пока заготовка) */}
+      {/* Футер */}
       <div className="border-t px-4 py-3">
-        <input
-          type="text"
-          placeholder="Введите сообщение..."
-          className="w-full border rounded-xl px-4 py-2 outline-none"
-          disabled
-        />
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSend();
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Введите сообщение..."
+            value={tempMessage}
+            onChange={(e) => setTempMessage(e.target.value)}
+            className="w-full border rounded-xl px-4 py-2 outline-none"
+            disabled={sending}
+          />
+        </form>
       </div>
     </div>
   );

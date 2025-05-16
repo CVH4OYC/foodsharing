@@ -70,6 +70,7 @@ function App() {
 
             <Route path="/chats" element={<ChatsPage />}>
               <Route path=":chatId" element={<ChatWindowPage />} />
+              <Route path="new" element={<ChatWindowPage />} />
             </Route>
             {/* Профиль пользователя (личный и чужие профили) */}
             <Route path="profile" element={<Profile />}>
