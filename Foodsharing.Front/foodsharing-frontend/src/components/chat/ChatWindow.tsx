@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState, useRef } from "react";
 import { ChatWithMessagesDTO } from "../../types/chat";
 import { API, StaticAPI } from "../../services/api";
 
@@ -14,19 +14,25 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId }) => {
   const [sending, setSending] = useState(false);
   const [creatingChatId, setCreatingChatId] = useState<string | null>(null);
   const [interlocutorName, setInterlocutorName] = useState<string>("");
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const actualChatId = chatId || creatingChatId;
 
-  const fetchChat = async (id: string) => {
-    setLoading(true);
+  const fetchChat = async (id: string, updateOnlyMessages = false) => {
     try {
       const res = await API.get(`/chat/${id}`);
-      setChat(res.data);
+      if (updateOnlyMessages) {
+        setChat((prev) =>
+          prev ? { ...prev, messages: res.data.messages } : res.data
+        );
+      } else {
+        setChat(res.data);
+      }
     } catch (err) {
       console.error("Ошибка загрузки чата", err);
-      setChat(null);
+      if (!updateOnlyMessages) setChat(null);
     } finally {
-      setLoading(false);
+      if (!updateOnlyMessages) setLoading(false);
     }
   };
 
@@ -50,7 +56,21 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId }) => {
       fetchInterlocutor();
       setLoading(false);
     }
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, [chatId, interlocutorId]);
+
+  useEffect(() => {
+    if (!actualChatId) return;
+    intervalRef.current = setInterval(() => {
+      fetchChat(actualChatId, true);
+    }, 5000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [actualChatId]);
 
   const handleSend = async () => {
     if (!tempMessage.trim() || (!actualChatId && !interlocutorId)) return;
@@ -60,15 +80,12 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId }) => {
       let finalChatId = actualChatId;
 
       if (!finalChatId && interlocutorId) {
-        const res = await API.post("/chat", null, {
+        const res = await API.post<string>("/chat", null, {
           params: { otherUserId: interlocutorId },
         });
         finalChatId = res.data;
         setCreatingChatId(finalChatId);
-      
-        if (finalChatId) {
-          await fetchChat(finalChatId); 
-        }
+        await fetchChat(finalChatId);
       }
 
       if (!finalChatId) throw new Error("Chat ID is not available");
@@ -79,7 +96,7 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId }) => {
       });
 
       setTempMessage("");
-      await fetchChat(finalChatId);
+      await fetchChat(finalChatId, true);
     } catch (err) {
       console.error("Ошибка при отправке сообщения", err);
     } finally {
@@ -94,25 +111,15 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId }) => {
   if (!chat && interlocutorId) {
     return (
       <div className="flex-1 flex flex-col h-full">
-        {/* Шапка */}
         <div className="border-b px-4 py-3 flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-white font-bold">
             {interlocutorName[0]?.toUpperCase() || "?"}
           </div>
           <span className="font-semibold">{interlocutorName || "Новый чат"}</span>
         </div>
-
-        {/* Пустое тело */}
         <div className="flex-1 flex items-center justify-center text-gray-400">Напишите первое сообщение</div>
-
-        {/* Футер */}
         <div className="border-t px-4 py-3">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSend();
-            }}
-          >
+          <form onSubmit={(e) => { e.preventDefault(); handleSend(); }}>
             <input
               type="text"
               placeholder="Введите сообщение..."
@@ -137,7 +144,6 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId }) => {
 
   return (
     <div className="flex-1 flex flex-col h-full">
-      {/* Шапка */}
       <div className="border-b px-4 py-3 flex items-center gap-3">
         {avatar ? (
           <img src={avatar} alt={interlocutor.userName} className="w-10 h-10 rounded-full object-cover" />
@@ -149,7 +155,6 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId }) => {
         <span className="font-semibold">{interlocutor.firstName} {interlocutor.lastName}</span>
       </div>
 
-      {/* Сообщения */}
       <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2">
         {messages && messages.length > 0 ? (
           messages.map((msg, index) => (
@@ -173,14 +178,8 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId }) => {
         )}
       </div>
 
-      {/* Футер */}
       <div className="border-t px-4 py-3">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSend();
-          }}
-        >
+        <form onSubmit={(e) => { e.preventDefault(); handleSend(); }}>
           <input
             type="text"
             placeholder="Введите сообщение..."
