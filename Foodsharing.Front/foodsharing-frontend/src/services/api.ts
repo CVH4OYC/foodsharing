@@ -9,7 +9,7 @@ const API = axios.create({
 
 // Для статических файлов
 const StaticAPI = axios.create({
-  baseURL: "https://localhost:7044",
+  baseURL: "https://localhost:7044/",
   withCredentials: true,
 });
 

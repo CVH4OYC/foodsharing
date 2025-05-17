@@ -51,6 +51,6 @@ public class ImageService : IImageService
             });
         }
 
-        return $"/{pathFolder}/{fileName}".Replace("\\", "/");
+        return $"{PathsConsts.PicturesFolder}/{pathFolder}/{fileName}".Replace("\\", "/");
     }
 }

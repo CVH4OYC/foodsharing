@@ -133,6 +133,8 @@ StaticFileOptions CreateStaticFilesOptions(
     };
 }
 
+app.UseStaticFiles();
+
 // Äëÿ Pictures
 app.UseStaticFiles(CreateStaticFilesOptions(
     PathsConsts.PicturesFolder,

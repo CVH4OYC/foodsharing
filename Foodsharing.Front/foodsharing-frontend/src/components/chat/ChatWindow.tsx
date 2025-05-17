@@ -1,3 +1,4 @@
+// src/components/chat/ChatWindow.tsx
 import { FC, useEffect, useState, useRef } from "react";
 import { ChatWithMessagesDTO } from "../../types/chat";
 import { API, StaticAPI } from "../../services/api";
@@ -14,25 +15,18 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId }) => {
   const [sending, setSending] = useState(false);
   const [creatingChatId, setCreatingChatId] = useState<string | null>(null);
   const [interlocutorName, setInterlocutorName] = useState<string>("");
+  const [file, setFile] = useState<File | null>(null);
+  const [image, setImage] = useState<File | null>(null);
+  const actualChatId = chatId || creatingChatId;
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const actualChatId = chatId || creatingChatId;
-
-  const fetchChat = async (id: string, updateOnlyMessages = false) => {
+  const fetchChat = async (id: string) => {
     try {
       const res = await API.get(`/chat/${id}`);
-      if (updateOnlyMessages) {
-        setChat((prev) =>
-          prev ? { ...prev, messages: res.data.messages } : res.data
-        );
-      } else {
-        setChat(res.data);
-      }
+      setChat(res.data);
     } catch (err) {
       console.error("Ошибка загрузки чата", err);
-      if (!updateOnlyMessages) setChat(null);
-    } finally {
-      if (!updateOnlyMessages) setLoading(false);
+      setChat(null);
     }
   };
 
@@ -52,56 +46,75 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId }) => {
   useEffect(() => {
     if (chatId) {
       fetchChat(chatId);
+      setLoading(false);
     } else if (interlocutorId) {
       fetchInterlocutor();
       setLoading(false);
     }
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
   }, [chatId, interlocutorId]);
 
   useEffect(() => {
     if (!actualChatId) return;
+
     intervalRef.current = setInterval(() => {
-      fetchChat(actualChatId, true);
+      fetchChat(actualChatId);
     }, 5000);
+
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [actualChatId]);
 
   const handleSend = async () => {
-    if (!tempMessage.trim() || (!actualChatId && !interlocutorId)) return;
+    if (!tempMessage.trim() && !image && !file) return;
+    if (!actualChatId && !interlocutorId) return;
+
     setSending(true);
 
     try {
       let finalChatId = actualChatId;
 
       if (!finalChatId && interlocutorId) {
-        const res = await API.post<string>("/chat", null, {
+        const res = await API.post("/chat", null, {
           params: { otherUserId: interlocutorId },
         });
         finalChatId = res.data;
         setCreatingChatId(finalChatId);
-        await fetchChat(finalChatId);
+        if (!finalChatId) throw new Error("Chat ID is not available");
+        await fetchChat(finalChatId);       
       }
 
       if (!finalChatId) throw new Error("Chat ID is not available");
 
-      await API.post("/message", {
-        chatId: finalChatId,
-        text: tempMessage,
+      const formData = new FormData();
+      formData.append("ChatId", finalChatId);
+      formData.append("Text", tempMessage);
+      if (image) formData.append("Image", image);
+      if (file) formData.append("File", file);
+
+      await API.post("/message", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       setTempMessage("");
-      await fetchChat(finalChatId, true);
+      setImage(null);
+      setFile(null);
+      await fetchChat(finalChatId);
     } catch (err) {
       console.error("Ошибка при отправке сообщения", err);
     } finally {
       setSending(false);
     }
+  };
+
+  const renderAvatarOrInitials = (name?: string, url?: string) => {
+    return url ? (
+      <img src={url} alt="avatar" className="w-10 h-10 rounded-full object-cover" />
+    ) : (
+      <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-white font-bold">
+        {name?.[0]?.toUpperCase() || "?"}
+      </div>
+    );
   };
 
   if (loading && !chat) {
@@ -112,22 +125,33 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId }) => {
     return (
       <div className="flex-1 flex flex-col h-full">
         <div className="border-b px-4 py-3 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-white font-bold">
-            {interlocutorName[0]?.toUpperCase() || "?"}
-          </div>
+          {renderAvatarOrInitials(interlocutorName)}
           <span className="font-semibold">{interlocutorName || "Новый чат"}</span>
         </div>
-        <div className="flex-1 flex items-center justify-center text-gray-400">Напишите первое сообщение</div>
-        <div className="border-t px-4 py-3">
-          <form onSubmit={(e) => { e.preventDefault(); handleSend(); }}>
+
+        <div className="flex-1 flex items-center justify-center text-gray-400">
+          Напишите первое сообщение
+        </div>
+
+        <div className="border-t px-4 py-3 space-y-2">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSend();
+            }}
+          >
             <input
               type="text"
               placeholder="Введите сообщение..."
               value={tempMessage}
               onChange={(e) => setTempMessage(e.target.value)}
-              className="w-full border rounded-xl px-4 py-2 outline-none"
+              className="w-full border rounded-xl px-4 py-2 outline-none mb-2"
               disabled={sending}
             />
+            <div className="flex gap-2">
+              <input type="file" onChange={(e) => setImage(e.target.files?.[0] || null)} />
+              <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+            </div>
           </form>
         </div>
       </div>
@@ -145,14 +169,10 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId }) => {
   return (
     <div className="flex-1 flex flex-col h-full">
       <div className="border-b px-4 py-3 flex items-center gap-3">
-        {avatar ? (
-          <img src={avatar} alt={interlocutor.userName} className="w-10 h-10 rounded-full object-cover" />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-white font-bold">
-            {initials}
-          </div>
-        )}
-        <span className="font-semibold">{interlocutor.firstName} {interlocutor.lastName}</span>
+      {renderAvatarOrInitials(interlocutor.firstName, avatar ?? undefined)}
+        <span className="font-semibold">
+          {interlocutor.firstName} {interlocutor.lastName}
+        </span>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2">
@@ -178,16 +198,25 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId }) => {
         )}
       </div>
 
-      <div className="border-t px-4 py-3">
-        <form onSubmit={(e) => { e.preventDefault(); handleSend(); }}>
+      <div className="border-t px-4 py-3 space-y-2">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSend();
+          }}
+        >
           <input
             type="text"
             placeholder="Введите сообщение..."
             value={tempMessage}
             onChange={(e) => setTempMessage(e.target.value)}
-            className="w-full border rounded-xl px-4 py-2 outline-none"
+            className="w-full border rounded-xl px-4 py-2 outline-none mb-2"
             disabled={sending}
           />
+          <div className="flex gap-2">
+            <input type="file" onChange={(e) => setImage(e.target.files?.[0] || null)} />
+            <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+          </div>
         </form>
       </div>
     </div>

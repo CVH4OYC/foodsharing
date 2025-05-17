@@ -25,12 +25,16 @@ const AdCard: FC<AdCardProps> = ({
       className="cursor-pointer bg-white rounded-2xl shadow-md hover:shadow-lg transition-all overflow-hidden"
     >
       <div className="relative">
-        <img
+      <img
           src={image}
           alt={title}
           className="w-full h-48 object-cover"
           onError={(e) => {
-            (e.target as HTMLImageElement).src = "/placeholder-image.jpg";
+            const img = e.target as HTMLImageElement;
+            if (img.dataset.fallback !== "true") {
+              img.src = "/placeholder-image.jpg";
+              img.dataset.fallback = "true";
+            }
           }}
         />
         {category?.name && (

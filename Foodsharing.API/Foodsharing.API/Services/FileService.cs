@@ -25,6 +25,6 @@ public class FileService : IFileService
         using var stream = new FileStream(filePath, FileMode.Create);
         await file.CopyToAsync(stream);
 
-        return $"/{folder}/{fileName}".Replace("\\", "/");
+        return $"{PathsConsts.FilesFolder}/{folder}/{fileName}".Replace("\\", "/");
     }
 }

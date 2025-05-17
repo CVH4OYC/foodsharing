@@ -5,6 +5,7 @@
 
 *.png
 *.jpg
+*.pem
 
 # User-specific files
 *.rsuser
