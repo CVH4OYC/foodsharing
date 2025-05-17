@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { API } from "../services/api";
 import ChatList from "../components/chat/ChatList";
 import ChatWindowPlaceholder from "../components/chat/ChatWindowPlaceholder";
@@ -11,19 +11,20 @@ const ChatsPage = () => {
   const { chatId } = useParams();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchChats = async () => {
-      try {
-        const res = await API.get("/chat/my");
-        setChats(res.data);
-      } catch (err) {
-        console.error("Ошибка загрузки чатов", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchChats();
+  const fetchChats = useCallback(async () => {
+    try {
+      const res = await API.get("/chat/my");
+      setChats(res.data);
+    } catch (err) {
+      console.error("Ошибка загрузки чатов", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchChats();
+  }, [fetchChats]);
 
   const handleSelectChat = (id: string) => {
     navigate(`/chats/${id}`);
@@ -37,7 +38,7 @@ const ChatsPage = () => {
         selectedChatId={chatId || null}
         onSelectChat={handleSelectChat}
       />
-      <Outlet />
+      <Outlet context={{ onNewChatCreated: fetchChats }} />
     </div>
   );
 };

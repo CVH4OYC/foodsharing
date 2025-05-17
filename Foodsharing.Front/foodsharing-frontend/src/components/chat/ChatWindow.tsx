@@ -6,9 +6,10 @@ import { API, StaticAPI } from "../../services/api";
 interface Props {
   chatId: string | null;
   interlocutorId?: string;
+  onNewChatCreated?: () => void;
 }
 
-const ChatWindow: FC<Props> = ({ chatId, interlocutorId }) => {
+const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => {
   const [chat, setChat] = useState<ChatWithMessagesDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [tempMessage, setTempMessage] = useState("");
@@ -80,6 +81,7 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId }) => {
         });
         finalChatId = res.data;
         setCreatingChatId(finalChatId);
+        onNewChatCreated?.();
         if (!finalChatId) throw new Error("Chat ID is not available");
         await fetchChat(finalChatId);       
       }
