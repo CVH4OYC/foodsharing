@@ -209,28 +209,49 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
       </div>
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-4 py-2 space-y-2">
         {messages && messages.length > 0 ? (
-          messages.map((msg, index) => (
-            <div key={index} className={`max-w-[70%] px-4 py-2 rounded-xl flex flex-col gap-1 ${msg.isMy ? "bg-primary text-white self-end ml-auto" : "bg-gray-100 text-gray-800 self-start"}`}>
-              {msg.text && <div className="text-sm whitespace-pre-line">{msg.text}</div>}
-              {msg.image && (
-                <a href={`${StaticAPI.defaults.baseURL}${msg.image}`} target="_blank" rel="noopener noreferrer">
-                  <img src={`${StaticAPI.defaults.baseURL}${msg.image}`} alt="attached" className="max-w-[200px] max-h-[200px] rounded-lg border" />
-                </a>
-              )}
-              {msg.file && (
-                <a href={`${StaticAPI.defaults.baseURL}${msg.file}`} download className="flex items-center gap-2 text-sm underline hover:text-blue-700">
-                  <FiPaperclip size={16} />
-                  {msg.file.split("/").pop() || "Скачать файл"}
-                </a>
-              )}
-              <div className="text-xs mt-1 opacity-70 text-right">
-                {new Date(msg.date).toLocaleTimeString("ru-RU", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+          messages.map((msg, index) => {
+            const prevMsg = messages[index - 1];
+            const currDate = new Date(msg.date).toDateString();
+            const prevDate = prevMsg ? new Date(prevMsg.date).toDateString() : null;
+            const showDate = currDate !== prevDate;
+
+            return (
+              <div key={index}>
+                {showDate && (
+                  <div className="text-center text-xs text-gray-500 my-2">
+                    {new Date(msg.date).toLocaleDateString("ru-RU", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
+                  </div>
+                )}
+                <div className={`max-w-[70%] px-4 py-2 rounded-xl flex flex-col gap-1 ${
+                  msg.isMy ? "bg-primary text-white self-end ml-auto" : "bg-gray-100 text-gray-800 self-start"
+                }`}>
+                  {msg.text && <div className="text-sm whitespace-pre-line">{msg.text}</div>}
+                  {msg.image && (
+                    <a href={`${StaticAPI.defaults.baseURL}${msg.image}`} target="_blank" rel="noopener noreferrer">
+                      <img src={`${StaticAPI.defaults.baseURL}${msg.image}`} alt="attached" className="max-w-[200px] max-h-[200px] rounded-lg border" />
+                    </a>
+                  )}
+                  {msg.file && (
+                    <a href={`${StaticAPI.defaults.baseURL}${msg.file}`} download className="flex items-center gap-2 text-sm underline hover:text-blue-700">
+                      <FiPaperclip size={16} />
+                      {msg.file.split("/").pop() || "Скачать файл"}
+                    </a>
+                  )}
+                  <div className="text-xs mt-1 opacity-70 text-right">
+                    {new Date(msg.date).toLocaleTimeString("ru-RU", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </div>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
+
         ) : (
           <div className="text-center text-gray-400 mt-4">Сообщений пока нет</div>
         )}
