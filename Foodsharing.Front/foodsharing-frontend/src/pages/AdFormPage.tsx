@@ -89,7 +89,7 @@ const AdFormPage = () => {
       {categories.map((category) => (
         <div key={category.id} className="rounded-md overflow-hidden">
           <label
-            className="flex items-center justify-between p-2 cursor-pointer font-medium text-white rounded-md"
+            className="flex items-center justify-between p-2 cursor-pointer font-medium text-black rounded-md"
             style={{ backgroundColor: category.color || '#4CAF50' }}
           >
             <div className="flex items-center gap-2">
@@ -112,7 +112,7 @@ const AdFormPage = () => {
               {category.children.map((child) => (
                 <label
                   key={child.id}
-                  className="flex items-center space-x-2 p-2 rounded-md text-sm text-white cursor-pointer"
+                  className="flex items-center space-x-2 p-2 rounded-md text-sm text-black cursor-pointer"
                   style={{ backgroundColor: child.color || '#81C784' }}
                 >
                   <input
@@ -264,7 +264,7 @@ const AdFormPage = () => {
               className="border rounded-lg px-4 py-2"
             />
           </div>
-
+          <label className="block text-sm font-medium mb-2 text-gray-700">Дата истечения срока годности</label>
           <input
             type="date"
             value={expirationDate}

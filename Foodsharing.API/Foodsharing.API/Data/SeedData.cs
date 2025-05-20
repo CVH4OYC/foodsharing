@@ -33,71 +33,155 @@ public class SeedData
                 Id = new Guid("de83b434-1710-4afa-a6bb-5069028e549c"),
                 Name = RolesConsts.RepresentativeOrganization
             });
-
         modelBuilder.Entity<Category>().HasData(
+            // Молочные продукты
             new Category
             {
                 Id = new Guid("2d740f5a-173e-4f1b-974d-c007a2256c37"),
                 Name = "Молочные продукты",
-                Color = "#FFF0E6", // светло-кремовый
+                Color = "#FFF0E6"
             },
             new Category
             {
                 Id = new Guid("3a45831f-89fa-40ce-b236-35adcde88d56"),
                 Name = "Сыры",
                 ParentId = new Guid("2d740f5a-173e-4f1b-974d-c007a2256c37"),
-                Color = "#FFC299", // насыщенный кремовый
+                Color = "#FFD1B3"
             },
             new Category
             {
                 Id = new Guid("863bbb48-1b44-4f05-a380-8995de42b86f"),
                 Name = "Сметана",
                 ParentId = new Guid("2d740f5a-173e-4f1b-974d-c007a2256c37"),
-                Color = "#FFC299", // мягкий персиковый
+                Color = "#FFD1B3"
             },
             new Category
             {
                 Id = new Guid("c09a6c67-bed1-479c-8a44-6a674ebb2bfa"),
                 Name = "Молоко",
                 ParentId = new Guid("2d740f5a-173e-4f1b-974d-c007a2256c37"),
-                Color = "#FFC299", // слегка бежевый
+                Color = "#FFD1B3"
             },
+
+            // Напитки
             new Category
             {
                 Id = new Guid("b3d5fb72-7622-4c35-be37-c537d873e640"),
                 Name = "Напитки",
-                Color = "#E6F7FF", // светло-голубой
+                Color = "#E6F7FF"
             },
+
+            // Консервы
             new Category
             {
                 Id = new Guid("1141deac-fddb-43c5-85e3-6c5b6d7ec314"),
                 Name = "Консервы",
-                Color = "#F5F5DC", // светло-бежевый (бледная олива)
+                Color = "#F5F5DC"
             },
+
+            // Домашняя
             new Category
             {
                 Id = new Guid("7e035d5b-ec79-47a7-9b52-d287da24737b"),
                 Name = "Домашняя",
-                Color = "#E6FFE6", // светло-зеленый
+                Color = "#E6FFE6"
             },
+            new Category
+            {
+                Id = new Guid("bdd7ad45-2e8a-40b7-a712-0fafea40c718"),
+                Name = "Супы",
+                ParentId = new Guid("7e035d5b-ec79-47a7-9b52-d287da24737b"),
+                Color = "#C2E0C2"
+            },
+            new Category
+            {
+                Id = new Guid("0ed5ccca-722e-45d5-aef0-bb195c59a710"),
+                Name = "Каши",
+                ParentId = new Guid("7e035d5b-ec79-47a7-9b52-d287da24737b"),
+                Color = "#C2E0C2"
+            },
+            new Category
+            {
+                Id = new Guid("c5f5b7e3-7e24-4a2d-9af1-94c08bd26db5"),
+                Name = "Салаты",
+                ParentId = new Guid("7e035d5b-ec79-47a7-9b52-d287da24737b"),
+                Color = "#C2E0C2"
+            },
+            new Category
+            {
+                Id = new Guid("4de9dca2-2b6a-4f3c-9c02-56793ac3a222"),
+                Name = "Выпечка",
+                ParentId = new Guid("7e035d5b-ec79-47a7-9b52-d287da24737b"),
+                Color = "#C2E0C2"
+            },
+
+            // Сладкое
             new Category
             {
                 Id = new Guid("42139ca4-f9fc-41b9-8a89-0a8518177279"),
                 Name = "Сладкое",
-                Color = "#FFF0F5", // лаванда (розовато-светлый)
+                Color = "#FFF0F5"
             },
+
+            // Крупы
             new Category
             {
                 Id = new Guid("5a7e69c0-8a42-4f21-ad5d-f793543369d4"),
-                Name = "Крупа",
-                Color = "#FAF0DC", // песочный
+                Name = "Крупы",
+                Color = "#FAF0DC"
             },
+            new Category
+            {
+                Id = new Guid("cf1fef74-cf50-49e4-b32e-b18c9e4c4567"),
+                Name = "Гречка",
+                ParentId = new Guid("5a7e69c0-8a42-4f21-ad5d-f793543369d4"),
+                Color = "#E6D5B8"
+            },
+            new Category
+            {
+                Id = new Guid("a8e43a0e-33fc-4d91-9c84-61e6c0ae0dc5"),
+                Name = "Рис",
+                ParentId = new Guid("5a7e69c0-8a42-4f21-ad5d-f793543369d4"),
+                Color = "#E6D5B8"
+            },
+            new Category
+            {
+                Id = new Guid("1e4f8de2-96c4-4901-9bb0-4bc9407db53b"),
+                Name = "Овсянка",
+                ParentId = new Guid("5a7e69c0-8a42-4f21-ad5d-f793543369d4"),
+                Color = "#E6D5B8"
+            },
+
+            // Снеки
             new Category
             {
                 Id = new Guid("01917a66-9afc-4261-8a94-8cdf29d3256d"),
                 Name = "Снеки",
-                Color = "#FFE699", // желтовато-оранжевый
-            });
+                Color = "#FFF6CC"
+            },
+            new Category
+            {
+                Id = new Guid("93f17e2f-6e53-4034-9d48-bf4cb12dbdf7"),
+                Name = "Чипсы",
+                ParentId = new Guid("01917a66-9afc-4261-8a94-8cdf29d3256d"),
+                Color = "#FFE699"
+            },
+            new Category
+            {
+                Id = new Guid("d1c3ab45-1997-4fc2-8ae4-278b5a19f46d"),
+                Name = "Сухарики",
+                ParentId = new Guid("01917a66-9afc-4261-8a94-8cdf29d3256d"),
+                Color = "#FFE699"
+            },
+            new Category
+            {
+                Id = new Guid("5b55a875-9621-47a2-9cf9-187589a3a9b3"),
+                Name = "Орехи",
+                ParentId = new Guid("01917a66-9afc-4261-8a94-8cdf29d3256d"),
+                Color = "#FFE699"
+            }
+        );
+
 
         modelBuilder.Entity<TransactionStatus>().HasData(
             new TransactionStatus

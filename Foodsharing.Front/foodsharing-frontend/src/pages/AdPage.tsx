@@ -300,7 +300,7 @@ const AdPage = () => {
                       src={
                         ad.user.image
                           ? `${StaticAPI.defaults.baseURL}${ad.user.image}`
-                          : "/default-avatar.png"
+                          : `${StaticAPI.defaults.baseURL}/default-avatar.png`
                       }
                       alt={ad.user.userName}
                       className="w-12 h-12 rounded-full object-cover"

@@ -26,22 +26,15 @@ public static class ApiExtensions
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    // укзывает, будет ли валидироваться издатель при валидации токена
                     ValidateIssuer = true,
-                    // будет ли валидироваться потребитель токена
                     ValidateAudience = true,
-                    // будет ли валидироваться время существования
                     ValidateLifetime = true,
-
-                    // установка ключа безопасности
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
                     ValidIssuer = jwtOptions.Issuer,
                     ValidAudience = jwtOptions.Audience,
-                    // валидация ключа безопасности
                     ValidateIssuerSigningKey = true,
                     RoleClaimType = ClaimTypes.Role
                 };
-                // чтение установленного токена из кук
                 options.Events = new JwtBearerEvents
                 {
                     OnMessageReceived = context =>

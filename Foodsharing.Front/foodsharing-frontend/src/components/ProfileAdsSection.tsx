@@ -77,7 +77,7 @@ const ProfileAdsSection: React.FC<Props> = () => {
               ? `${StaticAPI.defaults.baseURL}${ad.user.image}`
               : ad.organization?.logoImage
               ? `${StaticAPI.defaults.baseURL}${ad.organization.logoImage}`
-              : "/default-avatar.png";
+              : `${StaticAPI.defaults.baseURL}/default-avatar.png`;
             const ownerName = ad.user
               ? `${ad.user.firstName || ""} ${ad.user.lastName || ""}`.trim()
               : ad.organization?.name ?? "Неизвестно";
