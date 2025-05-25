@@ -12,4 +12,12 @@ public interface IFavoritesRepository
     Task<IEnumerable<FavoriteCategory>> GetFavoriteCategoriesAsync(Guid userId, CancellationToken cancellationToken);
 
     Task<IEnumerable<FavoriteOrganization>> GetFavoriteOrganizationsAsync(Guid userId, CancellationToken cancellationToken);
+
+    Task DeleteFavoriteCategoryAsync(FavoriteCategory category, CancellationToken cancellationToken);
+
+    Task DeleteFavoriteOrganizationAsync(FavoriteOrganization organization, CancellationToken cancellationToken);
+
+    Task<FavoriteCategory?> GetFavoriteCategoryByIdAndUserAsync(Guid categoryId, Guid userId, CancellationToken cancellationToken);
+
+    Task<FavoriteOrganization?> GetFavoriteOrganizationByIdAndUserAsync(Guid orgId, Guid userId, CancellationToken cancellationToken);
 }

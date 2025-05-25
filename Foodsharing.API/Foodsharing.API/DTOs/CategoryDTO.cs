@@ -20,4 +20,9 @@ public class CategoryDTO : EntityBase
     /// Код цвета для отображения его на фронте
     /// </summary>
     public string? Color { get; set; }
+
+    /// <summary>
+    /// Является избранной
+    /// </summary>
+    public bool? IsFavorite { get; set; }
 }

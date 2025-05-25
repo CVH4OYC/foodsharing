@@ -61,4 +61,16 @@ public class CategoryController : ControllerBase
         var categories = await _favoritesService.GetFavoriteCategoriesAsync((Guid)userId, cancellationToken);
         return Ok(categories);
     }
+
+    [HttpDelete("favorite")]
+    [Authorize]
+    public async Task<IActionResult> DeleteFavoriteCategoryAsync(Guid categoryId, CancellationToken cancellationToken)
+    {
+        var userId = _httpContextAccessor.HttpContext?.User.GetUserId();
+        if (userId == null)
+            return Unauthorized();
+
+        await _favoritesService.DeleteFavoriteCategoryAsync(categoryId, (Guid)userId, cancellationToken);
+        return Ok();
+    }
 }

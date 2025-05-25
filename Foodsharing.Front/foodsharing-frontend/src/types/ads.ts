@@ -11,6 +11,7 @@ export interface Category {
   parentId: string | null;
   color: string | null;
   children?: Category[];
+  isFavorite?: boolean;
 }
 
 export interface UserShort {

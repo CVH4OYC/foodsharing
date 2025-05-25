@@ -3,17 +3,26 @@ import { Link, useNavigate } from "react-router-dom";
 import { HiMenu, HiX, HiOutlineChat, HiOutlineHeart, HiOutlineUser } from "react-icons/hi";
 import { API } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import CatalogMenu from "./CatalogMenu"; // 👉 импортируем меню
 
 const Header = () => {
   const { isAuth, logout, hasRole } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCatalogOpen, setIsCatalogOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const catalogRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(e.target as Node) &&
+        catalogRef.current &&
+        !catalogRef.current.contains(e.target as Node)
+      ) {
         setIsMenuOpen(false);
+        setIsCatalogOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -23,7 +32,7 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       await API.post("/User/logout", {}, { withCredentials: true });
-      logout(); // очищаем куки в контексте
+      logout();
       navigate("/");
     } catch (err) {
       console.error("Ошибка выхода:", err);
@@ -48,8 +57,11 @@ const Header = () => {
             <Link to="/" className="text-xl font-bold text-primary">
               ЕДАМ
             </Link>
-            <button className="hidden md:flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl">
-              <CatalogIcon />
+            <button
+              onClick={() => setIsCatalogOpen(!isCatalogOpen)}
+              className="hidden md:flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl"
+            >
+              {isCatalogOpen ? <HiX className="w-6 h-6" /> : <CatalogIcon />}
               <span>Каталог</span>
             </button>
           </div>
@@ -103,55 +115,62 @@ const Header = () => {
           </div>
         </div>
 
+        {/* Каталог (desktop) */}
+        {isCatalogOpen && (
+          <div ref={catalogRef}>
+            <CatalogMenu />
+          </div>
+        )}
+
         {/* Мобильное меню */}
         {isMenuOpen && (
-  <div
-    ref={menuRef}
-    className="md:hidden absolute bg-white w-full left-0 px-4 pb-4 shadow-lg z-30"
-  >
-    <div className="pt-2 space-y-4">
-      {isAuth ? (
-        <>
-          <Link to="/chats" className="block hover:text-primary">Чаты</Link>
-          <Link to="/favorites" className="block hover:text-primary">Избранное</Link>
-          <Link to="/profile" className="block hover:text-primary">Профиль</Link>
-          {hasRole("Admin") ? (
-            <Link to="/applications" className="block hover:text-primary">Заявки на партнёрство</Link>
-          ) : (
-            <>
-              <Link to="/business" className="block hover:text-primary">Бизнесу</Link>
-              <Link to="/about" className="block hover:text-primary">О нас</Link>
-            </>
-          )}
-        </>
-      ) : (
-        <>
-          <Link to="/ads" className="block hover:text-primary">Объявления</Link>
-          <Link to="/business" className="block hover:text-primary">Бизнесу</Link>
-          <Link to="/about" className="block hover:text-primary">О нас</Link>
-        </>
-      )}
-
-      <div className="pt-4 border-t">
-        {isAuth ? (
-          <button
-            onClick={handleLogout}
-            className="block w-full text-left hover:text-primary py-2"
+          <div
+            ref={menuRef}
+            className="md:hidden absolute bg-white w-full left-0 px-4 pb-4 shadow-lg z-30"
           >
-            Выйти
-          </button>
-        ) : (
-          <>
-            <Link to="/login" className="block py-2 hover:text-primary">Войти</Link>
-            <Link to="/register" className="block bg-primary text-white px-4 py-2 rounded-xl mt-2">
-              Зарегистрироваться
-            </Link>
-          </>
+            <div className="pt-2 space-y-4">
+              {isAuth ? (
+                <>
+                  <Link to="/chats" className="block hover:text-primary">Чаты</Link>
+                  <Link to="/favorites" className="block hover:text-primary">Избранное</Link>
+                  <Link to="/profile" className="block hover:text-primary">Профиль</Link>
+                  {hasRole("Admin") ? (
+                    <Link to="/applications" className="block hover:text-primary">Заявки на партнёрство</Link>
+                  ) : (
+                    <>
+                      <Link to="/business" className="block hover:text-primary">Бизнесу</Link>
+                      <Link to="/about" className="block hover:text-primary">О нас</Link>
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Link to="/ads" className="block hover:text-primary">Объявления</Link>
+                  <Link to="/business" className="block hover:text-primary">Бизнесу</Link>
+                  <Link to="/about" className="block hover:text-primary">О нас</Link>
+                </>
+              )}
+
+              <div className="pt-4 border-t">
+                {isAuth ? (
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left hover:text-primary py-2"
+                  >
+                    Выйти
+                  </button>
+                ) : (
+                  <>
+                    <Link to="/login" className="block py-2 hover:text-primary">Войти</Link>
+                    <Link to="/register" className="block bg-primary text-white px-4 py-2 rounded-xl mt-2">
+                      Зарегистрироваться
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
         )}
-      </div>
-    </div>
-  </div>
-)}
       </div>
     </header>
   );

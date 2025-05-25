@@ -24,12 +24,42 @@ public class FavoritesRepository : IFavoritesRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task DeleteFavoriteCategoryAsync(FavoriteCategory category, CancellationToken cancellationToken)
+    {
+        _context.Set<FavoriteCategory>().Attach(category);
+        _context.Entry(category).State = EntityState.Deleted;
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteFavoriteOrganizationAsync(FavoriteOrganization organization, CancellationToken cancellationToken)
+    {
+        _context.Set<FavoriteOrganization>().Attach(organization);
+        _context.Entry(organization).State = EntityState.Deleted;
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task<IEnumerable<FavoriteCategory>> GetFavoriteCategoriesAsync(Guid userId, CancellationToken cancellationToken)
     {
         return await _context.Set<FavoriteCategory>()
             .Include(fc => fc.Category)
             .Where(fc => fc.UserId == userId)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<FavoriteCategory?> GetFavoriteCategoryByIdAndUserAsync(Guid categoryId, Guid userId, CancellationToken cancellationToken)
+    {
+        return await _context.Set<FavoriteCategory>()
+            .AsNoTracking()
+            .Where(fc => fc.UserId == userId && fc.CategoryId == categoryId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<FavoriteOrganization?> GetFavoriteOrganizationByIdAndUserAsync(Guid orgId, Guid userId, CancellationToken cancellationToken)
+    {
+        return await _context.Set<FavoriteOrganization>()
+             .AsNoTracking()
+            .Where(fo => fo.UserId == userId && fo.OrganizationId == orgId)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<IEnumerable<FavoriteOrganization>> GetFavoriteOrganizationsAsync(Guid userId, CancellationToken cancellationToken)
@@ -40,4 +70,6 @@ public class FavoritesRepository : IFavoritesRepository
             .Where(fo => fo.UserId == userId)
             .ToListAsync(cancellationToken);
     }
+
+
 }

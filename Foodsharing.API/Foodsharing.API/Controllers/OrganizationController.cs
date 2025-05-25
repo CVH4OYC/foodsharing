@@ -81,4 +81,16 @@ public class OrganizationController : ControllerBase
         var orgs = await _favoritesService.GetFavoriteOrganizationsAsync((Guid)userId, cancellationToken);
         return Ok(orgs);
     }
+
+    [HttpDelete("favorite")]
+    [Authorize]
+    public async Task<IActionResult> DeleteFavoriteOrganizationAsync(Guid orgId, CancellationToken cancellationToken)
+    {
+        var userId = _httpContextAccessor.HttpContext?.User.GetUserId();
+        if (userId == null)
+            return Unauthorized();
+
+        await _favoritesService.DeleteFavoriteOrganizationAsync(orgId, (Guid)userId, cancellationToken);
+        return Ok();
+    }
 }

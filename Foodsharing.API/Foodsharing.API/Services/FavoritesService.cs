@@ -34,6 +34,30 @@ public class FavoritesService : IFavoritesService
         await _favoritesRepository.AddFavoriteOrganizationAsync(organization, cancellationToken);
     }
 
+    public async Task DeleteFavoriteCategoryAsync(Guid categoryId, Guid userId, CancellationToken cancellationToken)
+    {
+        var category = await _favoritesRepository.GetFavoriteCategoryByIdAndUserAsync(categoryId, userId, cancellationToken);
+
+        if (category == null)
+        {
+            throw new Exception("У вас нет такой категории в избранных");
+        } 
+            
+        await _favoritesRepository.DeleteFavoriteCategoryAsync(category, cancellationToken);
+    }
+
+    public async Task DeleteFavoriteOrganizationAsync(Guid orgId, Guid userId, CancellationToken cancellationToken)
+    {
+        var org = await _favoritesRepository.GetFavoriteOrganizationByIdAndUserAsync(orgId, userId, cancellationToken);
+
+        if (org == null)
+        {
+            throw new Exception("У вас нет такой организации в избранных");
+        }
+
+        await _favoritesRepository.DeleteFavoriteOrganizationAsync(org, cancellationToken);
+    }
+
     public async Task<IEnumerable<CategoryDTO>> GetFavoriteCategoriesAsync(Guid userId, CancellationToken cancellationToken)
     {
         var categories = await _favoritesRepository.GetFavoriteCategoriesAsync(userId, cancellationToken);
@@ -43,7 +67,8 @@ public class FavoritesService : IFavoritesService
             Id = c.Id,
             Name = c.Category.Name,
             Color = c.Category.Color,
-            ParentId = c.Category.ParentId
+            ParentId = c.Category.ParentId,
+            IsFavorite = true
         });
     }
 

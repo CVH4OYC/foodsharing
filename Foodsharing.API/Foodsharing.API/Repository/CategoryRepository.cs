@@ -13,4 +13,9 @@ public class CategoryRepository : Repository<Category>, ICategoryRepository
     {
         this.context = context;
     }
+
+    public async Task<IEnumerable<Category>> GetAllCategoriesAsync(CancellationToken cancellationToken = default)
+    {
+        return await context.Set<Category>().ToListAsync(cancellationToken);
+    }
 }
