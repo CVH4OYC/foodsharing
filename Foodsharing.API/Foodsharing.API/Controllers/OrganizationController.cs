@@ -1,5 +1,6 @@
 ﻿using Foodsharing.API.Constants;
 using Foodsharing.API.DTOs;
+using Foodsharing.API.Extensions;
 using Foodsharing.API.Interfaces.Services;
 using Foodsharing.API.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -11,10 +12,14 @@ namespace Foodsharing.API.Controllers;
 public class OrganizationController : ControllerBase
 {
     private readonly IOrganizationService _organizationService;
+    private readonly IFavoritesService _favoritesService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public OrganizationController(IOrganizationService organizationService)
+    public OrganizationController(IOrganizationService organizationService, IHttpContextAccessor httpContextAccessor, IFavoritesService favoritesService)
     {
         _organizationService = organizationService;
+        _httpContextAccessor = httpContextAccessor;
+        _favoritesService = favoritesService;
     }
 
     [HttpGet("forms")]
@@ -50,5 +55,17 @@ public class OrganizationController : ControllerBase
         var representatives = await _organizationService.GetRepresentativesByOrgIdAsync(orgId, cancellationToken);
 
         return Ok(representatives);
+    }
+
+    [HttpPost("favorite")]
+    [Authorize]
+    public async Task<IActionResult> AddFavoriteOrganizationAsync(Guid orgId, CancellationToken cancellationToken)
+    {
+        var userId = _httpContextAccessor.HttpContext?.User.GetUserId();
+        if (userId == null)
+            return Unauthorized();
+
+        await _favoritesService.AddFavoriteOrganizationAsync(orgId, (Guid)userId, cancellationToken);
+        return Ok();
     }
 }

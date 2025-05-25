@@ -126,6 +126,8 @@ public class AppDbContext : DbContext
         modelBuilder.ApplyConfiguration(new TransactionConfiguration());
         modelBuilder.ApplyConfiguration(new RatingConfiguration());
         modelBuilder.ApplyConfiguration(new UserConfiguration());
+        modelBuilder.ApplyConfiguration(new FavoriteCategoryConfiguration());
+        modelBuilder.ApplyConfiguration(new FavoriteOrganizationConfiguration());
 
         SeedData.Seed(modelBuilder);
     }
