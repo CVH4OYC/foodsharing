@@ -49,4 +49,16 @@ public class CategoryController : ControllerBase
         await _favoritesService.AddFavoriteCategoryAsync(categoryId, (Guid)userId, cancellationToken);
         return Ok();
     }
+
+    [HttpGet("favorite")]
+    [Authorize]
+    public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetFavoriteCategoriesAsync(CancellationToken cancellationToken)
+    {
+        var userId = _httpContextAccessor.HttpContext?.User.GetUserId();
+        if (userId == null)
+            return Unauthorized();
+
+        var categories = await _favoritesService.GetFavoriteCategoriesAsync((Guid)userId, cancellationToken);
+        return Ok(categories);
+    }
 }

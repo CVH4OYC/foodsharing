@@ -68,4 +68,17 @@ public class OrganizationController : ControllerBase
         await _favoritesService.AddFavoriteOrganizationAsync(orgId, (Guid)userId, cancellationToken);
         return Ok();
     }
+
+
+    [HttpGet("favorite")]
+    [Authorize]
+    public async Task<ActionResult<IEnumerable<OrganizationDTO>>> GetFavoriteOrganizationsAsync(CancellationToken cancellationToken)
+    {
+        var userId = _httpContextAccessor.HttpContext?.User.GetUserId();
+        if (userId == null)
+            return Unauthorized();
+
+        var orgs = await _favoritesService.GetFavoriteOrganizationsAsync((Guid)userId, cancellationToken);
+        return Ok(orgs);
+    }
 }

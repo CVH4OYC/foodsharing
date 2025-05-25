@@ -23,4 +23,21 @@ public class FavoritesRepository : IFavoritesRepository
         await _context.Set<FavoriteOrganization>().AddAsync(organization, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<IEnumerable<FavoriteCategory>> GetFavoriteCategoriesAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await _context.Set<FavoriteCategory>()
+            .Include(fc => fc.Category)
+            .Where(fc => fc.UserId == userId)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<FavoriteOrganization>> GetFavoriteOrganizationsAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await _context.Set<FavoriteOrganization>()
+            .Include(fo => fo.Organization)
+                .ThenInclude(o => o.Address)
+            .Where(fo => fo.UserId == userId)
+            .ToListAsync(cancellationToken);
+    }
 }
