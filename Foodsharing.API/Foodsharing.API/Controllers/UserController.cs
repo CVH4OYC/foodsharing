@@ -74,7 +74,7 @@ public class UserController : ControllerBase
         Response.Cookies.Append("token", result.Data, new CookieOptions
         {
             HttpOnly = true,
-            Secure = false, // HTTPS или HTTP
+            Secure = true,
             SameSite = SameSiteMode.Lax,
             Expires = DateTimeOffset.UtcNow.AddHours(1),
             Path = "/"
