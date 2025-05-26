@@ -2,17 +2,22 @@ import { useEffect, useState } from "react";
 import { API } from "../services/api";
 import { HiOutlineHeart, HiHeart } from "react-icons/hi";
 import { Category } from "../types/ads";
+import { useNavigate } from "react-router-dom";
 
-const CatalogMenu = () => {
+type Props = {
+  onClose: () => void;
+};
+
+const CatalogMenu = ({ onClose }: Props) => {
   const [categories, setCategories] = useState<(Category & { children: Category[] })[]>([]);
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       const response = await API.get("/Category");
       const flat: Category[] = response.data;
 
-      // строим дерево с сохранением isFavorite
       const map = new Map<string, Category & { children: Category[] }>();
       flat.forEach((cat) => map.set(cat.id, { ...cat, children: [] }));
 
@@ -79,12 +84,21 @@ const CatalogMenu = () => {
                 <details className="group" open={expandedIds.includes(cat.id)}>
                   <summary
                     onClick={(e) => {
-                      e.preventDefault();
+                      e.preventDefault(); // предотвращаем авто-раскрытие
                       toggleExpand(cat.id);
                     }}
                     className="cursor-pointer flex justify-between items-center hover:bg-gray-50 px-2 py-1 rounded-lg"
                   >
-                    <span className="truncate">{cat.name}</span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onClose();
+                        navigate(`/ads?category=${cat.id}`);
+                      }}
+                      className="text-left truncate hover:underline"
+                    >
+                      {cat.name}
+                    </button>
                     <svg
                       className="w-4 h-4 text-gray-500 transition-transform group-open:rotate-180"
                       fill="none"
@@ -121,9 +135,20 @@ const CatalogMenu = () => {
               style={{ backgroundColor: parent.color || "#f0f0f0" }}
             >
               <h3 className="text-xl font-bold mb-4 flex items-center justify-between">
-                {parent.name}
                 <button
-                  onClick={() => handleFavorite(parent.id, parent.isFavorite ?? false)}
+                  onClick={() => {
+                    onClose();
+                    navigate(`/ads?category=${parent.id}`);
+                  }}
+                  className="text-left hover:underline"
+                >
+                  {parent.name}
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleFavorite(parent.id, parent.isFavorite ?? false);
+                  }}
                   className="text-right"
                 >
                   {parent.isFavorite ? (
@@ -137,13 +162,20 @@ const CatalogMenu = () => {
                 {parent.children.map((child) => (
                   <div
                     key={child.id}
-                    className="p-4 rounded-xl flex flex-col justify-between relative"
+                    onClick={() => {
+                      onClose();
+                      navigate(`/ads?category=${child.id}`);
+                    }}
+                    className="p-4 rounded-xl flex flex-col justify-between relative cursor-pointer hover:shadow-md transition"
                     style={{ backgroundColor: child.color || "#f9f9f9" }}
                   >
                     <div className="aspect-[4/3] rounded mb-2 overflow-hidden"></div>
                     <span className="font-medium">{child.name}</span>
                     <button
-                      onClick={() => handleFavorite(child.id, child.isFavorite ?? false)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleFavorite(child.id, child.isFavorite ?? false);
+                      }}
                       className="absolute top-2 right-2"
                     >
                       {child.isFavorite ? (

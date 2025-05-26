@@ -67,14 +67,15 @@ const AdsPage = () => {
     [page, selectedCategory, sortBy, search, statusFilter]
   );
 
-  // 🟡 Первый запуск: применяем фильтр из URL и грузим категории
   useEffect(() => {
-    if (urlCategory) {
-      setSelectedCategory(urlCategory);
-    }
-    setIsInitialized(true);
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get("category");
+    setSelectedCategory(categoryFromUrl); // даже если null
+    setIsInitialized(true); // всегда инициализируем
+  }, [searchParams]);
 
   // 🟡 Подгрузка при скролле
   useEffect(() => {

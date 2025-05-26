@@ -118,7 +118,7 @@ const Header = () => {
         {/* Каталог (desktop) */}
         {isCatalogOpen && (
           <div ref={catalogRef}>
-            <CatalogMenu />
+            <CatalogMenu onClose={() => setIsCatalogOpen(false)} />
           </div>
         )}
 
