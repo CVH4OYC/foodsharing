@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { HiMenu, HiX, HiOutlineChat, HiOutlineHeart, HiOutlineUser } from "react-icons/hi";
 import { API } from "../services/api";
 import { useAuth } from "../context/AuthContext";
-import CatalogMenu from "./CatalogMenu"; // 👉 импортируем меню
+import CatalogMenu from "./CatalogMenu"; 
 
 const Header = () => {
   const { isAuth, logout, hasRole } = useAuth();

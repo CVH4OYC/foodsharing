@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { API, StaticAPI } from "../services/api";
 import { Category, Announcement } from "../types/ads";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import AdCard from "../components/AdCard";
 
 const AdsPage = () => {
@@ -16,9 +16,14 @@ const AdsPage = () => {
   const [lastUpdate, setLastUpdate] = useState(Date.now());
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [mobileSortOpen, setMobileSortOpen] = useState(false);
-  const loaderRef = useRef<HTMLDivElement | null>(null);
   const [statusFilter, setStatusFilter] = useState<string | null>("all");
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  const loaderRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const urlCategory = useMemo(() => searchParams.get("category"), [searchParams]);
 
   const fetchCategories = async () => {
     try {
@@ -62,17 +67,16 @@ const AdsPage = () => {
     [page, selectedCategory, sortBy, search, statusFilter]
   );
 
+  // 🟡 Первый запуск: применяем фильтр из URL и грузим категории
   useEffect(() => {
+    if (urlCategory) {
+      setSelectedCategory(urlCategory);
+    }
+    setIsInitialized(true);
     fetchCategories();
-    fetchAnnouncements(true);
-    const interval = setInterval(() => {
-      if (Date.now() - lastUpdate >= 60000) {
-        fetchAnnouncements(true);
-      }
-    }, 100000);
-    return () => clearInterval(interval);
   }, []);
 
+  // 🟡 Подгрузка при скролле
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -89,15 +93,29 @@ const AdsPage = () => {
     };
   }, [loading, announcements.length]);
 
+  // 🟢 Подгрузка объявлений при изменении фильтров (после инициализации)
   useEffect(() => {
-    fetchAnnouncements(true);
-  }, [selectedCategory, sortBy, search, statusFilter]);
+    if (isInitialized) {
+      fetchAnnouncements(true);
+    }
+  }, [selectedCategory, sortBy, search, statusFilter, isInitialized]);
+
+  // 🔁 Автообновление раз в 60 сек.
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (Date.now() - lastUpdate >= 60000) {
+        fetchAnnouncements(true);
+      }
+    }, 100000);
+    return () => clearInterval(interval);
+  }, [lastUpdate, fetchAnnouncements]);
 
   const resetFilters = () => {
     setSelectedCategory(null);
     setSortBy("dateCreation");
     setSearch("");
     setStatusFilter("all");
+    navigate("/ads", { replace: true }); // <-- очищает URL
   };
 
   return (

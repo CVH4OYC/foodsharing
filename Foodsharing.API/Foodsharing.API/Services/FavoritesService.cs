@@ -64,7 +64,7 @@ public class FavoritesService : IFavoritesService
 
         return categories.Select(c => new CategoryDTO
         {
-            Id = c.Id,
+            Id = c.CategoryId,
             Name = c.Category.Name,
             Color = c.Category.Color,
             ParentId = c.Category.ParentId,
@@ -78,7 +78,7 @@ public class FavoritesService : IFavoritesService
 
         return orgs.Select(o => new OrganizationDTO
         {
-            Id = o.Id,
+            Id = o.OrganizationId,
             Name = o.Organization.Name,
             LogoImage = o.Organization.LogoImage,
             Address = new AddressDTO
