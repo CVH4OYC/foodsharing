@@ -30,17 +30,26 @@ public class AnnouncementRepository : Repository<Announcement>, IAnnouncementRep
             {
                 "active" => query.Where(a =>
                     !a.Transactions.Any() ||
-                    a.Transactions.Any(t =>
-                        t.Status.Name == TransactionStatusesConsts.IsCanceled ||
-                        t.Status.Name == TransactionStatusesConsts.IsBooked)),
+                    a.Transactions
+                        .OrderByDescending(t => t.TransactionDate) 
+                        .Select(t => t.Status.Name)
+                        .FirstOrDefault() == TransactionStatusesConsts.IsCanceled ||
+                    a.Transactions
+                        .OrderByDescending(t => t.TransactionDate)
+                        .Select(t => t.Status.Name)
+                        .FirstOrDefault() == TransactionStatusesConsts.IsBooked),
 
                 "booked" => query.Where(a =>
-                    a.Transactions.Any(t =>
-                    t.Status.Name == TransactionStatusesConsts.IsBooked)),
+                    a.Transactions
+                        .OrderByDescending(t => t.TransactionDate)
+                        .Select(t => t.Status.Name)
+                        .FirstOrDefault() == TransactionStatusesConsts.IsBooked),
 
                 "completed" => query.Where(a =>
-                    a.Transactions.Any(t =>
-                        t.Status.Name == TransactionStatusesConsts.IsCompleted)),
+                    a.Transactions
+                        .OrderByDescending(t => t.TransactionDate)
+                        .Select(t => t.Status.Name)
+                        .FirstOrDefault() == TransactionStatusesConsts.IsCompleted),
 
                 _ => query
             };
