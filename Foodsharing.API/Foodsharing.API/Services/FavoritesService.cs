@@ -87,7 +87,8 @@ public class FavoritesService : IFavoritesService
                 City = o.Organization.Address.City,
                 Street = o.Organization.Address.Street,
                 House = o.Organization.Address.House
-            }
+            },
+            IsFavorite = true
         });
     }
 }

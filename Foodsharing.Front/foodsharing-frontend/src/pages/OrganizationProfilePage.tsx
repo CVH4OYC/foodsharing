@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { API, StaticAPI } from "../services/api";
 import { OrganizationDTO } from "../types/org";
 import { useAuth } from "../context/AuthContext";
+import { HiHeart, HiOutlineHeart } from "react-icons/hi";
 
 const OrganizationProfilePage = () => {
   const { orgId } = useParams();
@@ -27,6 +28,26 @@ const OrganizationProfilePage = () => {
     fetchOrg();
   }, [orgId]);
 
+  const toggleFavorite = async () => {
+    if (!org) return;
+    try {
+      if (org.isFavorite) {
+        await API.delete("/organization/favorite", {
+          params: { orgId: org.id },
+          withCredentials: true,
+        });
+      } else {
+        await API.post("/organization/favorite", null, {
+          params: { orgId: org.id },
+          withCredentials: true,
+        });
+      }
+      setOrg((prev) => prev && { ...prev, isFavorite: !prev.isFavorite });
+    } catch (err) {
+      console.error("Ошибка обновления избранного:", err);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {loading ? (
@@ -43,8 +64,23 @@ const OrganizationProfilePage = () => {
               alt="Логотип организации"
               className="w-16 h-16 rounded-full object-cover"
             />
-            <div>
-              <h1 className="text-xl font-bold">{org.name}</h1>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-bold">{org.name}</h1>
+                <button
+                  onClick={toggleFavorite}
+                  className="flex items-center gap-1 text-sm text-red-600 transition duration-200"
+                >
+                  {org.isFavorite ? (
+                    <HiHeart className="w-5 h-5 text-red-600 transition duration-200" />
+                  ) : (
+                    <>
+                      <HiOutlineHeart className="w-5 h-5 text-red-600 transition duration-200" />
+                      <span className="hover:underline">Добавить в избранное</span>
+                    </>
+                  )}
+                </button>
+              </div>
               {org.organizationForm && (
                 <p className="text-gray-500">{org.organizationForm}</p>
               )}

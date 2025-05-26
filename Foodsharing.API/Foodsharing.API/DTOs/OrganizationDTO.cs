@@ -56,4 +56,6 @@ public class OrganizationDTO : EntityBase
     /// Путь к лого компании
     /// </summary>
     public string LogoImage { get; set; }
+
+    public bool? IsFavorite { get; set; }
 }

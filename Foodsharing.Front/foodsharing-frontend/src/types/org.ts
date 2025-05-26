@@ -12,6 +12,7 @@ export interface OrganizationDTO {
     organizationForm?: string | null;
     organizationStatus?: string | null;
     logoImage?: string | null;
+    isFavorite?: boolean; 
   }
   
   export interface AddressDTO {

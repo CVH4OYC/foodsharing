@@ -1,5 +1,6 @@
 ﻿using Foodsharing.API.Constants;
 using Foodsharing.API.DTOs;
+using Foodsharing.API.Extensions;
 using Foodsharing.API.Interfaces.Repositories;
 using Foodsharing.API.Interfaces.Services;
 using Foodsharing.API.Models;
@@ -14,13 +15,17 @@ public class OrganizationService : IOrganizationService
     private readonly IImageService _imageService;
     private readonly IStringGenerator _stringGenerator;
     private readonly IUserService _userService;
+    private readonly IFavoritesRepository _favoritesRepository;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public OrganizationService(IOrganizationRepository organizationRepository,
                                IStatusesRepository statusesRepository,
                                IAddressService addressService,
                                IImageService imageService,
                                IStringGenerator stringGenerator,
-                               IUserService userService)
+                               IUserService userService,
+                               IFavoritesRepository favoritesRepository,
+                               IHttpContextAccessor httpContextAccessor)
     {
         _organizationRepository = organizationRepository;
         _statusesRepository = statusesRepository;
@@ -28,6 +33,8 @@ public class OrganizationService : IOrganizationService
         _imageService = imageService;
         _stringGenerator = stringGenerator;
         _userService = userService;
+        _favoritesRepository = favoritesRepository;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task AddAsync(Organization organization, CancellationToken cancellationToken)
@@ -116,7 +123,16 @@ public class OrganizationService : IOrganizationService
 
     public async Task<OrganizationDTO?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
+        var userId = _httpContextAccessor.HttpContext.User.GetUserId();
         var org = await _organizationRepository.GetOrganizationByIdAsync(id, cancellationToken);
+        var favoriteIds = new List<Guid>();
+
+        if (userId != null)
+        {
+
+            var favoriteOrgs = await _favoritesRepository.GetFavoriteOrganizationsAsync((Guid)userId, cancellationToken);
+            favoriteIds = favoriteOrgs.Select(fo => fo.OrganizationId).ToList();
+        }
 
         return org is null ? null : new OrganizationDTO
         {
@@ -136,6 +152,7 @@ public class OrganizationService : IOrganizationService
             OrganizationForm = org.OrganizationForm.OrganizationFormFullName,
             OrganizationStatus = org.OrganizationStatus.Name,
             LogoImage = org.LogoImage,
+            IsFavorite = favoriteIds.Contains(org.Id)
         };
 
 
