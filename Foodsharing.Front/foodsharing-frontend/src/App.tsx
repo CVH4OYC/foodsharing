@@ -25,6 +25,7 @@ import ChatsPage from "./pages/ChatsPage";
 import ChatWindow from "./components/chat/ChatWindow";
 import ChatWindowPage from "./pages/ChatWindowPage";
 import FavoritesPage from "./pages/FavoritesPage";
+import ProfileExchangesSection from "./components/ProfileExchangesSection";
 
 function App() {
   return (
@@ -77,6 +78,7 @@ function App() {
             {/* Профиль пользователя (личный и чужие профили) */}
             <Route path="profile" element={<Profile />}>
               <Route path="ads" element={<ProfileAdsSection />} />
+              <Route path="exchanges" element={<ProfileExchangesSection />} />
             </Route>
 
             <Route path="profile/user/:userId" element={<UserProfilePage />} />

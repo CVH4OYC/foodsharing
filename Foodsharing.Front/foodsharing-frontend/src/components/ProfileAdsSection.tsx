@@ -55,7 +55,7 @@ const ProfileAdsSection: React.FC<Props> = () => {
             }`}
             onClick={() => setStatusFilter("completed")}
           >
-            Завершенные
+            Закрытые
           </button>
         </div>
       </div>

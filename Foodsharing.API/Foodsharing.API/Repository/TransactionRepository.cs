@@ -56,4 +56,39 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IEnumerable<Transaction>> GetUsersTransactionsAsSenderAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        IQueryable<Transaction> query = context.Set<Transaction>()
+            .Include(t => t.Sender)
+                .ThenInclude(s => s.Profile)
+            .Include(t => t.Sender)
+                .ThenInclude(s => s.Representative)
+                .ThenInclude(r => r.Organization)
+            .Include(t => t.Recipient)
+                .ThenInclude(r => r.Profile)
+            .Include(t => t.Status)
+            .Include(t => t.Announcement)
+            .Where(t => t.SenderId == userId && t.Status.Name != TransactionStatusesConsts.IsCanceled)
+            .OrderByDescending(t => t.TransactionDate);
+
+        return await query.ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<Transaction>> GetUsersTransactionsAsRecipientAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        IQueryable<Transaction> query = context.Set<Transaction>()
+            .Include(t => t.Sender)
+                .ThenInclude(s => s.Profile)
+            .Include(t => t.Sender)
+                .ThenInclude(s => s.Representative)
+                .ThenInclude(r => r.Organization)
+            .Include(t => t.Recipient)
+                .ThenInclude(r => r.Profile)
+            .Include(t => t.Status)
+            .Include(t => t.Announcement)
+            .Where(t => t.RecipientId == userId && t.Status.Name != TransactionStatusesConsts.IsCanceled)
+            .OrderByDescending(t => t.TransactionDate);
+
+        return await query.ToListAsync(cancellationToken);
+    }
 }
