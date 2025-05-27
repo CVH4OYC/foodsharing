@@ -91,4 +91,23 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
 
         return await query.ToListAsync(cancellationToken);
     }
+
+    public async Task<Transaction?> GetTransactionByIdAsync(Guid transactionId, CancellationToken cancellationToken)
+    {
+        return await context.Set<Transaction>()
+            .Include(t => t.Sender)
+                .ThenInclude(s => s.Profile)
+            .Include(t => t.Sender)
+                .ThenInclude(s => s.Representative)
+                .ThenInclude(r => r.Organization)
+            .Include(t => t.Recipient)
+                .ThenInclude(r => r.Profile)
+            .Include(t => t.Recipient)
+                .ThenInclude(r => r.Representative)
+                .ThenInclude(r => r.Organization)
+            .Include(t => t.Status)
+            .Include(t => t.Announcement)
+            .Where(t => t.Id == transactionId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 }

@@ -351,21 +351,23 @@ const AdPage = () => {
                           Отменить бронь
                         </button>
                       ) : (
-                        <button
-                          className="flex-1 bg-primary hover:bg-green-600 text-white py-3 px-6 rounded-xl font-medium transition-colors"
-                          onClick={() => handleAuthRedirect(handleBooking)}
-                        >
-                          Забронировать
-                        </button>
+                        ad.status !== "Закрыто" && (
+                          <button
+                            className="flex-1 bg-primary hover:bg-green-600 text-white py-3 px-6 rounded-xl font-medium transition-colors"
+                            onClick={() => handleAuthRedirect(handleBooking)}
+                          >
+                            Забронировать
+                          </button>
+                        )
                       )}
-                      {ad.user ? (
+                      {ad.user && (
                         <button
                           className="flex-1 border-2 border-primary text-primary bg-white hover:bg-gray-50 py-3 px-6 rounded-xl font-medium"
                           onClick={() => handleAuthRedirect(handleOpenChat)}
                         >
                           Написать
                         </button>
-                      ) : null}
+                      )}
                     </div>
                   )
                 ) : (

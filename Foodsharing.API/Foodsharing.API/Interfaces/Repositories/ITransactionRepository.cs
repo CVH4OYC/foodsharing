@@ -1,4 +1,5 @@
-﻿using Foodsharing.API.Models;
+﻿using Foodsharing.API.DTOs;
+using Foodsharing.API.Models;
 
 namespace Foodsharing.API.Interfaces.Repositories;
 
@@ -27,4 +28,6 @@ public interface ITransactionRepository : IRepository<Transaction>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task<IEnumerable<Transaction>> GetUsersTransactionsAsRecipientAsync(Guid userId, CancellationToken cancellationToken);
+
+    Task<Transaction?> GetTransactionByIdAsync(Guid transactionId, CancellationToken cancellationToken);
 }

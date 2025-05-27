@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { API, StaticAPI } from "../services/api";
 import { TransactionDTO } from "../types/transaction";
+import { Link } from "react-router-dom";
 
 const ProfileExchangesSection = () => {
   const [filter, setFilter] = useState<"sender" | "recipient">("sender");
@@ -25,12 +26,10 @@ const ProfileExchangesSection = () => {
     fetchTransactions();
   }, [filter]);
 
-  const getStatusColor = (status: string) => {
+  const getStatusStyle = (status: string) => {
     switch (status) {
       case "Забронировано":
         return "border-primary bg-blue-50";
-      case "Отменено":
-      case "Завершено":
       default:
         return "bg-white";
     }
@@ -67,29 +66,34 @@ const ProfileExchangesSection = () => {
       ) : (
         <div className="space-y-4">
           {transactions.map((tr) => (
-            <div
-              key={tr.id}
-              className={`rounded-xl border p-4 flex items-center justify-between ${getStatusColor(tr.status)}`}
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-20 h-20 bg-gray-200 rounded-lg overflow-hidden">
-                  {tr.announcement?.image ? (
-                    <img
-                      src={`${StaticAPI.defaults.baseURL}${tr.announcement.image}`}
-                      alt={tr.announcement.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : null}
-                </div>
-                <div>
-                  <h3 className="font-semibold">{tr.announcement?.title}</h3>
-                  <p className="text-sm text-gray-500">
-                    {new Date(tr.transactionDate).toLocaleDateString("ru-RU")}
-                  </p>
-                  <p className="text-xs mt-1 font-semibold text-gray-600">{tr.status}</p>
+            <Link to={`/exchanges/${tr.id}`} key={tr.id} className="block">
+              <div
+                className={`rounded-xl border p-4 flex items-center justify-between hover:shadow transition ${getStatusStyle(
+                  tr.status || ""
+                )}`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg overflow-hidden">
+                    {tr.announcement?.image ? (
+                      <img
+                        src={`${StaticAPI.defaults.baseURL}${tr.announcement.image}`}
+                        alt={tr.announcement.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-300" />
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">{tr.announcement?.title}</h3>
+                    <p className="text-sm text-gray-500">
+                      {new Date(tr.transactionDate).toLocaleDateString("ru-RU")}
+                    </p>
+                    <p className="text-xs mt-1 font-semibold text-gray-700">{tr.status}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

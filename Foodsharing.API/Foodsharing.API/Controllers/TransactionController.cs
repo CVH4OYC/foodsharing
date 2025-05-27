@@ -30,4 +30,15 @@ public class TransactionController : ControllerBase
 
         return Ok(transaction);
     }
+
+    [HttpGet("{transactionId}")]
+    [Authorize]
+    public async Task<ActionResult<IEnumerable<TransactionDTO>>> GetTransactionByIdAsync(Guid transactionId, CancellationToken cancellationToken)
+    {
+        var userId = _httpContextAccessor.HttpContext.User.GetUserId();
+
+        var transaction = await _transactionService.GetTransactionByIdAsync((Guid)userId, transactionId, cancellationToken);
+
+        return Ok(transaction);
+    }
 }

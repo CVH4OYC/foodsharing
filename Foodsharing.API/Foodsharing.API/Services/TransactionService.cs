@@ -18,6 +18,52 @@ public class TransactionService : ITransactionService
         _transactionRepository = transactionRepository;
     }
 
+    public async Task<TransactionDTO?> GetTransactionByIdAsync(Guid currentUserId, Guid transactionId, CancellationToken cancellationToken)
+    {
+        var transaction = await _transactionRepository.GetTransactionByIdAsync(transactionId, cancellationToken);
+        if (transaction == null)
+            return null;
+
+        if (transaction.SenderId != currentUserId && transaction.RecipientId != currentUserId)
+            throw new Exception("Нельзя получить обмены, в которых ты не участвовал");
+
+        return new TransactionDTO
+        {
+            Sender = new UserDTO
+            {
+                UserId = transaction.SenderId,
+                UserName = transaction.Sender.UserName,
+                Image = transaction.Sender.Profile.Image,
+                FirstName = transaction.Sender.Profile.FirstName,
+                LastName = transaction.Sender.Profile.LastName,
+            },
+            Recipient = new UserDTO
+            {
+                UserId = transaction.RecipientId,
+                UserName = transaction.Recipient.UserName,
+                Image = transaction.Recipient.Profile.Image,
+                FirstName = transaction.Recipient.Profile.FirstName,
+                LastName = transaction.Recipient.Profile.LastName,
+            },
+            Announcement = new DTOs.Announcement.AnnouncementDTO
+            {
+                Image = transaction.Announcement.Image,
+                Title = transaction.Announcement.Title,
+                AnnouncementId = transaction.AnnouncementId
+            },
+            TransactionDate = transaction.TransactionDate,
+            Status = transaction.Status.Name,
+            Organization = transaction.Sender.Representative != null
+        ? new OrganizationDTO
+        {
+            Id = transaction.Sender.Representative.OrganizationId,
+            Name = transaction.Sender.Representative.Organization?.Name,
+            LogoImage = transaction.Sender.Representative.Organization?.LogoImage
+        }
+        : null
+        };
+    }
+
     public async Task<IEnumerable<TransactionDTO>> GetUsersTransactionsAsync(Guid userId, CancellationToken cancellationToken, bool isSender = true)
     {
         IEnumerable<Transaction> transactions;
@@ -32,6 +78,7 @@ public class TransactionService : ITransactionService
 
         return transactions.Select(t => new TransactionDTO
         {
+            Id = t.Id,
             Sender = new UserDTO
             {
                 UserId = t.SenderId,
@@ -42,6 +89,7 @@ public class TransactionService : ITransactionService
             },
             Recipient = new UserDTO
             {
+                UserId = t.RecipientId,
                 UserName = t.Recipient.UserName,
                 Image = t.Recipient.Profile.Image,
                 FirstName = t.Recipient.Profile.FirstName,
