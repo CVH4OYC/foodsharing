@@ -232,7 +232,8 @@ public class AnnouncementService : IAnnouncementService
                 UserName = announcement.User.UserName,
                 FirstName = announcement.User.Profile.FirstName,
                 LastName = announcement.User.Profile.LastName,
-                Image = announcement.User.Profile.Image
+                Image = announcement.User.Profile.Image,
+                Rating = announcement.User.Profile.Rating
             },
             Organization = announcement.User.Representative != null ? new OrganizationDTO
             {

@@ -44,13 +44,17 @@ const UserProfilePage = () => {
             alt={profile.userName}
             className="w-16 h-16 rounded-full object-cover"
           />
-          <div>
-            <h1 className="text-xl font-bold">
-              {profile.firstName} {profile.lastName}
-            </h1>
-            <p className="text-gray-500">@{profile.userName}</p>
-            {profile.bio && <p className="text-gray-600">{profile.bio}</p>}
-          </div>
+            <div>
+              <h1 className="text-xl font-bold">
+                {profile.firstName} {profile.lastName}
+              </h1>
+              <p className="text-gray-500">@{profile.userName}</p>
+              {profile.bio && <p className="text-gray-600">{profile.bio}</p>}
+              <p className={`text-sm ${profile.rating != null ? "text-yellow-500" : "text-gray-500"}`}>
+                {profile.rating != null ? `Рейтинг: ${profile.rating.toFixed(1)} ★` : "Пока нет отзывов"}
+              </p>
+            </div>
+
         </div>
       ) : (
         <div className="text-gray-500 mb-6">Загрузка профиля...</div>

@@ -11,4 +11,6 @@ public class UserDTO
     public string? LastName { get; set; }
 
     public string? Image { get; set; }
+
+    public float? Rating { get; set; }
 }

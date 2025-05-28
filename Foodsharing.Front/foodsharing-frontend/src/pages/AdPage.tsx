@@ -306,10 +306,17 @@ const AdPage = () => {
                       className="w-12 h-12 rounded-full object-cover"
                     />
                     <div>
-                      <p className="font-medium">{ad.user.userName}</p>
+                      <p className="font-medium">
+                        {ad.user.firstName} {ad.user.lastName || ""}
+                      </p>
+                      <p className={`text-sm ${ad.user.rating != null ? "text-yellow-500" : "text-gray-500"}`}>
+                        {ad.user.rating != null ? `Рейтинг: ${ad.user.rating.toFixed(1)} ★` : "Пока нет отзывов"}
+                      </p>
                     </div>
                   </Link>
                 )}
+
+
 
                 {/* Организация */}
                 {ad.organization && (

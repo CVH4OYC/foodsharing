@@ -117,6 +117,7 @@ public class UserService : IUserService
             Bio = profile.Bio,
             FirstName = profile.FirstName,
             LastName = profile.LastName,
+            Rating = profile.Rating
         };
     }
 
@@ -132,6 +133,7 @@ public class UserService : IUserService
             Bio = profile.Bio,
             FirstName = profile.FirstName,
             LastName = profile.LastName,
+            Rating = profile.Rating
         };
     }
 

@@ -20,6 +20,7 @@ export interface UserShort {
   image?: string;
   firstName?: string;
   lastName?: string;
+  rating?: number;
 }
 
 export interface Address {
@@ -55,6 +56,7 @@ export interface UserProfile {
   lastName?: string;
   bio?: string;
   image?: string;
+  rating?: number;
 }
 
 export interface AdCardProps extends Omit<Announcement, 'dateCreation' | 'user'> {
