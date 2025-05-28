@@ -39,7 +39,7 @@ const UserProfilePage = () => {
             src={
               profile.image
                 ? `${StaticAPI.defaults.baseURL}${profile.image}`
-                : "/default-avatar.png"
+                :`${StaticAPI.defaults.baseURL}/default-avatar.png`
             }
             alt={profile.userName}
             className="w-16 h-16 rounded-full object-cover"
@@ -79,7 +79,7 @@ const UserProfilePage = () => {
               ? `${StaticAPI.defaults.baseURL}${ad.user.image}`
               : ad.organization?.logoImage
               ? `${StaticAPI.defaults.baseURL}${ad.organization.logoImage}`
-              : "/default-avatar.png";
+              : `${StaticAPI.defaults.baseURL}/default-avatar.png`;
             const ownerName = ad.user
               ? `${ad.user.firstName || ""} ${ad.user.lastName || ""}`.trim()
               : ad.organization?.name ?? "Неизвестно";

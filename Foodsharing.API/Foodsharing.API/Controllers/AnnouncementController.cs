@@ -86,7 +86,6 @@ public class AnnouncementController : ControllerBase
     }
 
     [HttpGet("user/{userId}")]
-    [Authorize]
     public async Task<ActionResult<IEnumerable<AnnouncementDTO>>> GetUsersAnnouncements(Guid userId, CancellationToken cancellationToken)
     {
         var announcements = await _announcementService.GetOtherAnnouncmentsAsync(userId, cancellationToken);
