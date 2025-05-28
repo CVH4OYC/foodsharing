@@ -95,6 +95,7 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
     public async Task<Transaction?> GetTransactionByIdAsync(Guid transactionId, CancellationToken cancellationToken)
     {
         return await context.Set<Transaction>()
+            .AsNoTracking()
             .Include(t => t.Sender)
                 .ThenInclude(s => s.Profile)
             .Include(t => t.Sender)

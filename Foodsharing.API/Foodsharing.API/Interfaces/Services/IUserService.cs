@@ -29,4 +29,8 @@ public interface IUserService
     Task<User?> GetByUserNameAsync(string userName, CancellationToken cancellationToken);
 
     Task AddRepresentativeAsync(Guid userId, Guid orgId, CancellationToken cancellationToken);
+
+    Task<Profile?> GetUserProfileAsync(Guid userId, CancellationToken cancellationToken);
+
+    Task AddRatingForUserAsync(Guid ratedUserId, int grade, CancellationToken cancellationToken);
 }

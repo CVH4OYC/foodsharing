@@ -17,6 +17,7 @@ public class ProfileRepository : Repository<Profile>, IProfileRepository
     public async Task<Profile?> GetProfileWithUserName(Guid userId, CancellationToken cancellationToken)
     {
         return await context.Set<Profile>()
+            .AsNoTracking()
             .Include(p => p.User)
             .FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
     }

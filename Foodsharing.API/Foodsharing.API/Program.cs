@@ -33,6 +33,7 @@ builder.Services.AddScoped<IPartnershipRepository, PartnershipRepository>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IFavoritesRepository, FavoritesRepository>();
+builder.Services.AddScoped<IRatingRepository, RatingRepository>();
 
 
 

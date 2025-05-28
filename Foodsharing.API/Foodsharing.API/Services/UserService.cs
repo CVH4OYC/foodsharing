@@ -107,17 +107,8 @@ public class UserService : IUserService
     public async Task<UserWithProfileDTO> GetMyProfileAsync(CancellationToken cancellationToken)
     {
         var currentUserId = httpContextAccessor.HttpContext?.User.GetUserId();
-        return await GetUserProfileAsync((Guid)currentUserId, cancellationToken);
-    }
+        var profile = await GetUserProfileAsync((Guid)currentUserId, cancellationToken);
 
-    public async Task<UserWithProfileDTO> GetOtherProfileAsync(Guid userId, CancellationToken cancellationToken)
-    {
-        return await GetUserProfileAsync((Guid)userId, cancellationToken);
-    }
-
-    private async Task<UserWithProfileDTO?> GetUserProfileAsync(Guid userId, CancellationToken cancellationToken)
-    {
-        var profile = await profileRepository.GetProfileWithUserName(userId, cancellationToken);
         return profile is null ? null : new UserWithProfileDTO
         {
             UserId = profile.UserId,
@@ -127,6 +118,27 @@ public class UserService : IUserService
             FirstName = profile.FirstName,
             LastName = profile.LastName,
         };
+    }
+
+    public async Task<UserWithProfileDTO> GetOtherProfileAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var profile = await GetUserProfileAsync((Guid)userId, cancellationToken);
+
+        return profile is null ? null : new UserWithProfileDTO
+        {
+            UserId = profile.UserId,
+            UserName = profile.User.UserName,
+            Image = profile.Image,
+            Bio = profile.Bio,
+            FirstName = profile.FirstName,
+            LastName = profile.LastName,
+        };
+    }
+
+    public async Task<Profile?> GetUserProfileAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var profile = await profileRepository.GetProfileWithUserName(userId, cancellationToken);
+        return profile;
     }
 
     public async Task<User?> GetByUserNameAsync(string userName, CancellationToken cancellationToken)
@@ -143,5 +155,18 @@ public class UserService : IUserService
         };
 
         await userRepository.AddRepresentativeAsync(representative, cancellationToken);
+    }
+
+    public async Task AddRatingForUserAsync(Guid ratedUserId, int grade, CancellationToken cancellationToken)
+    {
+        var profile = await profileRepository.GetProfileWithUserName(ratedUserId, cancellationToken);
+
+        var currentRating = profile.Rating ?? 0;
+
+        profile.Rating = ((currentRating * profile.RatingCount) + grade) / (profile.RatingCount + 1);
+
+        profile.RatingCount++;
+
+        await profileRepository.UpdateAsync(profile, cancellationToken);
     }
 }

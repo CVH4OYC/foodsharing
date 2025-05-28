@@ -41,6 +41,25 @@ public class Profile
     /// Описание пользователя
     /// </summary>
     [StringLength(500, ErrorMessage = "Длина описания превышает 500 символов!")]
-
     public string? Bio { get; set; }
+
+    /// <summary>
+    /// Средняя оценка пользователя
+    /// </summary>
+    public float? Rating { get; set; }
+
+    /// <summary>
+    /// Количество оценок от других пользователей
+    /// </summary>
+    public long RatingCount { get; set; } = 0;
+
+    /// <summary>
+    /// Сколько отдано
+    /// </summary>
+    public long TotalGiven { get; set; } = 0;
+
+    /// <summary>
+    /// Сколько получено
+    /// </summary>
+    public long TotalRecieved { get; set; } = 0;
 }

@@ -11,11 +11,15 @@ public class TransactionService : ITransactionService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ITransactionRepository _transactionRepository;
+    private readonly IRatingRepository _ratingRepository;
+    private readonly IUserService _userSevice;
 
-    public TransactionService(IHttpContextAccessor httpContextAccessor, ITransactionRepository transactionRepository)
+    public TransactionService(IHttpContextAccessor httpContextAccessor, ITransactionRepository transactionRepository, IRatingRepository ratingRepository, IUserService userService)
     {
         _httpContextAccessor = httpContextAccessor;
         _transactionRepository = transactionRepository;
+        _ratingRepository = ratingRepository;
+        _userSevice = userService;
     }
 
     public async Task<TransactionDTO?> GetTransactionByIdAsync(Guid currentUserId, Guid transactionId, CancellationToken cancellationToken)
@@ -113,5 +117,40 @@ public class TransactionService : ITransactionService
                 : null
         });
 
+    }
+
+    public async Task RateTransactionByIdAsync(Guid currentUserId, RatingDTO ratingDTO, CancellationToken cancellationToken)
+    {
+        var transaction = await _transactionRepository.GetTransactionByIdAsync(ratingDTO.TransactionId, cancellationToken);
+
+        var rating = await _ratingRepository.GetRatingByTransactionAndRaterAsync(transaction.Id, currentUserId, cancellationToken);
+        if (rating != null)
+        {
+            throw new Exception("Обмен уже оценён");
+        }
+
+        if (currentUserId != transaction.SenderId && currentUserId != transaction.RecipientId)
+        {
+            throw new Exception("Нельзя оценить обмен, в котором вы не участвовали");
+        }
+
+        if(transaction.Status.Name != TransactionStatusesConsts.IsCompleted)
+        {
+            throw new Exception("Можно оценить только завершенный обмен");
+        }
+        
+        var ratedUserId = currentUserId == transaction.SenderId ? transaction.RecipientId : transaction.SenderId;
+
+        var newRating = new Rating
+        {
+            TransactionId = transaction.Id,
+            RaterId = currentUserId,
+            RatedUserId = ratedUserId,
+            Grade = ratingDTO.Grade,
+            Comment = ratingDTO.Comment
+        };
+
+        await _ratingRepository.AddAsync(newRating, cancellationToken);
+        await _userSevice.AddRatingForUserAsync(ratedUserId, ratingDTO.Grade, cancellationToken);
     }
 }
