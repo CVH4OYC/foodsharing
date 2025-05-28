@@ -31,6 +31,8 @@ public class TransactionService : ITransactionService
         if (transaction.SenderId != currentUserId && transaction.RecipientId != currentUserId)
             throw new Exception("Нельзя получить обмены, в которых ты не участвовал");
 
+        var myRating = transaction.Ratings.FirstOrDefault(r => r.RaterId == currentUserId);
+
         return new TransactionDTO
         {
             Sender = new UserDTO
@@ -64,7 +66,12 @@ public class TransactionService : ITransactionService
             Name = transaction.Sender.Representative.Organization?.Name,
             LogoImage = transaction.Sender.Representative.Organization?.LogoImage
         }
-        : null
+        : null,
+            MyRating = myRating != null ? new RatingDTO
+            {
+                Comment = myRating.Comment,
+                Grade = myRating.Grade,
+            } : null
         };
     }
 
@@ -80,46 +87,57 @@ public class TransactionService : ITransactionService
             transactions = await _transactionRepository.GetUsersTransactionsAsRecipientAsync(userId, cancellationToken);
         }
 
-        return transactions.Select(t => new TransactionDTO
+
+        return transactions.Select(t =>
         {
-            Id = t.Id,
-            Sender = new UserDTO
+            var myRating = t.Ratings.FirstOrDefault(r => r.RaterId == userId);
+
+            return new TransactionDTO
             {
-                UserId = t.SenderId,
-                UserName = t.Sender.UserName,
-                Image = t.Sender.Profile.Image,
-                FirstName = t.Sender.Profile.FirstName,
-                LastName = t.Sender.Profile.LastName,
-            },
-            Recipient = new UserDTO
-            {
-                UserId = t.RecipientId,
-                UserName = t.Recipient.UserName,
-                Image = t.Recipient.Profile.Image,
-                FirstName = t.Recipient.Profile.FirstName,
-                LastName = t.Recipient.Profile.LastName,
-            },
-            Announcement = new DTOs.Announcement.AnnouncementDTO
-            {
-                Image = t.Announcement.Image,
-                Title = t.Announcement.Title,
-                AnnouncementId = t.AnnouncementId
-            },
-            TransactionDate = t.TransactionDate,
-            Status = t.Status.Name,
-            Organization = t.Sender.Representative != null
+                Id = t.Id,
+                Sender = new UserDTO
+                {
+                    UserId = t.SenderId,
+                    UserName = t.Sender.UserName,
+                    Image = t.Sender.Profile.Image,
+                    FirstName = t.Sender.Profile.FirstName,
+                    LastName = t.Sender.Profile.LastName,
+                },
+                Recipient = new UserDTO
+                {
+                    UserId = t.RecipientId,
+                    UserName = t.Recipient.UserName,
+                    Image = t.Recipient.Profile.Image,
+                    FirstName = t.Recipient.Profile.FirstName,
+                    LastName = t.Recipient.Profile.LastName,
+                },
+                Announcement = new DTOs.Announcement.AnnouncementDTO
+                {
+                    Image = t.Announcement.Image,
+                    Title = t.Announcement.Title,
+                    AnnouncementId = t.AnnouncementId
+                },
+                TransactionDate = t.TransactionDate,
+                Status = t.Status.Name,
+                Organization = t.Sender.Representative != null
                 ? new OrganizationDTO
                 {
                     Id = t.Sender.Representative.OrganizationId,
                     Name = t.Sender.Representative.Organization?.Name,
                     LogoImage = t.Sender.Representative.Organization?.LogoImage
                 }
-                : null
+                : null,
+                MyRating = myRating != null ? new RatingDTO
+                {
+                    Comment = myRating.Comment,
+                    Grade = myRating.Grade,
+                } : null
+            };
         });
 
     }
 
-    public async Task RateTransactionByIdAsync(Guid currentUserId, RatingDTO ratingDTO, CancellationToken cancellationToken)
+    public async Task RateTransactionByIdAsync(Guid currentUserId, SetRatingDTO ratingDTO, CancellationToken cancellationToken)
     {
         var transaction = await _transactionRepository.GetTransactionByIdAsync(ratingDTO.TransactionId, cancellationToken);
 

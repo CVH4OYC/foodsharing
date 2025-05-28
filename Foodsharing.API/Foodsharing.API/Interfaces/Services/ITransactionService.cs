@@ -16,5 +16,5 @@ public interface ITransactionService
     /// <param name="transactionId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task RateTransactionByIdAsync(Guid currentUserId, RatingDTO ratingDTO, CancellationToken cancellationToken);
+    Task RateTransactionByIdAsync(Guid currentUserId, SetRatingDTO ratingDTO, CancellationToken cancellationToken);
 }

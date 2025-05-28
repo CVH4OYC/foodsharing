@@ -19,6 +19,13 @@ export interface UserDTO {
     image: string;
   }
   
+  export interface RatingDTO {
+    id: string;
+    grade: number; // от 1 до 5
+    comment?: string;
+  }
+  
+
   export interface TransactionDTO {
     id: string;
     sender: UserDTO;
@@ -27,5 +34,6 @@ export interface UserDTO {
     status: "Забронировано" | "Отменено" | "Завершено";
     announcement: AnnouncementDTO;
     organization?: OrganizationDTO;
+    myRating?: RatingDTO;
   }
   

@@ -68,6 +68,7 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
                 .ThenInclude(r => r.Profile)
             .Include(t => t.Status)
             .Include(t => t.Announcement)
+            .Include(t => t.Ratings)
             .Where(t => t.SenderId == userId && t.Status.Name != TransactionStatusesConsts.IsCanceled)
             .OrderByDescending(t => t.TransactionDate);
 
@@ -86,6 +87,7 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
                 .ThenInclude(r => r.Profile)
             .Include(t => t.Status)
             .Include(t => t.Announcement)
+            .Include(t => t.Ratings)
             .Where(t => t.RecipientId == userId && t.Status.Name != TransactionStatusesConsts.IsCanceled)
             .OrderByDescending(t => t.TransactionDate);
 
@@ -108,6 +110,7 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
                 .ThenInclude(r => r.Organization)
             .Include(t => t.Status)
             .Include(t => t.Announcement)
+            .Include(t => t.Ratings)
             .Where(t => t.Id == transactionId)
             .FirstOrDefaultAsync(cancellationToken);
     }

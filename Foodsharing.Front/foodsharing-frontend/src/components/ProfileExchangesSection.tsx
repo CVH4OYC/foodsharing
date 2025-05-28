@@ -90,6 +90,11 @@ const ProfileExchangesSection = () => {
                       {new Date(tr.transactionDate).toLocaleDateString("ru-RU")}
                     </p>
                     <p className="text-xs mt-1 font-semibold text-gray-700">{tr.status}</p>
+                    {tr.myRating && (
+                      <p className="text-sm mt-1 text-yellow-600">
+                        Ваша оценка: {tr.myRating.grade} / 5
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

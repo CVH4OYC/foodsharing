@@ -27,4 +27,7 @@ public class TransactionDTO : EntityBase
     public AnnouncementDTO Announcement { get; set; }
 
     public OrganizationDTO Organization { get; set; }
+
+    public RatingDTO? MyRating { get; set; }
+
 }

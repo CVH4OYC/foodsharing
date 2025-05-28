@@ -56,4 +56,6 @@ public class Transaction : EntityBase
     /// Навигационное свойство для связи с таблицей Announcement
     /// </summary>
     public Announcement Announcement { get; set; }
+
+    public List<Rating> Ratings { get; set; }
 }

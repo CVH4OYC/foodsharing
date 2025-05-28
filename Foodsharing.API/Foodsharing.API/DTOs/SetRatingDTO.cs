@@ -2,7 +2,7 @@
 
 namespace Foodsharing.API.DTOs;
 
-public class RatingDTO
+public class SetRatingDTO
 {
     /// <summary>
     /// Оценка
@@ -14,4 +14,10 @@ public class RatingDTO
     /// Комментарий
     /// </summary>
     public string? Comment { get; set; }
+
+    /// <summary>
+    /// Id оцениваемого обмена
+    /// </summary>
+    [Required]
+    public Guid TransactionId { get; set; }
 }

@@ -44,7 +44,7 @@ public class TransactionController : ControllerBase
 
     [HttpPost("rate")]
     [Authorize]
-    public async Task<ActionResult<IEnumerable<TransactionDTO>>> RateTransactionByIdAsync(RatingDTO ratingDTO, CancellationToken cancellationToken)
+    public async Task<ActionResult<IEnumerable<TransactionDTO>>> RateTransactionByIdAsync(SetRatingDTO ratingDTO, CancellationToken cancellationToken)
     {
         var userId = _httpContextAccessor.HttpContext.User.GetUserId();
 
