@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { API } from "../services/api";
 import { HiOutlineHeart, HiHeart } from "react-icons/hi";
 import { Category } from "../types/ads";
@@ -12,6 +12,7 @@ const CatalogMenu = ({ onClose }: Props) => {
   const [categories, setCategories] = useState<(Category & { children: Category[] })[]>([]);
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
   const navigate = useNavigate();
+  const menuRef = useRef<HTMLDivElement | null>(null); // 1. Реф
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,6 +34,17 @@ const CatalogMenu = ({ onClose }: Props) => {
 
     fetchData();
   }, []);
+
+  // 2. Закрытие при клике вне меню
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [onClose]);
 
   const handleFavorite = async (categoryId: string, isFavorite: boolean = false) => {
     try {
@@ -73,7 +85,9 @@ const CatalogMenu = ({ onClose }: Props) => {
   };
 
   return (
-    <div className="fixed top-16 left-0 right-0 bottom-0 z-40 bg-white shadow-md border-t border-gray-200">
+    <div 
+    ref={menuRef}
+    className="fixed top-16 left-0 right-0 bottom-0 z-40 bg-white shadow-md border-t border-gray-200">
       <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl flex h-full">
         {/* Левая колонка */}
         <div className="w-64 border-r border-gray-200 p-4 overflow-y-auto">
