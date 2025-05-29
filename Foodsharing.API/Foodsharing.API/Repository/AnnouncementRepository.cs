@@ -87,4 +87,47 @@ public class AnnouncementRepository : Repository<Announcement>, IAnnouncementRep
             .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
     }
 
+    public async Task<IEnumerable<Announcement>> GetOrganizationsAnnouncementsAsync(Guid organizationId, string? statusFilter, CancellationToken cancellationToken)
+    {
+        var query = context.Set<Announcement>()
+            .Include(a => a.Address)
+            .Include(a => a.User).ThenInclude(u => u.Profile)
+            .Include(a => a.Category)
+            .Include(a => a.Transactions).ThenInclude(t => t.Status)
+            .Where(a => a.User.Representative != null &&
+                        a.User.Representative.OrganizationId == organizationId);
+
+        if (!string.IsNullOrEmpty(statusFilter))
+        {
+            query = statusFilter switch
+            {
+                "active" => query.Where(a =>
+                    !a.Transactions.Any() ||
+                    a.Transactions
+                        .OrderByDescending(t => t.TransactionDate)
+                        .Select(t => t.Status.Name)
+                        .FirstOrDefault() == TransactionStatusesConsts.IsCanceled ||
+                    a.Transactions
+                        .OrderByDescending(t => t.TransactionDate)
+                        .Select(t => t.Status.Name)
+                        .FirstOrDefault() == TransactionStatusesConsts.IsBooked),
+
+                "booked" => query.Where(a =>
+                    a.Transactions
+                        .OrderByDescending(t => t.TransactionDate)
+                        .Select(t => t.Status.Name)
+                        .FirstOrDefault() == TransactionStatusesConsts.IsBooked),
+
+                "completed" => query.Where(a =>
+                    a.Transactions
+                        .OrderByDescending(t => t.TransactionDate)
+                        .Select(t => t.Status.Name)
+                        .FirstOrDefault() == TransactionStatusesConsts.IsCompleted),
+
+                _ => query
+            };
+        }
+
+        return await query.ToListAsync(cancellationToken);
+    }
 }

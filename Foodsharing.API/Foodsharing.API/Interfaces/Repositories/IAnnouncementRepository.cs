@@ -14,4 +14,6 @@ public interface IAnnouncementRepository : IRepository<Announcement>
     IQueryable<Announcement?> GetAllAnnouncements();
 
     Task<Announcement?> GetAnnouncementByIdAsync(Guid id, CancellationToken cancellationToken);
+
+    Task<IEnumerable<Announcement>> GetOrganizationsAnnouncementsAsync(Guid organizationId, string? statusFilter, CancellationToken cancellationToken);
 }

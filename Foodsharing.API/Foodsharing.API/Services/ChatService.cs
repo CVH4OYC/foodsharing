@@ -32,16 +32,18 @@ public class ChatService : IChatService
         {
             var lastMessage = c.Messages?.FirstOrDefault();
 
+            var interlocutor = c.FirstUser.Id == currentUserId ? c.SecondUser : c.FirstUser;
+
             return new ChatDTO
             {
                 Id = c.Id,
                 Interlocutor = new UserDTO
                 {
-                    UserId = c.SecondUser.Id,
-                    UserName = c.SecondUser.UserName,
-                    FirstName = c.SecondUser.Profile.FirstName,
-                    LastName = c.SecondUser.Profile.LastName,
-                    Image = c.SecondUser.Profile.Image
+                    UserId = interlocutor.Id,
+                    UserName = interlocutor.UserName,
+                    FirstName = interlocutor.Profile.FirstName,
+                    LastName = interlocutor.Profile.LastName,
+                    Image = interlocutor.Profile.Image
                 },
                 Message = lastMessage == null ? null : new MessageDTO
                 {

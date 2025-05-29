@@ -335,4 +335,43 @@ public class AnnouncementService : IAnnouncementService
             _ => AnnouncementStatusesConsts.IsCompleted
         };
     }
+
+    public async Task<IEnumerable<AnnouncementDTO>> GetOrganizationAnnouncmentsAsync(Guid organizationId, CancellationToken cancellationToken, string? statusFilter = null)
+    {
+        var announcements = await announcementRepository.GetOrganizationsAnnouncementsAsync(organizationId, statusFilter, cancellationToken);
+
+        return announcements.Select(a => new AnnouncementDTO
+        {
+            AnnouncementId = a.Id,
+            Title = a.Title,
+            Description = a.Description,
+            ExpirationDate = a.ExpirationDate,
+            DateCreation = a.DateCreation,
+            Status = CalculateStatus(a.Transactions),
+            Image = a.Image,
+            Address = new AddressDTO
+            {
+                AddressId = a.AddressId,
+                Region = a.Address.Region,
+                City = a.Address.City,
+                Street = a.Address.Street,
+                House = a.Address.House
+            },
+            Category = new CategoryForAnnouncement
+            {
+                CategoryId = a.CategoryId,
+                Name = a.Category.Name,
+                Color = a.Category.Color,
+                ParentId = a.Category.ParentId,
+            },
+            User = new UserDTO
+            {
+                UserId = a.UserId,
+                UserName = a.User.UserName,
+                FirstName = a.User.Profile.FirstName,
+                LastName = a.User.Profile.LastName,
+                Image = a.User.Profile.Image
+            }
+        });
+    }
 }

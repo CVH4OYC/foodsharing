@@ -17,5 +17,19 @@ public interface IAnnouncementService
 
     Task<IEnumerable<AnnouncementDTO>> GetMyAnnouncmentsAsync(CancellationToken cancellationToken, string? statusFilter);
 
+    /// <summary>
+    /// Получить объявления других пользователей
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     Task<IEnumerable<AnnouncementDTO>> GetOtherAnnouncmentsAsync(Guid userId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Получить объявления организации
+    /// </summary>
+    /// <param name="organizationId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<IEnumerable<AnnouncementDTO>> GetOrganizationAnnouncmentsAsync(Guid organizationId, CancellationToken cancellationToken, string? statusFilter = null);
 }

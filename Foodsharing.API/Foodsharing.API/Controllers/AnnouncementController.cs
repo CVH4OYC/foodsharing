@@ -86,9 +86,17 @@ public class AnnouncementController : ControllerBase
     }
 
     [HttpGet("user/{userId}")]
-    public async Task<ActionResult<IEnumerable<AnnouncementDTO>>> GetUsersAnnouncements(Guid userId, CancellationToken cancellationToken)
+    public async Task<ActionResult<IEnumerable<AnnouncementDTO>>> GetUsersAnnouncementsAsync(Guid userId, CancellationToken cancellationToken)
     {
         var announcements = await _announcementService.GetOtherAnnouncmentsAsync(userId, cancellationToken);
+
+        return Ok(announcements);
+    }
+
+    [HttpGet("organization/{organizationId}")]
+    public async Task<ActionResult<IEnumerable<AnnouncementDTO>>> GetOrganizationsAnnouncementsAsync(Guid organizationId, CancellationToken cancellationToken, string? statusFilter = null)
+    {
+        var announcements = await _announcementService.GetOrganizationAnnouncmentsAsync(organizationId, cancellationToken);
 
         return Ok(announcements);
     }

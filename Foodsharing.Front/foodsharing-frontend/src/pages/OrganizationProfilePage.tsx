@@ -4,10 +4,13 @@ import { API, StaticAPI } from "../services/api";
 import { OrganizationDTO } from "../types/org";
 import { useAuth } from "../context/AuthContext";
 import { HiHeart, HiOutlineHeart } from "react-icons/hi";
+import { Announcement } from "../types/ads";
+import AdCard from "../components/AdCard";
 
 const OrganizationProfilePage = () => {
   const { orgId } = useParams();
   const [org, setOrg] = useState<OrganizationDTO | null>(null);
+  const [ads, setAds] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const { isAuth, logout, hasRole } = useAuth();
 
@@ -25,7 +28,18 @@ const OrganizationProfilePage = () => {
       }
     };
 
+    const fetchAds = async () => {
+      if (!orgId) return;
+      try {
+        const res = await API.get(`/announcement/organization/${orgId}`);
+        setAds(res.data);
+      } catch (err) {
+        console.error("Ошибка загрузки объявлений организации", err);
+      }
+    };
+
     fetchOrg();
+    fetchAds();
   }, [orgId]);
 
   const toggleFavorite = async () => {
@@ -95,7 +109,6 @@ const OrganizationProfilePage = () => {
                 </a>
               )}
 
-              {/* Кнопка перехода для администратора */}
               {hasRole("Admin") && (
                 <Link
                   to={`/admin/organizations/${orgId}`}
@@ -116,12 +129,7 @@ const OrganizationProfilePage = () => {
             </p>
             <p>
               <strong>Адрес:</strong>{" "}
-              {[
-                org.address?.region,
-                org.address?.city,
-                org.address?.street,
-                org.address?.house,
-              ]
+              {[org.address?.region, org.address?.city, org.address?.street, org.address?.house]
                 .filter(Boolean)
                 .join(", ") || "—"}
             </p>
@@ -133,9 +141,29 @@ const OrganizationProfilePage = () => {
           </div>
 
           <h2 className="text-lg font-semibold mb-4">Объявления организации</h2>
-          <div className="text-gray-400 italic">
-            Пока что список объявлений не реализован
-          </div>
+
+          {ads.length === 0 ? (
+            <div className="text-gray-500">У организации пока нет активных объявлений</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {ads.map((ad) => (
+                <AdCard
+                  key={ad.announcementId}
+                  {...ad}
+                  image={`${StaticAPI.defaults.baseURL}${ad.image}`}
+                  categoryColor={ad.category?.color || "#4CAF50"}
+                  date={new Date(ad.dateCreation).toLocaleDateString("ru-RU")}
+                  owner={{
+                    name: org.name,
+                    image: org.logoImage
+                      ? `${StaticAPI.defaults.baseURL}${org.logoImage}`
+                      : "/default-logo.png",
+                    link: `/organizations/${org.id}`,
+                  }}
+                />
+              ))}
+            </div>
+          )}
         </>
       ) : (
         <div className="text-red-500">Организация не найдена</div>
