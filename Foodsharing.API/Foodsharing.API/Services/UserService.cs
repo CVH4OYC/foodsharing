@@ -6,6 +6,7 @@ using Foodsharing.API.Infrastructure;
 using Foodsharing.API.Interfaces.Repositories;
 using Foodsharing.API.Interfaces.Services;
 using Foodsharing.API.Models;
+using SixLabors.ImageSharp.Metadata.Profiles.Icc;
 
 namespace Foodsharing.API.Services;
 
@@ -170,5 +171,19 @@ public class UserService : IUserService
         profile.RatingCount++;
 
         await profileRepository.UpdateAsync(profile, cancellationToken);
+    }
+
+    public async Task UpdateProfileAsync(UserUpdateDTO userUpdateDTO, CancellationToken cancellationToken)
+    {
+        var profile = await profileRepository.GetProfileWithUserName(userUpdateDTO.UserId, cancellationToken);
+        var imagePath = await imageService.SaveImageAsync(userUpdateDTO.ImageFile, PathsConsts.AvatarsFolder);
+
+        profile.FirstName = userUpdateDTO.FirstName;
+        profile.LastName = userUpdateDTO.LastName;
+        profile.Bio = userUpdateDTO.Bio;
+        profile.Image = imagePath;
+
+        await profileRepository.UpdateAsync(profile, cancellationToken);
+
     }
 }

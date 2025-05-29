@@ -21,8 +21,17 @@ const Profile = () => {
 <div className="flex min-h-screen bg-white py-6 px-4 md:px-0 gap-6">
 {/* Боковое меню */}
 <aside className="w-64 bg-white shadow-md p-6 hidden md:block rounded-xl">
-        <h2 className="text-xl font-bold mb-6">Профиль</h2>
         <ul className="space-y-3">
+          <li>
+            <NavLink
+              to="my"
+              className={({ isActive }) =>
+                `block text-left w-full ${isActive ? "text-primary font-semibold" : "text-gray-700"}`
+              }
+            >
+              Профиль
+            </NavLink>
+          </li>
           <li>
             <NavLink
               to="ads"

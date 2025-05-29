@@ -1,5 +1,5 @@
 // src/App.tsx
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -26,7 +26,9 @@ import ChatWindow from "./components/chat/ChatWindow";
 import ChatWindowPage from "./pages/ChatWindowPage";
 import FavoritesPage from "./pages/FavoritesPage";
 import ProfileExchangesSection from "./components/ProfileExchangesSection";
-import ExchangeDetailPage from "./pages/ExchangeDetailPage";
+import ExchangeDetailPage from "./components/ExchangeDetailPage";
+import ProfileInfoSection from "./components/ProfileInfoSection";
+import EditProfilePage from "./pages/EditProfile";
 
 
 function App() {
@@ -78,10 +80,12 @@ function App() {
             </Route>
             <Route path="/favorites" element={<FavoritesPage />} />
             <Route path="exchanges/:transactionId" element={<ExchangeDetailPage />} />
-            {/* Профиль пользователя (личный и чужие профили) */}
             <Route path="profile" element={<Profile />}>
+              <Route index element={<Navigate to="my" replace />} />
+              <Route path="my" element={<ProfileInfoSection />} />
               <Route path="ads" element={<ProfileAdsSection />} />
               <Route path="exchanges" element={<ProfileExchangesSection />} />
+              <Route path="edit" element={<EditProfilePage />} />
             </Route>
 
             <Route path="profile/user/:userId" element={<UserProfilePage />} />

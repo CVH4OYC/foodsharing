@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Foodsharing.API.Infrastructure;
 using System.Security.Claims;
 using Foodsharing.API.Interfaces.Services;
+using Foodsharing.API.Extensions;
 
 namespace Foodsharing.API.Controllers;
 [Route("api/[controller]")]
@@ -13,13 +14,15 @@ namespace Foodsharing.API.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     /// <summary>
     /// Конструктор контроллера пользователей
     /// </summary>
-    public UserController(IUserService userService)
+    public UserController(IUserService userService, IHttpContextAccessor httpContextAccessor)
     {
         _userService = userService;
+        _httpContextAccessor = httpContextAccessor;
     }
     /// <summary>
     /// Метод, обрабатывающий маршрут для регистрации пользователя через <see cref="UserService"/>
@@ -92,6 +95,20 @@ public class UserController : ControllerBase
             Path = "/"
         });
         return Ok("Вы вышли из системы");
+    }
+
+    [HttpPut("profile")]
+    [Authorize]
+    public async Task<IActionResult> UpdateProfileAsync([FromForm]UserUpdateDTO userDTO, CancellationToken cancellationToken)
+    {
+        var currentUserId = _httpContextAccessor.HttpContext.User.GetUserId();
+
+        if (currentUserId != userDTO.UserId)
+            Unauthorized("Нельзя редактировать чужой профиль");
+
+        await _userService.UpdateProfileAsync(userDTO, cancellationToken);
+
+        return Ok();
     }
 
     [HttpGet("me")]

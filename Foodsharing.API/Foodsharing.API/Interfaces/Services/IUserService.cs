@@ -33,4 +33,6 @@ public interface IUserService
     Task<Profile?> GetUserProfileAsync(Guid userId, CancellationToken cancellationToken);
 
     Task AddRatingForUserAsync(Guid ratedUserId, int grade, CancellationToken cancellationToken);
+
+    Task UpdateProfileAsync (UserUpdateDTO userUpdateDTO, CancellationToken cancellationToken);
 }
