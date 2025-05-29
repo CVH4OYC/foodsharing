@@ -99,7 +99,10 @@ const FavoritesPage = () => {
                 <div className="aspect-[4/3] rounded mb-2 overflow-hidden"></div>
                 <span className="font-medium">{cat.name}</span>
                 <button
-                  onClick={() => toggleFavoriteCategory(cat.id, cat.isFavorite ?? false)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavoriteCategory(cat.id, cat.isFavorite ?? false);
+                  }}
                   className="absolute top-2 right-2"
                 >
                   {cat.isFavorite ? (
