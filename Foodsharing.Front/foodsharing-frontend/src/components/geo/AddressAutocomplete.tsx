@@ -79,7 +79,7 @@ export function AddressAutocomplete({
   return (
     <div className="space-y-2">
       <label className="block text-sm font-medium text-gray-700">
-        Адрес (с подсказкой)
+        Адрес места, откуда забрать продукты
       </label>
       <input
         type="text"

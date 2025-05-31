@@ -28,7 +28,10 @@ export interface Address {
   city?: string;
   street?: string;
   house?: string;
+  latitude?: number;
+  longitude?: number;
 }
+
 
 export interface Announcement {
   announcementId: string;

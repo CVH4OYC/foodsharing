@@ -159,6 +159,11 @@ app.UseStaticFiles(CreateStaticFilesOptions(
     app.Environment));
 
 app.UseStaticFiles(CreateStaticFilesOptions(
+    PathsConsts.PicturesFolder,
+    PathsConsts.MapImages,
+    app.Environment));
+
+app.UseStaticFiles(CreateStaticFilesOptions(
     PathsConsts.FilesFolder,
     PathsConsts.ChatFilesFolder,
     app.Environment));

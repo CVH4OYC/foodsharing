@@ -166,7 +166,9 @@ public class AnnouncementService : IAnnouncementService
                 Region = a.Address.Region,
                 City = a.Address.City,
                 Street = a.Address.Street,
-                House = a.Address.House
+                House = a.Address.House,
+                Longitude = a.Address.Longitude,
+                Latitude = a.Address.Latitude,
             },
             Category = new CategoryForAnnouncement
             {
@@ -217,7 +219,9 @@ public class AnnouncementService : IAnnouncementService
                 Region = announcement.Address.Region,
                 City = announcement.Address.City,
                 Street = announcement.Address.Street,
-                House = announcement.Address.House
+                House = announcement.Address.House,
+                Longitude = announcement.Address.Longitude,
+                Latitude = announcement.Address.Latitude,
             },
             Category = new CategoryForAnnouncement
             {

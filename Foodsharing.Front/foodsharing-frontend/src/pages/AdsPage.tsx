@@ -3,6 +3,8 @@ import { API, StaticAPI } from "../services/api";
 import { Category, Announcement } from "../types/ads";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import AdCard from "../components/AdCard";
+import AnnouncementList from "../components/AnnouncementList";
+import AnnouncementMap from "../components/AnnouncementMap";
 
 const AdsPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -338,39 +340,11 @@ const AdsPage = () => {
         )}
 
         {/* Объявления */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {announcements.map((ad) => {
-            const owner = ad.user ?? ad.organization;
-            const ownerLink = ad.user
-              ? `/profile/user/${ad.user.userId}`
-              : ad.organization
-              ? `/organizations/${ad.organization.id}`
-              : null;
-            const ownerImage = ad.user?.image
-              ? `${StaticAPI.defaults.baseURL}${ad.user.image}`
-              : ad.organization?.logoImage
-              ? `${StaticAPI.defaults.baseURL}${ad.organization.logoImage}`
-              : "/default-avatar.png";
-            const ownerName = ad.user
-              ? `${ad.user.firstName || ""} ${ad.user.lastName || ""}`.trim()
-              : ad.organization?.name ?? "Неизвестно";
-
-            return (
-              <AdCard
-                key={ad.announcementId}
-                {...ad}
-                image={`${StaticAPI.defaults.baseURL}${ad.image}`}
-                categoryColor={ad.category?.color || "#4CAF50"}
-                date={new Date(ad.dateCreation).toLocaleDateString("ru-RU")}
-                owner={{
-                  name: ownerName,
-                  image: ownerImage,
-                  link: ownerLink,
-                }}
-              />
-            );
-          })}
-        </div>
+        {viewMode === "list" ? (
+          <AnnouncementList announcements={announcements} />
+        ) : (
+          <AnnouncementMap announcements={announcements} />
+        )}
 
         {/* Лоадер */}
         <div ref={loaderRef} className="h-12 mt-6 flex justify-center items-center text-sm text-gray-500">
