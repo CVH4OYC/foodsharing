@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { AdCardProps } from "../types/ads";
 import { useNavigate } from "react-router-dom";
+import { StaticAPI } from "../services/api";
 
 const AdCard: FC<AdCardProps> = ({
   announcementId,
@@ -94,7 +95,7 @@ const AdCard: FC<AdCardProps> = ({
                 alt={owner.name}
                 className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/default-avatar.png";
+                  (e.target as HTMLImageElement).src = `${StaticAPI.defaults.baseURL}/default-avatar.png`;
                 }}
               />
             ) : (

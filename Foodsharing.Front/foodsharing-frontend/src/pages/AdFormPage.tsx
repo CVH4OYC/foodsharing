@@ -4,6 +4,7 @@ import { API, StaticAPI } from "../services/api";
 import { Announcement, Category } from "../types/ads";
 import { useAuth } from "../context/AuthContext";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { AddressAutocomplete } from "../components/geo/AddressAutocomplete";
 
 const AdFormPage = () => {
   const { announcementId } = useParams();
@@ -12,10 +13,9 @@ const AdFormPage = () => {
 
   useEffect(() => {
     if (!isAuth) {
-      navigate('/login'); // Перенаправление если не авторизован
+      navigate("/login");
     }
   }, [isAuth, navigate]);
-
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -32,6 +32,14 @@ const AdFormPage = () => {
   const [imagePath, setImagePath] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"success" | "error">("success");
+
+  const showTempMessage = (msg: string, type: "success" | "error") => {
+    setMessage(msg);
+    setMessageType(type);
+    setTimeout(() => setMessage(null), 4000);
+  };
 
   const isEditing = !!announcementId;
 
@@ -55,14 +63,14 @@ const AdFormPage = () => {
         setHouse(ad.address?.house || "");
         setExpirationDate(ad.expirationDate?.split("T")[0] || "");
         setCategoryId(ad.category?.categoryId || "");
-        setPreview(`${StaticAPI.defaults.baseURL}${ad.image}`); 
+        setPreview(`${StaticAPI.defaults.baseURL}${ad.image}`);
         setImagePath(`${ad.image}`);
       });
     }
   }, [announcementId, isAuth]);
 
   const buildCategoryTree = (flatCategories: Category[]): Category[] => {
-    const map = new Map(flatCategories.map(c => [c.id, { ...c, children: [] as Category[] }]));
+    const map = new Map(flatCategories.map((c) => [c.id, { ...c, children: [] as Category[] }]));
     const tree: Category[] = [];
 
     map.forEach((cat) => {
@@ -90,7 +98,7 @@ const AdFormPage = () => {
         <div key={category.id} className="rounded-md overflow-hidden">
           <label
             className="flex items-center justify-between p-2 cursor-pointer font-medium text-black rounded-md"
-            style={{ backgroundColor: category.color || '#4CAF50' }}
+            style={{ backgroundColor: category.color || "#4CAF50" }}
           >
             <div className="flex items-center gap-2">
               <input
@@ -113,7 +121,7 @@ const AdFormPage = () => {
                 <label
                   key={child.id}
                   className="flex items-center space-x-2 p-2 rounded-md text-sm text-black cursor-pointer"
-                  style={{ backgroundColor: child.color || '#81C784' }}
+                  style={{ backgroundColor: child.color || "#81C784" }}
                 >
                   <input
                     type="radio"
@@ -143,16 +151,15 @@ const AdFormPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     if (!imageFile && !isEditing) {
       alert("Загрузите изображение");
       return;
     }
-  
+
     const formData = new FormData();
     if (imageFile) formData.append("ImageFile", imageFile);
-  
-    // Добавляем все параметры в FormData
+
     const params = {
       Title: title,
       Description: description,
@@ -164,14 +171,13 @@ const AdFormPage = () => {
       CategoryId: categoryId,
       UserId: userId!,
       ImagePath: imagePath,
-      ...(isEditing && { Id: announcementId }), // Добавляем Id только при редактировании
+      ...(isEditing && { Id: announcementId }),
     };
-  
-    // Переносим все параметры в FormData
+
     Object.entries(params).forEach(([key, value]) => {
       formData.append(key, value.toString());
     });
-  
+
     try {
       if (isEditing) {
         await API.put(`/announcement`, formData);
@@ -180,37 +186,40 @@ const AdFormPage = () => {
         await API.post(`/announcement`, formData);
         navigate("/profile/ads");
       }
-    } catch (err) {
-      console.error("Ошибка при отправке объявления", err);
+    } catch (err: any) {
+      const msg =
+        typeof err?.response?.data === "string"
+          ? err.response.data
+          : "Ошибка при отправке объявления";
+      showTempMessage(msg, "error");
     }
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      {message && (
+        <div
+          className={`fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-xl shadow-md z-50 animate-fade-in ${
+            messageType === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"
+          }`}
+        >
+          {message}
+        </div>
+      )}
+
       <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col md:flex-row gap-6">
-        {/* Изображение */}
         <div className="w-full md:w-1/2">
           <label className="block text-sm font-medium text-gray-700 mb-2">Фото</label>
           <label className="block border-2 border-dashed rounded-xl cursor-pointer h-64 flex items-center justify-center overflow-hidden hover:border-primary transition-colors duration-200">
             {preview ? (
-              <img
-                src={preview}
-                alt="Preview"
-                className="object-cover w-full h-full rounded-xl"
-              />
+              <img src={preview} alt="Preview" className="object-cover w-full h-full rounded-xl" />
             ) : (
               <div className="text-gray-400">Нажмите для загрузки</div>
             )}
-            <input
-              type="file"
-              onChange={handleFileChange}
-              className="hidden"
-              accept="image/*"
-            />
+            <input type="file" onChange={handleFileChange} className="hidden" accept="image/*" />
           </label>
         </div>
 
-        {/* Поля формы */}
         <form onSubmit={handleSubmit} className="w-full md:w-1/2 space-y-4">
           <input
             type="text"
@@ -231,40 +240,22 @@ const AdFormPage = () => {
             maxLength={500}
           />
 
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              type="text"
-              placeholder="Регион"
-              value={region}
-              onChange={(e) => setRegion(e.target.value)}
-              className="border rounded-lg px-4 py-2"
+          {!isEditing && (
+            <AddressAutocomplete
+              onSelect={({ region, city, street, house }) => {
+                setRegion(region);
+                setCity(city);
+                setStreet(street);
+                setHouse(house);
+              }}
+              showMessage={showTempMessage}
             />
-            <input
-              type="text"
-              placeholder="Город"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="border rounded-lg px-4 py-2"
-            />
-          </div>
+          )}
 
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              type="text"
-              placeholder="Улица"
-              value={street}
-              onChange={(e) => setStreet(e.target.value)}
-              className="border rounded-lg px-4 py-2"
-            />
-            <input
-              type="text"
-              placeholder="Дом"
-              value={house}
-              onChange={(e) => setHouse(e.target.value)}
-              className="border rounded-lg px-4 py-2"
-            />
-          </div>
-          <label className="block text-sm font-medium mb-2 text-gray-700">Дата истечения срока годности</label>
+
+          <label className="block text-sm font-medium mb-2 text-gray-700">
+            Дата истечения срока годности
+          </label>
           <input
             type="date"
             value={expirationDate}
@@ -281,7 +272,9 @@ const AdFormPage = () => {
                 className="w-full text-left border rounded-lg px-4 py-2 bg-gray-100"
                 onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
               >
-                {categoryId ? categories.find(cat => cat.id === categoryId)?.name || "Выбрать категорию" : "Выбрать категорию"}
+                {categoryId
+                  ? categories.find((cat) => cat.id === categoryId)?.name || "Выбрать категорию"
+                  : "Выбрать категорию"}
               </button>
               {showCategoryDropdown && (
                 <div className="absolute z-10 w-full mt-2 border rounded-lg p-2 bg-white max-h-64 overflow-y-auto shadow-md">
@@ -299,8 +292,6 @@ const AdFormPage = () => {
             >
               {isEditing ? "Сохранить" : "Создать"}
             </button>
-
-            
             <button
               type="button"
               onClick={() => navigate(isEditing ? "/profile/ads" : "/ads")}

@@ -54,6 +54,9 @@ builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IFavoritesService, FavoritesService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 
+
+builder.Services.AddHttpClient<IGeocodingService, NominatimGeocodingService>();
+
 builder.Services.AddHttpContextAccessor();
 
 

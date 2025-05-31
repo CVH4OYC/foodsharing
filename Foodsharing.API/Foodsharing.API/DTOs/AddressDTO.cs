@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Foodsharing.API.DTOs;
 
@@ -26,4 +27,8 @@ public class AddressDTO
     /// </summary>
     [StringLength(10, ErrorMessage = "Длина номера дома превышает 10 символов!")]
     public string? House { get; set; }
+
+    public double? Latitude { get; set; }
+
+    public double? Longitude { get; set; }
 }
