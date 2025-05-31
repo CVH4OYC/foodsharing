@@ -1,5 +1,12 @@
-import { useRef } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { useEffect, useState } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMap,
+} from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Announcement } from "../types/ads";
@@ -10,33 +17,60 @@ interface Props {
 }
 
 const AnnouncementMap = ({ announcements }: Props) => {
-  return (
-    <MapContainer
-      center={[55.751244, 37.618423]}
-      zoom={11}
-      scrollWheelZoom={true}
-      className="h-[70vh] w-full rounded-xl overflow-hidden"
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+  const [position, setPosition] = useState<[number, number] | null>(null);
 
-      {announcements
-        .filter(
-          (a) =>
-            a.address &&
-            typeof a.address.latitude === "number" &&
-            typeof a.address.longitude === "number"
-        )
-        .map((a) => (
-          <AnnouncementMarker key={a.announcementId} announcement={a} />
-        ))}
-    </MapContainer>
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setPosition([pos.coords.latitude, pos.coords.longitude]);
+        },
+        () => {
+          setPosition([55.751244, 37.618423]); // fallback — Москва
+        }
+      );
+    } else {
+      setPosition([55.751244, 37.618423]); // fallback — Москва
+    }
+  }, []);
+
+  if (!position) {
+    return <div className="text-center py-10 text-gray-500">Получаем ваше местоположение…</div>;
+  }
+
+  return (
+    <div className="relative">
+      <MapContainer
+        center={position}
+        zoom={11}
+        scrollWheelZoom
+        className="h-[70vh] w-full rounded-xl overflow-hidden z-0"
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+
+        <MarkerClusterGroup chunkedLoading>
+          {announcements
+            .filter(
+              (a) =>
+                a.address &&
+                typeof a.address.latitude === "number" &&
+                typeof a.address.longitude === "number"
+            )
+            .map((a) => (
+              <AnnouncementMarker key={a.announcementId} announcement={a} />
+            ))}
+        </MarkerClusterGroup>
+
+        <MyLocationButton coords={position} />
+      </MapContainer>
+    </div>
   );
 };
 
-// 🔹 Отдельный компонент для маркера с автозумом
+// 🔹 Маркер объявления с flyTo
 function AnnouncementMarker({ announcement }: { announcement: Announcement }) {
   const map = useMap();
 
@@ -49,18 +83,13 @@ function AnnouncementMarker({ announcement }: { announcement: Announcement }) {
   const image = `${StaticAPI.defaults.baseURL}${announcement.image}`;
 
   const handleClick = () => {
-    map.flyTo([lat, lon], 15, {
-        animate: true,
-        duration: 0.5, 
-      });
+    map.flyTo([lat, lon], 15, { animate: true, duration: 0.5 });
   };
 
   return (
     <Marker
       position={[lat, lon]}
-      eventHandlers={{
-        click: handleClick,
-      }}
+      eventHandlers={{ click: handleClick }}
       icon={L.icon({
         iconUrl: `${StaticAPI.defaults.baseURL}Pictures/Map/marker.png`,
         iconSize: [25, 41],
@@ -80,6 +109,24 @@ function AnnouncementMarker({ announcement }: { announcement: Announcement }) {
         </div>
       </Popup>
     </Marker>
+  );
+}
+
+// 🔹 Кнопка "Найти меня"
+function MyLocationButton({ coords }: { coords: [number, number] }) {
+  const map = useMap();
+
+  const handleFly = () => {
+    map.flyTo(coords, 13, { duration: 0.5 });
+  };
+
+  return (
+    <button
+      onClick={handleFly}
+      className="absolute z-[1000] bottom-4 right-4 bg-white text-black shadow-md px-3 py-2 rounded-lg text-sm hover:bg-gray-100 transition"
+    >
+      Найти меня
+    </button>
   );
 }
 
