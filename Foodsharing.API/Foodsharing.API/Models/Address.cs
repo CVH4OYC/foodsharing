@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Foodsharing.API.Abstract;
 
 namespace Foodsharing.API.Models;
@@ -33,7 +34,18 @@ public class Address : EntityBase
     [Required]
     [StringLength(10, ErrorMessage = "Длина номера дома превышает 10 символов!")]
     public string House { get; set; }
-    
+
+    /// <summary>
+    /// Широта
+    /// </summary>
+    public double? Latitude { get; set; }
+
+    /// <summary>
+    /// Долгота
+    /// </summary>
+    public double? Longitude { get; set; }
+
+
     /// <summary>
     /// Навигационное свойство для связи с таблицей Organization
     /// </summary>
