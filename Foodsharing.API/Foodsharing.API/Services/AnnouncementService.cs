@@ -73,7 +73,7 @@ public class AnnouncementService : IAnnouncementService
         var nearbyUsers = await geolocationService.GetUsersNearbyAsync(
             newAnnouncement.Address.Latitude!.Value,
             newAnnouncement.Address.Longitude!.Value,
-            1.0,
+            10.0,
             cancellationToken
         );
 

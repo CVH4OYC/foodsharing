@@ -18,8 +18,42 @@ const Login = () => {
 
     try {
       await API.post("/user/login", { userName, password }, { withCredentials: true });
-      await checkAuth(); // Обновляем статус авторизации
-      navigate("/");
+
+      // Попробуем определить местоположение пользователя
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+
+            try {
+              await API.patch(
+                "/user/location",
+                { latitude, longitude },
+                { withCredentials: true }
+              );
+            } catch (geoErr) {
+              console.warn("Не удалось сохранить координаты:", geoErr);
+            }
+
+            await checkAuth();
+            navigate("/");
+          },
+          async (geoError) => {
+            console.warn("Геолокация отклонена или недоступна:", geoError);
+            await checkAuth();
+            navigate("/");
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0,
+          }
+        );
+      } else {
+        console.warn("Геолокация не поддерживается браузером");
+        await checkAuth();
+        navigate("/");
+      }
     } catch (err) {
       setError("Неверное имя пользователя или пароль");
     } finally {
