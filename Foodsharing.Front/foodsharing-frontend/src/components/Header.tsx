@@ -4,6 +4,8 @@ import { HiMenu, HiX, HiOutlineChat, HiOutlineHeart, HiOutlineUser } from "react
 import { API } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import CatalogMenu from "./CatalogMenu"; 
+import NotificationBell from "./NotificationBell";
+
 
 const Header = () => {
   const { isAuth, logout, hasRole } = useAuth();
@@ -91,6 +93,7 @@ const Header = () => {
           <div className="hidden md:flex items-center gap-4">
             {isAuth ? (
               <>
+                <NotificationBell />
                 <Link to="/chats" className="hover:text-primary flex items-center gap-1">
                   <HiOutlineChat className="h-5 w-5" />
                   Чаты
@@ -131,6 +134,7 @@ const Header = () => {
             <div className="pt-2 space-y-4">
               {isAuth ? (
                 <>
+                  <NotificationBell />
                   <Link to="/chats" className="block hover:text-primary">Чаты</Link>
                   <Link to="/favorites" className="block hover:text-primary">Избранное</Link>
                   <Link to="/profile" className="block hover:text-primary">Профиль</Link>

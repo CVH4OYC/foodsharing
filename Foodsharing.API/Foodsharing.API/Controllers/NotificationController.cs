@@ -28,7 +28,7 @@ public class NotificationController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("{id}/read")]
+    [HttpPut("{id}/read")]
     public async Task<IActionResult> MarkAsRead(Guid id, CancellationToken cancellationToken)
     {
         var userId = _httpContextAccessor.HttpContext?.User.GetUserId();
