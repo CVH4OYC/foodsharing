@@ -2,6 +2,7 @@
 using Foodsharing.API.Extensions;
 using Foodsharing.API.Interfaces.Repositories;
 using Foodsharing.API.Interfaces.Services;
+using Foodsharing.API.Models;
 
 namespace Foodsharing.API.Services;
 
@@ -59,5 +60,15 @@ public class CategoryService : ICategoryService
             Color = category.Color,
             IsFavorite = favoriteIds.Contains(category.Id)
         };
+    }
+
+    public async Task<List<User>> GetUsersWhoFavoritedCategoryAsync(Guid categoryId, CancellationToken cancellationToken = default)
+    {
+        var favoriteCategoryUsers = await _favoritesRepository
+            .GetFavoriteCategoriesWithUsersAsync(categoryId, cancellationToken);
+
+        return favoriteCategoryUsers
+            .Select(fc => fc.User)
+            .ToList();
     }
 }

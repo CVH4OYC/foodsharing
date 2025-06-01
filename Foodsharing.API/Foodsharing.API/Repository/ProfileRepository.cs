@@ -21,4 +21,17 @@ public class ProfileRepository : Repository<Profile>, IProfileRepository
             .Include(p => p.User)
             .FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
     }
+
+    public async Task UpdateLocationAsync(Guid userId, double latitude, double longitude, CancellationToken cancellationToken = default)
+    {
+        var profile = await context.Set<Profile>().FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
+
+        if (profile == null)
+            throw new Exception("Профиль не найден");
+
+        profile.Latitude = latitude;
+        profile.Longitude = longitude;
+
+        await context.SaveChangesAsync(cancellationToken);
+    }
 }

@@ -260,5 +260,37 @@ public class SeedData
                 OrganizationFormShortName = OrganizationFormsConsts.IPShort,
                 OrganizationFormFullName = OrganizationFormsConsts.IPFull
             });
+
+        modelBuilder.Entity<NotificationStatus>().HasData(
+            new NotificationStatus
+            {
+                Id = new Guid("dbbc52fc-9000-49ea-904e-1f9699b1ca1f"),
+                Name = NotificationStatusConsts.IsRead
+            },
+            new NotificationStatus
+            {
+                Id = new Guid("d0885825-6828-4358-979e-d71bf0c90a20"),
+                Name = NotificationStatusConsts.IsUnread
+            });
+
+        modelBuilder.Entity<NotificationType>().HasData(
+            new NotificationType
+            {
+                Id = new Guid("9a68a5c2-8899-4290-a290-cc0a761f2e5d"),
+                Code = NotificationTypeConsts.AnnouncementBookedCode,
+                Name = NotificationTypeConsts.AnnouncementBookedName
+            },
+            new NotificationType
+            {
+                Id = new Guid("35ca4edf-1ad6-4a22-a2ee-33f538e65647"),
+                Code = NotificationTypeConsts.FavoriteCategoryCode,
+                Name = NotificationTypeConsts.FavoriteCategoryName
+            },
+            new NotificationType
+            {
+                Id = new Guid("7227a6af-d5dc-46a6-aed6-8fc0159bcb69"),
+                Code = NotificationTypeConsts.NearbyAnnouncementCode,
+                Name = NotificationTypeConsts.NearbyAnnouncementName
+            });
     }
 }

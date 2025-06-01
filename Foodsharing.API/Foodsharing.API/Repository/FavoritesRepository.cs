@@ -71,5 +71,11 @@ public class FavoritesRepository : IFavoritesRepository
             .ToListAsync(cancellationToken);
     }
 
-
+    public async Task<List<FavoriteCategory>> GetFavoriteCategoriesWithUsersAsync(Guid categoryId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<FavoriteCategory>()
+            .Include(fc => fc.User)
+            .Where(fc => fc.CategoryId == categoryId)
+            .ToListAsync(cancellationToken);
+    }
 }

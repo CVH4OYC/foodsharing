@@ -45,7 +45,6 @@ public class Address : EntityBase
     /// </summary>
     public double? Longitude { get; set; }
 
-
     /// <summary>
     /// Навигационное свойство для связи с таблицей Organization
     /// </summary>

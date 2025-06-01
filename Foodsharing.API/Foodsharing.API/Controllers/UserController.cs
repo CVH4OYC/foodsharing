@@ -147,4 +147,17 @@ public class UserController : ControllerBase
 
         return Ok(profile);
     }
+
+    [HttpPatch("location")]
+    [Authorize]
+    public async Task<IActionResult> UpdateLocationAsync([FromBody] UpdateLocationRequest request, CancellationToken cancellationToken)
+    {
+        var userId = _httpContextAccessor.HttpContext?.User.GetUserId();
+        if (userId == null)
+            return Unauthorized("Пользователь не авторизован");
+
+        await _userService.UpdateLocationAsync(userId.Value, request.Latitude, request.Longitude, cancellationToken);
+
+        return Ok("Местоположение обновлено");
+    }
 }

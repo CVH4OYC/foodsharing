@@ -35,4 +35,6 @@ public interface IUserService
     Task AddRatingForUserAsync(Guid ratedUserId, int grade, CancellationToken cancellationToken);
 
     Task UpdateProfileAsync (UserUpdateDTO userUpdateDTO, CancellationToken cancellationToken);
+
+    Task UpdateLocationAsync(Guid userId, double latitude, double longitude, CancellationToken cancellationToken = default);
 }

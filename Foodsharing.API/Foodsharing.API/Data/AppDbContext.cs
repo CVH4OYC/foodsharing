@@ -116,6 +116,21 @@ public class AppDbContext : DbContext
     /// </summary>
     public DbSet<User> Users { get; set; }
 
+    /// <summary>
+    /// Уведомления
+    /// </summary>
+    public DbSet<Notification> Notifications { get; set; }
+
+    /// <summary>
+    /// Типы уведомлений
+    /// </summary>
+    public DbSet<NotificationType> NotificationTypes { get; set; }
+
+    /// <summary>
+    /// Статусы уведомлений
+    /// </summary>
+    public DbSet<NotificationStatus> NotificationStatuses { get; set; }
+
     //public DbSet<AnnouncementStatus> AnnouncementStatuses { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

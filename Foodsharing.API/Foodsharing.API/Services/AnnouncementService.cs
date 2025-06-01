@@ -17,13 +17,25 @@ public class AnnouncementService : IAnnouncementService
     private readonly IAddressService addressService;
     private readonly IImageService imageService;
     private readonly IHttpContextAccessor httpContextAccessor;
+    private readonly INotificationService notificationService;
+    private readonly ICategoryService categoryService;
+    private readonly IGeolocationService geolocationService;
 
-    public AnnouncementService(IAnnouncementRepository announcementRepository, IAddressService addressService, IImageService imageService, IHttpContextAccessor httpContextAccessor)
+    public AnnouncementService(IAnnouncementRepository announcementRepository,
+                               IAddressService addressService,
+                               IImageService imageService,
+                               IHttpContextAccessor httpContextAccessor,
+                               INotificationService notificationService,
+                               ICategoryService categoryService,
+                               IGeolocationService geolocationService)
     {
         this.announcementRepository = announcementRepository;
         this.addressService = addressService;
         this.imageService = imageService;
         this.httpContextAccessor = httpContextAccessor;
+        this.notificationService = notificationService;
+        this.categoryService = categoryService;
+        this.geolocationService = geolocationService;
     }
 
     public async Task<OperationResult> AddAsync(AnnouncemenstCreateUpdRequest request, CancellationToken cancellationToken = default)
@@ -44,6 +56,37 @@ public class AnnouncementService : IAnnouncementService
         };
 
         await announcementRepository.AddAsync(newAnnouncement, cancellationToken);
+
+        var usersWhoFavorited = await categoryService.GetUsersWhoFavoritedCategoryAsync(request.CategoryId, cancellationToken);
+
+        foreach (var user in usersWhoFavorited.Where(u => u.Id != request.UserId))
+        {
+            await notificationService.CreateNotificationAsync(
+                user.Id,
+                NotificationTypeConsts.FavoriteCategoryCode,
+                $"Новое объявление в вашей любимой категории: {newAnnouncement.Title}",
+                newAnnouncement.Id,
+                cancellationToken
+            );
+        }
+
+        var nearbyUsers = await geolocationService.GetUsersNearbyAsync(
+            newAnnouncement.Address.Latitude!.Value,
+            newAnnouncement.Address.Longitude!.Value,
+            1.0,
+            cancellationToken
+        );
+
+        foreach (var user in nearbyUsers.Where(u => u.Id != request.UserId))
+        {
+            await notificationService.CreateNotificationAsync(
+                user.Id,
+                NotificationTypeConsts.NearbyAnnouncementCode,
+                $"Рядом с вами появилось новое объявление: {newAnnouncement.Title}",
+                newAnnouncement.Id,
+                cancellationToken
+            );
+        }
 
         return OperationResult.SuccessResult("Объявление добавлено успешно");
     }

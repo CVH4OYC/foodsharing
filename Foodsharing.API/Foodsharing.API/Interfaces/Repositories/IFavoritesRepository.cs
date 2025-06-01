@@ -20,4 +20,6 @@ public interface IFavoritesRepository
     Task<FavoriteCategory?> GetFavoriteCategoryByIdAndUserAsync(Guid categoryId, Guid userId, CancellationToken cancellationToken);
 
     Task<FavoriteOrganization?> GetFavoriteOrganizationByIdAndUserAsync(Guid orgId, Guid userId, CancellationToken cancellationToken);
+
+    Task<List<FavoriteCategory>> GetFavoriteCategoriesWithUsersAsync(Guid categoryId, CancellationToken cancellationToken = default);
 }

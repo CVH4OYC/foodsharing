@@ -52,4 +52,14 @@ public class StatusesRepository : IStatusesRepository
 
         return status;
     }
+
+    public async Task<Guid?> GetNotificationStatusIdByNameAsync(string name, CancellationToken cancellationToken = default)
+    {
+        var status = await context.Set<NotificationStatus>()
+            .Where(s => s.Name == name)
+            .Select(s => s.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return status == Guid.Empty ? null : status;
+    }
 }

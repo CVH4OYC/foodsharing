@@ -62,4 +62,15 @@ public class Profile
     /// Сколько получено
     /// </summary>
     public long TotalRecieved { get; set; } = 0;
+
+    /// <summary>
+    /// Широта пользователя
+    /// </summary>
+    public double? Latitude { get; set; }
+
+    /// <summary>
+    /// Долгота пользователя
+    /// </summary>
+    public double? Longitude { get; set; }
+
 }
