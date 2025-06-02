@@ -25,4 +25,5 @@ const handleUnauthorized = (error: any) => {
 API.interceptors.response.use(undefined, handleUnauthorized);
 StaticAPI.interceptors.response.use(undefined, handleUnauthorized);
 
+
 export { API, StaticAPI };

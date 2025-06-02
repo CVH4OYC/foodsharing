@@ -47,7 +47,7 @@ public class ChatService : IChatService
                 },
                 Message = lastMessage == null ? null : new MessageDTO
                 {
-                    IsMy = currentUserId == lastMessage.SenderId,
+                    Id = lastMessage.Id,
                     Text = lastMessage.Text,
                     Date = lastMessage.Date,
                     Status = lastMessage.Status?.Name,
@@ -131,7 +131,7 @@ public class ChatService : IChatService
             },
             Messages = chat.Messages?.Select(m => new MessageDTO
             {
-                IsMy = m.SenderId == currentUserId,
+                Id = m.Id,
                 Sender = new UserDTO
                 {
                     UserId = m.Sender.Id,

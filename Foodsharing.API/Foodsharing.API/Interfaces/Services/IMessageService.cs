@@ -6,4 +6,5 @@ public interface IMessageService
 {
     Task SendMessageAsync(Guid senderId, CreateMessageDTO dto, CancellationToken cancellationToken);
 
+    Task MarkMessagesAsReadAsync(Guid chatId, Guid readerId);
 }

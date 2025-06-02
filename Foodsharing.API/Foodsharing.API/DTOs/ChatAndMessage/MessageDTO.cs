@@ -1,13 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Foodsharing.API.Abstract;
 
 namespace Foodsharing.API.DTOs.ChatAndMessage;
 
-public class MessageDTO
+public class MessageDTO : EntityBase
 {
-    /// <summary>
-    /// Моё или нет сообщение
-    /// </summary>
-    public bool IsMy { get; set; }
+    public Guid? ChatId { get; set; }
 
     public UserDTO Sender { get; set; }
 

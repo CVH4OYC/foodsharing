@@ -19,6 +19,7 @@ export interface ChatDTO {
   }
   
   export interface MessageDTO {
+    id: string;
     isMy: boolean;
     sender: UserDTO;
     text?: string;

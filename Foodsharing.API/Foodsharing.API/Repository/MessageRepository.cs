@@ -13,4 +13,17 @@ public class MessageRepository : Repository<Message>, IMessageRepository
     {
         this.context = context;
     }
+
+    public async Task<List<Message>> GetUnreadMessagesForChatAsync(Guid chatId, Guid readerId, Guid readStatusId, CancellationToken cancellationToken = default)
+    {
+        return await context.Set<Message>()
+            .Where(m => m.ChatId == chatId && m.SenderId != readerId && m.StatusId != readStatusId)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task UpdateRangeAsync(IEnumerable<Message> messages, CancellationToken cancellationToken = default)
+    {
+        context.Set<Message>().UpdateRange(messages);
+        await context.SaveChangesAsync(cancellationToken);
+    }
 }

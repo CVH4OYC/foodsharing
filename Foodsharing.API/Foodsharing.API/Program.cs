@@ -1,6 +1,7 @@
 using Foodsharing.API.Constants;
 using Foodsharing.API.Data;
 using Foodsharing.API.Extensions;
+using Foodsharing.API.Hubs;
 using Foodsharing.API.Infrastructure;
 using Foodsharing.API.Interfaces.Repositories;
 using Foodsharing.API.Interfaces.Services;
@@ -57,8 +58,8 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IGeolocationService, GeolocationService>();
 
 builder.Services.AddHttpClient<IGeocodingService, NominatimGeocodingService>();
-
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSignalR();
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -109,6 +110,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ChatHub>("/chathub");
 
 StaticFileOptions CreateStaticFilesOptions(
     string rootFolder, // Базовая папка (Pictures/Files)
