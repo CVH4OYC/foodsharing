@@ -41,14 +41,16 @@ public class ChatRepository : Repository<Chat>, IChatRepository
 
         var messages = await messagesQuery
             .Include(m => m.Status)
-            .OrderBy(m => m.Date)
+            .OrderByDescending(m => m.Date) 
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
 
-        chat.Messages = messages;
+        chat.Messages = messages.OrderBy(m => m.Date).ToList();
+
         return chat;
     }
+
 
 
     public async Task<IEnumerable<Chat>?> GetMyChatsAsync(Guid currentUserId, CancellationToken cancellationToken)

@@ -1,9 +1,10 @@
 import { FC, useEffect, useState, useRef, useCallback } from "react";
-import { ChatWithMessagesDTO, MessageDTO, UserDTO } from "../../types/chat"; // Добавлен UserDTO
+import { ChatWithMessagesDTO, MessageDTO, UserDTO } from "../../types/chat";
 import { API, StaticAPI } from "../../services/api";
 import { FiSend, FiPaperclip, FiCamera, FiX } from "react-icons/fi";
 import { useChatSignalR } from "../../hooks/useChatSignalR";
 import { useCurrentUserId } from "../../hooks/useCurrentUserId";
+
 
 interface Props {
   chatId: string | null;
@@ -30,6 +31,8 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
   const [creatingChatId, setCreatingChatId] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [image, setImage] = useState<File | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
   
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const currentUserId = useCurrentUserId();
@@ -55,7 +58,6 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
             params: { onlyMeta: true }
           });
           
-          // Исправление: преобразование UserDTO в нужный формат
           const interlocutorData = metaRes.data.interlocutor;
           setInterlocutor({
             firstName: interlocutorData.firstName || "",
@@ -86,6 +88,14 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
     fetchData();
   }, [actualChatId, interlocutorId]);
 
+
+  useEffect(() => {
+    if (!loading) {
+      inputRef.current?.focus();
+    }
+  }, [loading]);
+
+  
   // Пагинация сообщений
   const fetchMessages = async (id: string, pageToLoad: number) => {
     setLoadingMessages(true);
@@ -94,17 +104,17 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
         params: { page: pageToLoad, pageSize: PAGE_SIZE }
       });
       
-      // Исправление: обработка возможного null
       const newMessages = res.data.messages || [];
-      const orderedMessages = [...newMessages].reverse();
 
       if (pageToLoad === 1) {
-        setMessages(orderedMessages);
+        setMessages(newMessages);
+        // Прокрутка вниз после загрузки первой страницы
+        setTimeout(() => scrollToBottom(), 0);
       } else {
-        setMessages(prev => [...orderedMessages, ...prev]);
+        // Добавляем старые сообщения в начало
+        setMessages(prev => [...newMessages, ...prev]);
       }
       
-      // Исправление: проверка существования newMessages
       setHasMore(newMessages.length === PAGE_SIZE);
     } catch (err) {
       console.error("Ошибка загрузки сообщений", err);
@@ -125,7 +135,11 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
   const handleScroll = useCallback(() => {
     const div = scrollContainerRef.current;
     if (!div || div.scrollTop > 100 || loadingMessages) return;
-    loadMore();
+    
+    // Проверяем, достигли ли верха контейнера
+    if (div.scrollTop === 0) {
+      loadMore();
+    }
   }, [actualChatId, page, hasMore, loadingMessages]);
 
   // Подписка на события скролла
@@ -142,6 +156,7 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
     conversationId: actualChatId || "",
     currentUserId: currentUserId || "",
     onNewMessage: (message: MessageDTO) => {
+      // Добавляем новые сообщения в конец
       setMessages(prev => [...prev, message]);
       scrollToBottom();
     },
@@ -157,13 +172,20 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
     },
   });
 
-  // Скролл вниз
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   const scrollToBottom = () => {
-    scrollContainerRef.current?.scrollTo({
-      top: scrollContainerRef.current.scrollHeight,
-      behavior: "smooth"
-    });
+    const div = scrollContainerRef.current;
+    if (div) {
+      requestAnimationFrame(() => {
+        div.scrollTop = div.scrollHeight;
+      });
+    }
   };
+  
+
 
   // Отправка сообщения
   const handleSend = async () => {
@@ -201,6 +223,7 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
       setTempMessage("");
       setImage(null);
       setFile(null);
+      requestAnimationFrame(() => inputRef.current?.focus());
     } catch (err) {
       console.error("Ошибка при отправке сообщения", err);
     } finally {
@@ -269,6 +292,7 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
           />
         </label>
         <input
+          ref={inputRef}
           type="text"
           placeholder="Введите сообщение..."
           value={tempMessage}
@@ -276,6 +300,7 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
           className="flex-1 border rounded-xl px-4 py-2 outline-none"
           disabled={sending}
         />
+
         <button 
           type="submit" 
           className="text-primary hover:text-green-600" 
@@ -340,79 +365,80 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
       </div>
       
       <div 
-        ref={scrollContainerRef} 
-        className="flex-1 overflow-y-auto px-4 py-2 space-y-2"
-      >
-        {loadingMessages && page > 1 && (
-          <div className="text-center text-gray-500 py-2">Загрузка...</div>
-        )}
-        
-        {messages.length > 0 ? (
-          messages.map((msg, index) => {
-            const prevMsg = messages[index - 1];
-            const currDate = new Date(msg.date).toDateString();
-            const prevDate = prevMsg ? new Date(prevMsg.date).toDateString() : null;
-            const showDate = currDate !== prevDate;
+          ref={scrollContainerRef} 
+          className="flex-1 overflow-y-auto px-4 py-2 flex flex-col gap-2"
+        >
+          {loadingMessages && page > 1 && (
+            <div className="text-center text-gray-500 py-2">Загрузка...</div>
+          )}
 
-            return (
-              <div key={msg.id || index}>
-                {showDate && (
-                  <div className="text-center text-xs text-gray-500 my-2">
-                    {new Date(msg.date).toLocaleDateString("ru-RU", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })}
-                  </div>
-                )}
-                <div className={`max-w-[85%] px-4 py-2 rounded-xl flex flex-col gap-1 ${
-                  msg.sender.userId === currentUserId 
-                    ? "bg-primary text-white self-end ml-auto" 
-                    : "bg-gray-100 text-gray-800 self-start"
-                }`}>
-                  {msg.text && <div className="text-sm whitespace-pre-line">{msg.text}</div>}
-                  {msg.image && (
-                    <a 
-                      href={`${StaticAPI.defaults.baseURL}${msg.image}`} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                    >
-                      <img 
-                        src={`${StaticAPI.defaults.baseURL}${msg.image}`} 
-                        alt="attached" 
-                        className="max-w-[200px] max-h-[200px] rounded-lg border" 
-                      />
-                    </a>
+          {messages.length > 0 ? (
+            messages.map((msg, index) => {
+              const prevMsg = messages[index - 1];
+              const currDate = new Date(msg.date).toDateString();
+              const prevDate = prevMsg ? new Date(prevMsg.date).toDateString() : null;
+              const showDate = currDate !== prevDate;
+
+              return (
+                <div key={msg.id || index}>
+                  {showDate && (
+                    <div className="text-center text-xs text-gray-500 my-2">
+                      {new Date(msg.date).toLocaleDateString("ru-RU", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                    </div>
                   )}
-                  {msg.file && (
-                    <a 
-                      href={`${StaticAPI.defaults.baseURL}${msg.file}`} 
-                      download 
-                      className="flex items-center gap-2 text-sm underline hover:text-blue-700"
-                    >
-                      <FiPaperclip size={16} />
-                      {msg.file.split("/").pop() || "Скачать файл"}
-                    </a>
-                  )}
-                  <div className="text-xs mt-1 opacity-70 text-right flex justify-end items-center gap-2">
-                    {new Date(msg.date).toLocaleTimeString("ru-RU", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                    {msg.sender.userId === currentUserId && (
-                      <span className={`text-[10px] ${msg.status === "Прочитано" ? "text-green-300" : "text-gray-300"}`}>
-                        ✓ {msg.status}
-                      </span>
+                  <div className={`max-w-[85%] px-4 py-2 rounded-xl flex flex-col gap-1 ${
+                    msg.sender.userId === currentUserId 
+                      ? "bg-primary text-white self-end ml-auto" 
+                      : "bg-gray-100 text-gray-800 self-start"
+                  }`}>
+                    {msg.text && <div className="text-sm whitespace-pre-line">{msg.text}</div>}
+                    {msg.image && (
+                      <a 
+                        href={`${StaticAPI.defaults.baseURL}${msg.image}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
+                        <img 
+                          src={`${StaticAPI.defaults.baseURL}${msg.image}`} 
+                          alt="attached" 
+                          className="max-w-[200px] max-h-[200px] rounded-lg border" 
+                        />
+                      </a>
                     )}
+                    {msg.file && (
+                      <a 
+                        href={`${StaticAPI.defaults.baseURL}${msg.file}`} 
+                        download 
+                        className="flex items-center gap-2 text-sm underline hover:text-blue-700"
+                      >
+                        <FiPaperclip size={16} />
+                        {msg.file.split("/").pop() || "Скачать файл"}
+                      </a>
+                    )}
+                    <div className="text-xs mt-1 opacity-70 text-right flex justify-end items-center gap-2">
+                      {new Date(msg.date).toLocaleTimeString("ru-RU", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                      {msg.sender.userId === currentUserId && (
+                        <span className={`text-[10px] ${msg.status === "Прочитано" ? "text-green-300" : "text-gray-300"}`}>
+                          ✓ {msg.status}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })
-        ) : (
-          !loadingMessages && <div className="text-center text-gray-400 mt-4">Сообщений пока нет</div>
-        )}
-      </div>
+              );
+            })
+          ) : (
+            !loadingMessages && <div className="text-center text-gray-400 mt-4">Сообщений пока нет</div>
+          )}
+        </div>
+
       
       <div className="border-t px-4 py-3">{renderForm()}</div>
     </div>
