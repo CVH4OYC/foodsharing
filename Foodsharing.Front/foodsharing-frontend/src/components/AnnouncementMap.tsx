@@ -70,7 +70,6 @@ const AnnouncementMap = ({ announcements }: Props) => {
   );
 };
 
-// 🔹 Маркер объявления с flyTo
 function AnnouncementMarker({ announcement }: { announcement: Announcement }) {
   const map = useMap();
 
@@ -112,7 +111,6 @@ function AnnouncementMarker({ announcement }: { announcement: Announcement }) {
   );
 }
 
-// 🔹 Кнопка "Найти меня"
 function MyLocationButton({ coords }: { coords: [number, number] }) {
   const map = useMap();
 
