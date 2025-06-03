@@ -4,6 +4,8 @@ import { API, StaticAPI } from "../../services/api";
 import { FiSend, FiPaperclip, FiCamera, FiX } from "react-icons/fi";
 import { useChatSignalR } from "../../hooks/useChatSignalR";
 import { useCurrentUserId } from "../../hooks/useCurrentUserId";
+import connection from "../../services/signalr-chat";
+
 
 
 interface Props {
@@ -68,6 +70,13 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
           
           // Загрузка сообщений
           await fetchMessages(actualChatId, 1);
+
+          try {
+            console.log("📩 Отмечаем чат как прочитанный при открытии");
+            await connection.invoke("MarkChatAsRead", actualChatId);
+          } catch (err) {
+            console.error("Ошибка при MarkChatAsRead", err);
+          }
         } else if (interlocutorId) {
           // Загрузка собеседника
           const userRes = await API.get<UserDTO>(`/user/${interlocutorId}`);
@@ -315,7 +324,7 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
   // Рендер аватара
   const renderAvatarOrInitials = (name?: string, url?: string | null) => {
     if (url) {
-      return <img src={url} alt="avatar" className="w-10 h-10 rounded-full object-cover" />;
+      return <img src={`${StaticAPI.defaults.baseURL}${url}`} alt="avatar" className="w-10 h-10 rounded-full object-cover" />;
     }
     return (
       <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-white font-bold">
