@@ -17,6 +17,7 @@ public class MessageService : IMessageService
     private readonly IStatusesRepository _statusesRepository;
     private readonly IHubContext<ChatHub> _hubContext;
     private readonly IUserService _userService;
+    private readonly IChatService _chatService;
 
     public MessageService(
         IMessageRepository messageRepository,
@@ -24,7 +25,8 @@ public class MessageService : IMessageService
         IFileService fileService,
         IStatusesRepository statusesRepository,
         IHubContext<ChatHub> hubContext,
-        IUserService userService)
+        IUserService userService,
+        IChatService chatService)
     {
         _messageRepository = messageRepository;
         _imageService = imageService;
@@ -32,6 +34,7 @@ public class MessageService : IMessageService
         _statusesRepository = statusesRepository;
         _hubContext = hubContext;
         _userService = userService;
+        _chatService = chatService;
     }
 
     public async Task SendMessageAsync(Guid senderId, CreateMessageDTO dto, CancellationToken cancellationToken)
@@ -88,6 +91,15 @@ public class MessageService : IMessageService
         // Отправляем сообщение всем в SignalR-группе по chatId
         await _hubContext.Clients.Group(dto.ChatId.ToString())
             .SendAsync("ReceiveMessage", messageDto, cancellationToken);
+
+        var receiverId = await _chatService.GetReceiverId(dto.ChatId, senderId, cancellationToken);
+
+        await _hubContext.Clients.Group($"user:{receiverId}")
+            .SendAsync("ChatListUpdated", dto.ChatId, messageDto, cancellationToken);
+
+        await _hubContext.Clients.Group($"user:{senderId}")
+            .SendAsync("ChatListUpdated", dto.ChatId, messageDto, cancellationToken);
+
     }
 
     public async Task MarkMessagesAsReadAsync(Guid chatId, Guid readerId)

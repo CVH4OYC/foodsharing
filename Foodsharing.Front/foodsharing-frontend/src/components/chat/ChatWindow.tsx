@@ -1,11 +1,11 @@
 import { FC, useEffect, useState, useRef, useCallback } from "react";
-import { ChatWithMessagesDTO, MessageDTO, UserDTO } from "../../types/chat";
+import { ChatDTO, ChatWithMessagesDTO, MessageDTO, UserDTO } from "../../types/chat";
 import { API, StaticAPI } from "../../services/api";
 import { FiSend, FiPaperclip, FiCamera, FiX } from "react-icons/fi";
 import { useChatSignalR } from "../../hooks/useChatSignalR";
 import { useCurrentUserId } from "../../hooks/useCurrentUserId";
 import connection from "../../services/signalr-chat";
-
+import { useOutletContext } from "react-router-dom";
 
 
 interface Props {
@@ -23,6 +23,7 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
     lastName: string;
     image: string | null;
     userId: string;
+    userName: string;
   } | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -39,6 +40,10 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const currentUserId = useCurrentUserId();
   const actualChatId = chatId || creatingChatId;
+
+  const { updateChatLocally } = useOutletContext<{
+    updateChatLocally: (chat: ChatDTO) => void;
+  }>();
 
   // Сброс состояния при смене чата
   useEffect(() => {
@@ -65,7 +70,8 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
             firstName: interlocutorData.firstName || "",
             lastName: interlocutorData.lastName || "",
             image: interlocutorData.image || null,
-            userId: interlocutorData.userId
+            userId: interlocutorData.userId,
+            userName: interlocutorData.userName || "",
           });
           
           // Загрузка сообщений
@@ -84,7 +90,8 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
             firstName: userRes.data.firstName || "",
             lastName: userRes.data.lastName || "",
             image: userRes.data.image || null,
-            userId: interlocutorId
+            userId: interlocutorId,
+            userName: userRes.data.userName || "",
           });
         }
       } catch (err) {
@@ -227,6 +234,39 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
       await API.post("/message", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+
+      if (
+        updateChatLocally &&
+        finalChatId &&
+        interlocutor &&
+        currentUserId !== null
+      ) {
+        updateChatLocally({
+          id: finalChatId,
+          interlocutor: {
+            userId: interlocutor.userId,
+            userName: "",
+            firstName: interlocutor.firstName,
+            lastName: interlocutor.lastName,
+            image: interlocutor.image || undefined,
+          },
+          message: {
+            id: crypto.randomUUID(),
+            isMy: true,
+            sender: {
+              userId: currentUserId,
+              userName: "",
+              firstName: "",
+              lastName: "",
+            },
+            text: tempMessage,
+            date: new Date().toISOString(),
+            status: "Не доставлено",
+          }
+        });
+      }
+      
+  
 
       // Сброс формы
       setTempMessage("");

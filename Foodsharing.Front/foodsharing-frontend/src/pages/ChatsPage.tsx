@@ -4,6 +4,8 @@ import ChatList from "../components/chat/ChatList";
 import ChatWindowPlaceholder from "../components/chat/ChatWindowPlaceholder";
 import { ChatDTO } from "../types/chat";
 import { Outlet, useParams, useNavigate } from "react-router-dom";
+import connection, { startConnection } from "../services/signalr-chat";
+
 
 const ChatsPage = () => {
   const [chats, setChats] = useState<ChatDTO[]>([]);
@@ -26,6 +28,30 @@ const ChatsPage = () => {
     fetchChats();
   }, [fetchChats]);
 
+  useEffect(() => {
+    let isMounted = true;
+  
+    startConnection().then(() => {
+      if (!isMounted) return;
+  
+      console.log("✅ Подключились к SignalR в ChatsPage");
+  
+      connection.off("ChatListUpdated");
+  
+      // Подписка на обновление списка чатов
+      connection.on("ChatListUpdated", (chatId: string) => {
+        console.log("📥 ChatListUpdated пришло, чат:", chatId);
+        fetchChats(); // можно оптимизировать потом, пока грузим все
+      });
+    });
+  
+    return () => {
+      isMounted = false;
+      connection.off("ChatListUpdated");
+    };
+  }, [fetchChats]);
+  
+
   const handleSelectChat = (id: string) => {
     navigate(`/chats/${id}`);
   };
@@ -38,7 +64,17 @@ const ChatsPage = () => {
         selectedChatId={chatId || null}
         onSelectChat={handleSelectChat}
       />
-      <Outlet context={{ onNewChatCreated: fetchChats }} />
+      <Outlet context={{
+        onNewChatCreated: fetchChats,
+        updateChatLocally: (updatedChat: ChatDTO) => {
+          setChats((prevChats) => {
+            const updated = prevChats.filter(c => c.id !== updatedChat.id);
+            return [updatedChat, ...updated];
+          });
+        }
+      }} />
+
+
     </div>
   );
 };

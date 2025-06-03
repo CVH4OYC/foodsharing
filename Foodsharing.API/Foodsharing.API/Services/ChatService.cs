@@ -30,7 +30,7 @@ public class ChatService : IChatService
 
         return myChats.Select(c =>
         {
-            var lastMessage = c.Messages?.FirstOrDefault();
+            var lastMessage = c.Messages?.OrderByDescending(m => m.Date).FirstOrDefault();
 
             var interlocutor = c.FirstUser.Id == currentUserId ? c.SecondUser : c.FirstUser;
 
@@ -148,4 +148,17 @@ public class ChatService : IChatService
             }) ?? Enumerable.Empty<MessageDTO>()
         };
     }
+
+    public async Task<Guid> GetReceiverId(Guid chatId, Guid senderId, CancellationToken cancellationToken)
+    {
+        var chat = await _chatRepository.GetByIdAsync(chatId, cancellationToken);
+        if (chat == null)
+            throw new Exception("Чат не найден");
+
+        if (chat.FirstUserId != senderId && chat.SecondUserId != senderId)
+            throw new Exception("Пользователь не является участником чата");
+
+        return chat.FirstUserId == senderId ? chat.SecondUserId : chat.FirstUserId;
+    }
+
 }

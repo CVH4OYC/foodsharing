@@ -34,10 +34,13 @@ public class ChatHub : Hub
                     await Groups.AddToGroupAsync(Context.ConnectionId, chat.Id.ToString());
                 }
             }
+
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"user:{userId}");
         }
 
         await base.OnConnectedAsync();
     }
+
 
     public async Task JoinChat(string chatId)
     {

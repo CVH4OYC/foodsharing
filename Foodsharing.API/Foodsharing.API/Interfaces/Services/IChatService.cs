@@ -30,4 +30,6 @@ public interface IChatService
         int pageSize,
         string? search,
         CancellationToken cancellationToken = default);
+
+    Task<Guid> GetReceiverId(Guid chatId, Guid senderId, CancellationToken cancellationToken);
 }
