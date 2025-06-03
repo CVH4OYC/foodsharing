@@ -207,68 +207,36 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
   const handleSend = async () => {
     if (!tempMessage.trim() && !image && !file) return;
     if (!actualChatId && !interlocutorId) return;
-
+  
     setSending(true);
     try {
       let finalChatId = actualChatId;
-      
-      // Создание нового чата
+  
       if (!finalChatId && interlocutorId) {
-        const res = await API.post<string>("/chat", null, { 
-          params: { otherUserId: interlocutorId } 
+        const res = await API.post<string>("/chat", null, {
+          params: { otherUserId: interlocutorId },
         });
         finalChatId = res.data;
         setCreatingChatId(finalChatId);
         onNewChatCreated?.();
       }
-
-      if (!finalChatId) throw new Error("Chat ID is not available");
-
-      // Отправка сообщения
+  
+      if (!finalChatId || !interlocutor || !currentUserId) {
+        throw new Error("Недостаточно данных для отправки сообщения");
+      }
+  
       const formData = new FormData();
       formData.append("ChatId", finalChatId);
       formData.append("Text", tempMessage);
       if (image) formData.append("Image", image);
       if (file) formData.append("File", file);
-
+  
       await API.post("/message", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
-      if (
-        updateChatLocally &&
-        finalChatId &&
-        interlocutor &&
-        currentUserId !== null
-      ) {
-        updateChatLocally({
-          id: finalChatId,
-          interlocutor: {
-            userId: interlocutor.userId,
-            userName: "",
-            firstName: interlocutor.firstName,
-            lastName: interlocutor.lastName,
-            image: interlocutor.image || undefined,
-          },
-          message: {
-            id: crypto.randomUUID(),
-            isMy: true,
-            sender: {
-              userId: currentUserId,
-              userName: "",
-              firstName: "",
-              lastName: "",
-            },
-            text: tempMessage,
-            date: new Date().toISOString(),
-            status: "Не доставлено",
-          }
-        });
-      }
-      
   
-
-      // Сброс формы
+      // Не обновляем локальный чат тут — ждём onNewMessage из SignalR
+  
       setTempMessage("");
       setImage(null);
       setFile(null);
@@ -279,6 +247,7 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
       setSending(false);
     }
   };
+  
 
   // Превью прикрепленных файлов
   const renderFilePreviews = () => (
