@@ -59,7 +59,6 @@ const ChatListItem: FC<Props> = ({ chat, selected, onSelect }) => {
 
         <div className="flex justify-between items-center text-sm text-gray-600 mt-1">
           <div className="flex items-center">
-            {renderStatusIcon()}
             <span className="truncate">{message?.text || "Нет сообщений"}</span>
           </div>
 

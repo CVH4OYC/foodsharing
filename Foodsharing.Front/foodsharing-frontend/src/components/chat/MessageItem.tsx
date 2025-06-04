@@ -72,7 +72,6 @@ const MessageItem: FC<Props> = ({ message, isOwn }) => {
             minute: "2-digit",
           })}
         </span>
-        {renderStatus()}
       </div>
     </div>
   );
