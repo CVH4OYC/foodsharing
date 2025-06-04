@@ -14,11 +14,12 @@ const ChatList: FC<Props> = ({ chats, loading, selectedChatId, onSelectChat }) =
     <aside className="w-[300px] border-r overflow-y-auto">
       <h2 className="text-lg font-bold p-4">Чаты</h2>
       {loading ? (
-        <div className="text-center text-gray-500 p-4">Загрузка...</div>
+        <div className="p-4 text-gray-500">Загрузка...</div>
       ) : chats.length === 0 ? (
-        <div className="text-center text-gray-500 p-4">Чатов пока нет</div>
+        <div className="p-4 text-gray-500">Нет чатов</div>
       ) : (
-        <ul className="space-y-1 px-2 pb-4">
+        <ul>
+
           {chats.map((chat) => (
             <ChatListItem
               key={chat.id}

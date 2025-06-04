@@ -75,7 +75,7 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
 
           await fetchMessages(actualChatId, 1);
         } else if (interlocutorId) {
-          // Если чата ещё нет, но есть ID собеседника, то показываем лишь его инфо
+          // Если чата ещё нет, но есть ID собеседника, показываем лишь его инфо
           const userRes = await API.get<UserDTO>(`/user/${interlocutorId}`);
           const avatarUrl = userRes.data.image
             ? `${StaticAPI.defaults.baseURL}${userRes.data.image}`
@@ -128,7 +128,7 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
     setPage(nextPage);
   }, [actualChatId, hasMore, loadingMessages, page]);
 
-  // SignalR: получение новых сообщений и обновление статусов «Прочитано»
+  // SignalR: получение новых сообщений, обновление статусов и прочее
   useChatSignalR({
     conversationId: actualChatId || "",
     currentUserId: currentUserId || "",
@@ -139,18 +139,41 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
       if (!currentUserId) return;
       setMessages((prev) =>
         prev.map((m) =>
-          m.status === "Не прочитано" && m.sender.userId === currentUserId
+          // Если статус "Не прочитано" и сообщение не от текущего пользователя
+          m.status === "Не прочитано" && m.sender.userId !== currentUserId
             ? { ...m, status: "Прочитано" }
             : m
         )
       );
     },
+    onMessageStatusUpdate: ({ chatId: chId, messageId, newStatus }) => {
+      if (chId !== actualChatId) return;
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === messageId
+            ? {
+                ...m,
+                // Преобразуем статус из backend-строки в русский
+                status:
+                  newStatus === "IsDelivered"
+                    ? "Доставлено"
+                    : newStatus === "IsRead"
+                    ? "Прочитано"
+                    : m.status,
+              }
+            : m
+        )
+      );
+    },
+    onChatListUpdate: () => {
+      // обновление списка чатов обрабатывается в ChatsPage, здесь ничего не делаем
+    },
   });
 
   // Сразу скроллим вниз при появлении новых сообщений
   useEffect(() => {
-    // Можно передавать слушателю scrollContainerRef.scrollToBottom(),
-    // но поскольку мы вынесли MessageList, он сам скроллит вниз в своём useEffect.
+    // MessageList сам скроллит вниз, если нужны дополнительные действия —
+    // можно здесь добавить реф и вызвать scrollToBottom
   }, [messages]);
 
   // Отправка сообщения (текст + опционально файл/картинка)
@@ -272,3 +295,4 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
 };
 
 export default ChatWindow;
+

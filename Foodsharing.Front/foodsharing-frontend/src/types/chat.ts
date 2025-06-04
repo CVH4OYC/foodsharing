@@ -2,6 +2,7 @@ export interface ChatDTO {
     id: string;
     interlocutor: UserDTO;
     message: MessageDTO | null;
+    unreadCount: number;
   }
   
   export interface UserDTO {
@@ -20,11 +21,10 @@ export interface ChatDTO {
   
   export interface MessageDTO {
     id: string;
-    isMy: boolean;
     sender: UserDTO;
     text?: string;
     date: string;
-    status?: string;
+    status?: "Не прочитано" | "Доставлено" | "Прочитано";
     image?: string;
     file?: string;
   }

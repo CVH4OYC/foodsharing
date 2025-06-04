@@ -1,23 +1,26 @@
-import { useOutletContext, useParams, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import ChatWindow from "../components/chat/ChatWindow";
 
 const ChatWindowPage = () => {
   const { chatId } = useParams();
-  const [searchParams] = useSearchParams();
-  const userId = searchParams.get("userId");
+  const [loadedChatId, setLoadedChatId] = useState<string | null>(null);
 
-  const { onNewChatCreated } = useOutletContext<{ onNewChatCreated?: () => void }>();
-
-  if (!chatId && !userId) {
-    return <div className="p-4">Чат не найден</div>;
-  }
+  useEffect(() => {
+    if (chatId) setLoadedChatId(chatId);
+  }, [chatId]);
 
   return (
-    <ChatWindow
-      chatId={chatId ?? null}
-      interlocutorId={userId ?? undefined}
-      onNewChatCreated={onNewChatCreated}
-    />
+
+    <div className="flex-1 flex flex-col">
+      {loadedChatId ? (
+        <ChatWindow chatId={loadedChatId} />
+      ) : (
+        <div className="flex-1 flex items-center justify-center text-gray-400">
+          Выберите чат слева
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -1,4 +1,3 @@
-// components/chat/MessageItem.tsx
 import { FC } from "react";
 import { FiPaperclip } from "react-icons/fi";
 import { StaticAPI } from "../../services/api";
@@ -14,47 +13,66 @@ const MessageItem: FC<Props> = ({ message, isOwn }) => {
     ? "bg-primary text-white self-end ml-auto"
     : "bg-gray-100 text-gray-800 self-start";
 
+  // Функция для преобразования backend-статуса в «человеческую» строку и иконку
+  const renderStatus = () => {
+    if (!isOwn || !message.status) return null;
+
+    switch (message.status) {
+      case "Не прочитано":
+        return (
+          <span className="text-[10px] text-gray-300 flex items-center">
+            <FiPaperclip /* или своя иконка для «не прочитано» */ />
+            <span className="ml-1">Не прочитано</span>
+          </span>
+        );
+      case "Доставлено":
+        return (
+          <span className="text-[10px] text-gray-300 flex items-center">
+            <span className="mr-1">✓</span>
+            <span>Доставлено</span>
+          </span>
+        );
+      case "Прочитано":
+        return (
+          <span className="text-[10px] text-green-300 flex items-center">
+            <span className="mr-1">✓✓</span>
+            <span>Прочитано</span>
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className={`max-w-[85%] px-4 py-2 rounded-xl flex flex-col gap-1 ${bubbleClasses}`}>
-      {message.text && <div className="text-sm whitespace-pre-line">{message.text}</div>}
-
+    <div className={`flex flex-col mb-2 ${bubbleClasses} p-2 rounded-lg max-w-[70%]`}>
+      {message.text && <p className="break-words">{message.text}</p>}
       {message.image && (
-        <a
-          href={`${StaticAPI.defaults.baseURL}${message.image}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img
-            src={`${StaticAPI.defaults.baseURL}${message.image}`}
-            alt="attached"
-            className="max-w-[200px] max-h-[200px] rounded-lg border"
-          />
-        </a>
+        <img
+          src={`${StaticAPI.defaults.baseURL}${message.image}`}
+          alt="img"
+          className="max-w-full mt-2 rounded"
+        />
       )}
-
       {message.file && (
         <a
           href={`${StaticAPI.defaults.baseURL}${message.file}`}
-          download
-          className="flex items-center gap-2 text-sm underline hover:text-blue-700"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center mt-2 text-blue-500"
         >
-          <FiPaperclip size={16} />
-          {message.file.split("/").pop() || "Скачать файл"}
+          <FiPaperclip className="mr-1" /> Скачать файл
         </a>
       )}
 
-      <div className="text-xs mt-1 opacity-70 text-right flex justify-end items-center gap-2">
-        <span>
+      <div className="flex justify-between items-center mt-1">
+        <span className="text-[10px] text-gray-500">
           {new Date(message.date).toLocaleTimeString("ru-RU", {
             hour: "2-digit",
             minute: "2-digit",
           })}
         </span>
-        {isOwn && (
-          <span className={`text-[10px] ${message.status === "Прочитано" ? "text-green-300" : "text-gray-300"}`}>
-            ✓ {message.status}
-          </span>
-        )}
+        {renderStatus()}
       </div>
     </div>
   );
