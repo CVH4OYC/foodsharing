@@ -1,11 +1,12 @@
+// components/chat/MessageItem.tsx
 import { FC } from "react";
 import { FiPaperclip } from "react-icons/fi";
-import { StaticAPI } from "../../services/api";
 import { MessageDTO } from "../../types/chat";
+import { StaticAPI } from "../../services/api";
 
 interface Props {
   message: MessageDTO;
-  isOwn: boolean; // true, если это сообщение текущего пользователя
+  isOwn: boolean;
 }
 
 const MessageItem: FC<Props> = ({ message, isOwn }) => {
@@ -13,7 +14,6 @@ const MessageItem: FC<Props> = ({ message, isOwn }) => {
     ? "bg-primary text-white self-end ml-auto"
     : "bg-gray-100 text-gray-800 self-start";
 
-  // Функция для преобразования backend-статуса в «человеческую» строку и иконку
   const renderStatus = () => {
     if (!isOwn || !message.status) return null;
 
@@ -21,8 +21,8 @@ const MessageItem: FC<Props> = ({ message, isOwn }) => {
       case "Не прочитано":
         return (
           <span className="text-[10px] text-gray-300 flex items-center">
-            <FiPaperclip /* или своя иконка для «не прочитано» */ />
-            <span className="ml-1">Не прочитано</span>
+            <span className="mr-1">✓</span>
+            <span>Не прочитано</span>
           </span>
         );
       case "Доставлено":

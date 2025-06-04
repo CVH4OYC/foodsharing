@@ -6,5 +6,8 @@ public interface IMessageService
 {
     Task SendMessageAsync(Guid senderId, CreateMessageDTO dto, CancellationToken cancellationToken);
 
-    Task MarkMessagesAsReadAsync(Guid chatId, Guid readerId);
+    /// <summary>
+    /// Пометить все непрочитанные сообщения в чате как „прочитано“ и вернуть список ID этих сообщений
+    /// </summary>
+    Task<List<Guid>> MarkMessagesAsReadAsync(Guid chatId, Guid readerId);
 }

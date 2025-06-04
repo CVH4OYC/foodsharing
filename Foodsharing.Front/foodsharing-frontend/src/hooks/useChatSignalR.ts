@@ -1,3 +1,4 @@
+// hooks/useChatSignalR.ts
 import { useEffect } from "react";
 import connection, { startConnection } from "../services/signalr-chat";
 
@@ -5,19 +6,13 @@ type UseChatSignalRProps = {
   conversationId: string;
   currentUserId: string;
   onNewMessage: (message: any) => void;
-
-  onMessagesRead?: (readerId: string) => void;
+  onMessagesRead?: () => void;
   onMessageStatusUpdate?: (payload: {
     chatId: string;
     messageId: string;
-    newStatus: "IsDelivered" | "IsRead";
+    newStatus: "Доставлено" | "Прочитано";
   }) => void;
-  onChatListUpdate?: (updatedChat: {
-    id: string;
-    interlocutor: any;
-    message: any;
-    unreadCount: number;
-  }) => void;
+  onChatListUpdate?: (updatedChat: any) => void;
 } | null;
 
 export const useChatSignalR = (params: UseChatSignalRProps) => {
@@ -39,48 +34,38 @@ export const useChatSignalR = (params: UseChatSignalRProps) => {
       .then(() => {
         if (!isMounted) return;
 
-        // 1) Подписываемся на канал конкретного чата
-        connection
-          .invoke("JoinChat", conversationId)
-          .catch(() => console.warn("❌ Не удалось присоединиться к чату"));
+        // 1) Присоединяемся к нужному чату
+        connection.invoke("JoinChat", conversationId).catch(() =>
+          console.warn("❌ Не удалось присоединиться к чату")
+        );
 
-        // 2) ReceiveMessage — добавляем новое сообщение к списку
+        // 2) Прислушиваемся к новым сообщениям
         connection.on("ReceiveMessage", (message: any) => {
           onNewMessage(message);
         });
 
-        // 3) MessageStatusUpdate — обновляем статус конкретного сообщения
-        connection.on(
-          "MessageStatusUpdate",
-          (payload: { chatId: string; messageId: string; newStatus: string }) => {
-            onMessageStatusUpdate &&
-              onMessageStatusUpdate({
-                chatId: payload.chatId,
-                messageId: payload.messageId,
-                newStatus: payload.newStatus as any,
-              });
-          }
-        );
-
-        // 4) MessagesMarkedAsRead — помечаем прочитано
-        connection.on("MessagesMarkedAsRead", (payload: any) => {
-          onMessagesRead && onMessagesRead(payload.readerId);
+        // 3) Когда сервер пометил «прочитано» 
+        connection.on("MessageStatusUpdate", (payload: any) => {
+          // payload = { chatId: string, messageId: string, newStatus: "IsDelivered" | "IsRead" }
+          onMessageStatusUpdate &&
+            onMessageStatusUpdate({
+              chatId: payload.chatId,
+              messageId: payload.messageId,
+              newStatus: payload.newStatus,
+            });
         });
 
-        // 5) ChatListUpdate — пришёл апдейт карточки чата (последний текст, дата, статус, unreadCount)
-        connection.on(
-          "ChatListUpdate",
-          (updatedChat: {
-            id: string;
-            interlocutor: any;
-            message: any;
-            unreadCount: number;
-          }) => {
-            onChatListUpdate && onChatListUpdate(updatedChat);
-          }
-        );
+        // 4) Когда сервер говорит «все непрочитанные прочитаны»
+        connection.on("MessagesMarkedAsRead", () => {
+          onMessagesRead && onMessagesRead();
+        });
 
-        // 6) Делаем «таймаут» для автоматического вызова MarkChatAsRead
+        // 5) Когда нужно обновить карточку чата в списке
+        connection.on("ChatListUpdate", (updatedChat: any) => {
+          onChatListUpdate && onChatListUpdate(updatedChat);
+        });
+
+        // 6) Ждём 500 мс, а потом говорим серверу: "пометь все предыдущие сообщения как прочитанные"
         markAsReadTimeout = setTimeout(() => {
           connection
             .invoke("MarkChatAsRead", conversationId)
@@ -93,14 +78,14 @@ export const useChatSignalR = (params: UseChatSignalRProps) => {
       isMounted = false;
       if (markAsReadTimeout) clearTimeout(markAsReadTimeout);
 
-      connection
-        .invoke("LeaveChat", conversationId)
-        .catch(() => console.warn("❌ Не удалось покинуть чат"));
+      connection.invoke("LeaveChat", conversationId).catch(() =>
+        console.warn("❌ Не удалось покинуть чат")
+      );
 
-      // 🧼 Очищаем обработчики SignalR во всех зарегистрированных событиях
+      // Чистим все подписчики
       connection.off("ReceiveMessage");
-      connection.off("MessagesMarkedAsRead");
       connection.off("MessageStatusUpdate");
+      connection.off("MessagesMarkedAsRead");
       connection.off("ChatListUpdate");
     };
   }, [params?.conversationId, params?.currentUserId]);

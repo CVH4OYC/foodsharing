@@ -120,7 +120,7 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
     }
   };
 
-  // Колбек для подгрузки следующей (старой) страницы
+  // Подгрузка следующей (старой) страницы
   const loadMore = useCallback(async () => {
     if (!actualChatId || !hasMore || loadingMessages) return;
     const nextPage = page + 1;
@@ -128,18 +128,19 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
     setPage(nextPage);
   }, [actualChatId, hasMore, loadingMessages, page]);
 
-  // SignalR: получение новых сообщений, обновление статусов и прочее
+  // ───────── SignalR ──────────────────────────────────────────────────────────────────────
   useChatSignalR({
     conversationId: actualChatId || "",
     currentUserId: currentUserId || "",
     onNewMessage: (message: MessageDTO) => {
+      // Пришло новое сообщение — добавляем в конец списка
       setMessages((prev) => [...prev, message]);
     },
     onMessagesRead: () => {
+      // Сервер уведомил, что все непрочитанные помечены «Прочитано»
       if (!currentUserId) return;
       setMessages((prev) =>
         prev.map((m) =>
-          // Если статус "Не прочитано" и сообщение не от текущего пользователя
           m.status === "Не прочитано" && m.sender.userId !== currentUserId
             ? { ...m, status: "Прочитано" }
             : m
@@ -147,36 +148,28 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
       );
     },
     onMessageStatusUpdate: ({ chatId: chId, messageId, newStatus }) => {
+      // Если событие по этому чату, обновляем статус конкретного сообщения
       if (chId !== actualChatId) return;
       setMessages((prev) =>
         prev.map((m) =>
           m.id === messageId
-            ? {
-                ...m,
-                // Преобразуем статус из backend-строки в русский
-                status:
-                  newStatus === "IsDelivered"
-                    ? "Доставлено"
-                    : newStatus === "IsRead"
-                    ? "Прочитано"
-                    : m.status,
-              }
+            ? ({ ...m, status: newStatus } as MessageDTO)
             : m
         )
       );
     },
     onChatListUpdate: () => {
-      // обновление списка чатов обрабатывается в ChatsPage, здесь ничего не делаем
+      // Здесь ничего не делаем — ChatsPage сам слушает ChatListUpdate
     },
   });
+  // ────────────────────────────────────────────────────────────────────────────────────────
 
-  // Сразу скроллим вниз при появлении новых сообщений
+  // Скроллим вниз, когда появляются новые сообщения
   useEffect(() => {
-    // MessageList сам скроллит вниз, если нужны дополнительные действия —
-    // можно здесь добавить реф и вызвать scrollToBottom
+    // MessageList внутри себя управляет скроллом
   }, [messages]);
 
-  // Отправка сообщения (текст + опционально файл/картинка)
+  // Отправка сообщения (текст + файл/картинка)
   const handleSend = async () => {
     if (!tempMessage.trim() && !image && !file) return;
     if (!actualChatId && !interlocutorId) return;
@@ -184,7 +177,7 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
     setSending(true);
     try {
       let finalChatId = actualChatId;
-      // Если чата ещё нет — создаём новый и уведомляем родителя
+      // Если чата ещё нет, создаём новый
       if (!finalChatId && interlocutorId) {
         const res = await API.post<string>("/chat", null, {
           params: { otherUserId: interlocutorId },
@@ -216,7 +209,9 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
     }
   };
 
-  // Пока идёт загрузка самого чата (метаданных или первой страницы)
+  // ───────── Рендер ──────────────────────────────────────────────────────────────────────
+
+  // Пока загружаем метаданные или историю
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center text-gray-500">
@@ -234,7 +229,7 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
     );
   }
 
-  // Если у нас ещё нет созданного чата, но есть interlocutorId (новый чат)
+  // Новый чат (еще нет actualChatId, но есть interlocutorId)
   if (!actualChatId && interlocutorId && interlocutor) {
     return (
       <div className="flex-1 flex flex-col h-full">
@@ -258,7 +253,7 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
     );
   }
 
-  // Если у нас нет данных interlocutor (что-то пошло не так)
+  // Если нет данных о собеседнике
   if (!interlocutor) {
     return (
       <div className="flex-1 flex items-center justify-center text-gray-500">
@@ -295,4 +290,3 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
 };
 
 export default ChatWindow;
-

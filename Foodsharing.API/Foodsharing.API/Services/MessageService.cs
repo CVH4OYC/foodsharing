@@ -17,7 +17,7 @@ public class MessageService : IMessageService
     private readonly IStatusesRepository _statusesRepository;
     private readonly IHubContext<ChatHub> _hubContext;
     private readonly IUserService _userService;
-    private readonly IChatService _chatService;                  // ← добавлено для ChatListUpdate
+    private readonly IChatService _chatService;
 
     public MessageService(
         IMessageRepository messageRepository,
@@ -26,7 +26,7 @@ public class MessageService : IMessageService
         IStatusesRepository statusesRepository,
         IHubContext<ChatHub> hubContext,
         IUserService userService,
-        IChatService chatService)                         // ← добавлен параметр
+        IChatService chatService)
     {
         _messageRepository = messageRepository;
         _imageService = imageService;
@@ -34,7 +34,7 @@ public class MessageService : IMessageService
         _statusesRepository = statusesRepository;
         _hubContext = hubContext;
         _userService = userService;
-        _chatService = chatService;                                  // ← сохранён
+        _chatService = chatService;
     }
 
     public async Task SendMessageAsync(Guid senderId, CreateMessageDTO dto, CancellationToken cancellationToken)
@@ -77,7 +77,7 @@ public class MessageService : IMessageService
             ChatId = dto.ChatId,
             Text = message.Text,
             Date = message.Date,
-            Status = defaultStatus.Name,
+            Status = defaultStatus.Name, // например, "IsNotRead"
             Image = savedImagePath,
             File = savedFilePath,
             Sender = new UserDTO
@@ -95,37 +95,32 @@ public class MessageService : IMessageService
             .Group(dto.ChatId.ToString())
             .SendAsync("ReceiveMessage", messageDto, cancellationToken);
 
-        // 6) Помечаем сообщение как «доставлено» (delivered) и шлём SignalR-уведомление
+        // 6) Помечаем сообщение как «доставлено» (delivered) для всех активных подключений и шлём SignalR-уведомление
         var deliveredStatus = await _statusesRepository
             .GetMessageStatusByNameAsync(MessageStatusesConsts.IsDelivered);
         if (deliveredStatus != null)
         {
-            // Обновляем статус в БД
             message.StatusId = deliveredStatus.Id;
             await _messageRepository.UpdateAsync(message, cancellationToken);
 
-            // Шлём всем участникам чата событие MessageStatusUpdate
             await _hubContext.Clients
                 .Group(dto.ChatId.ToString())
                 .SendAsync("MessageStatusUpdate", new
                 {
-                    ChatId = dto.ChatId,
-                    MessageId = message.Id,
-                    NewStatus = deliveredStatus.Name,
-                    Timestamp = DateTime.UtcNow
+                    chatId = dto.ChatId.ToString(),
+                    messageId = message.Id.ToString(),
+                    newStatus = deliveredStatus.Name // "IsDelivered"
                 }, cancellationToken);
         }
 
         // 7) Отправляем апдейт для списка чатов (ChatListUpdate)
-        var chatForListDto = await _chatService
-            .BuildChatListDtoAsync(dto.ChatId, cancellationToken);
-
+        var chatForListDto = await _chatService.BuildChatListDtoAsync(dto.ChatId, cancellationToken);
         await _hubContext.Clients
             .Group(dto.ChatId.ToString())
             .SendAsync("ChatListUpdate", chatForListDto, cancellationToken);
     }
 
-    public async Task MarkMessagesAsReadAsync(Guid chatId, Guid readerId)
+    public async Task<List<Guid>> MarkMessagesAsReadAsync(Guid chatId, Guid readerId)
     {
         // 1) Ищем статус «прочитано»
         var readStatus = await _statusesRepository
@@ -141,12 +136,16 @@ public class MessageService : IMessageService
         );
 
         // 3) Меняем статус у каждой записи
+        var updatedIds = new List<Guid>();
         foreach (var msg in messagesToUpdate)
         {
             msg.StatusId = readStatus.Id;
+            updatedIds.Add(msg.Id);
         }
 
         if (messagesToUpdate.Count > 0)
             await _messageRepository.UpdateRangeAsync(messagesToUpdate);
+
+        return updatedIds;
     }
 }
