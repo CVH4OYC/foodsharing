@@ -67,7 +67,6 @@ const getStatusIcon = () => {
         </div>
         <div className="flex justify-between gap-2 text-sm text-gray-600">
           <span className="truncate">{message?.text || "Нет сообщений"}</span>
-          {getStatusIcon()}
         </div>
       </div>
     </div>
