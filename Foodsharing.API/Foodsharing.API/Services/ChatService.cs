@@ -52,8 +52,12 @@ public class ChatService : IChatService
                     Date = lastMessage.Date,
                     Status = lastMessage.Status?.Name,
                     Image = lastMessage.Image,
-                    File = lastMessage.File
-                }
+                    File = lastMessage.File,
+                    Sender = new UserDTO
+                    {
+                        UserId = lastMessage.SenderId,
+                    }
+                },
             };
         });
     }
