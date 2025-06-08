@@ -3,7 +3,6 @@ import { ChatWithMessagesDTO, MessageDTO, UserDTO } from "../../types/chat";
 import { API, StaticAPI } from "../../services/api";
 import connection, { startConnection } from "../../services/signalr-chat";
 import { useCurrentUserId } from "../../hooks/useCurrentUserId";
-import { useOutletContext } from "react-router-dom";
 
 import ChatHeader from "../../components/chat/ChatHeader";
 import MessageList from "../../components/chat/MessageList";
@@ -24,7 +23,6 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
     lastName: string;
     image: string | null;
     userId: string;
-    userName: string;
   } | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -66,13 +64,6 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
             userId: inter.userId,
           });
           await fetchMessages(actualChatId, 1);
-
-          try {
-            console.log("📩 Отмечаем чат как прочитанный при открытии");
-            await connection.invoke("MarkChatAsRead", actualChatId);
-          } catch (err) {
-            console.error("Ошибка при MarkChatAsRead", err);
-          }
         } else if (interlocutorId) {
           const userRes = await API.get<UserDTO>(`/user/${interlocutorId}`);
           setInterlocutor({
@@ -148,7 +139,7 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
   const handleSend = async () => {
     if (!tempMessage.trim() && !image && !file) return;
     if (!actualChatId && !interlocutorId) return;
-  
+
     setSending(true);
     try {
       let finalChatId = actualChatId;
@@ -171,7 +162,7 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
       formData.append("Text", tempMessage);
       if (image) formData.append("Image", image);
       if (file) formData.append("File", file);
-  
+
       await API.post("/message", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -184,7 +175,6 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
       setSending(false);
     }
   };
-  
 
   // Рендер…
   if (loading) {
