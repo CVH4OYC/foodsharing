@@ -1,11 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { API } from "../services/api";
 import ChatList from "../components/chat/ChatList";
-import ChatWindowPlaceholder from "../components/chat/ChatWindowPlaceholder";
 import { ChatDTO } from "../types/chat";
 import { Outlet, useParams, useNavigate } from "react-router-dom";
 import connection, { startConnection } from "../services/signalr-chat";
-
 
 const ChatsPage = () => {
   const [chats, setChats] = useState<ChatDTO[]>([]);
@@ -15,10 +13,16 @@ const ChatsPage = () => {
 
   const fetchChats = useCallback(async () => {
     try {
-      const res = await API.get("/chat/my");
-      setChats(res.data);
+      setLoading(true);
+      const res = await API.get<ChatDTO[]>("/chat/my");
+      const sorted = [...res.data].sort((a, b) => {
+        const dateA = a.message?.date ? new Date(a.message.date).getTime() : 0;
+        const dateB = b.message?.date ? new Date(b.message.date).getTime() : 0;
+        return dateB - dateA;
+      });
+      setChats(sorted);
     } catch (err) {
-      console.error("Ошибка загрузки чатов", err);
+      console.error("Ошибка при загрузке списка чатов", err);
     } finally {
       setLoading(false);
     }
@@ -28,29 +32,20 @@ const ChatsPage = () => {
     fetchChats();
   }, [fetchChats]);
 
+  // Подписываемся на обновления списка
   useEffect(() => {
-    let isMounted = true;
-  
-    startConnection().then(() => {
-      if (!isMounted) return;
-  
-      console.log("✅ Подключились к SignalR в ChatsPage");
-  
-      connection.off("ChatListUpdated");
-  
-      // Подписка на обновление списка чатов
-      connection.on("ChatListUpdated", (chatId: string) => {
-        console.log("📥 ChatListUpdated пришло, чат:", chatId);
-        fetchChats(); // можно оптимизировать потом, пока грузим все
-      });
-    });
-  
+    startConnection()
+      .then(() => {
+        connection.on("ChatListUpdate", () => {
+          fetchChats();
+        });
+      })
+      .catch((e) => console.warn("Ошибка SignalR (ChatsPage)", e));
+
     return () => {
-      isMounted = false;
-      connection.off("ChatListUpdated");
+      connection.off("ChatListUpdate");
     };
   }, [fetchChats]);
-  
 
   const handleSelectChat = (id: string) => {
     navigate(`/chats/${id}`);

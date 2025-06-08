@@ -13,4 +13,9 @@ public class ChatDTO : EntityBase
     /// Последнее сообщение в чате
     /// </summary>
     public MessageDTO? Message { get; set; }
+
+    /// <summary>
+    /// Количество непрочитанных сообщений
+    /// </summary>
+    public int UnreadCount { get; set; }    
 }

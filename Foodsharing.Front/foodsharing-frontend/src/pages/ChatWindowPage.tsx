@@ -1,23 +1,43 @@
-import { useOutletContext, useParams, useSearchParams } from "react-router-dom";
+// src/pages/ChatWindowPage.tsx
+import { useEffect, useState } from "react";
+import { useParams, useSearchParams, useOutletContext } from "react-router-dom";
 import ChatWindow from "../components/chat/ChatWindow";
+import type { ChatDTO } from "../types/chat";
+
+interface OutletContext {
+  onNewChatCreated: () => void;
+}
 
 const ChatWindowPage = () => {
-  const { chatId } = useParams();
+  const { chatId } = useParams<{ chatId: string }>();
   const [searchParams] = useSearchParams();
-  const userId = searchParams.get("userId");
+  const [loadedChatId, setLoadedChatId] = useState<string | null>(null);
 
-  const { onNewChatCreated } = useOutletContext<{ onNewChatCreated?: () => void }>();
+  // Получаем колбэк из ChatsPage
+  const { onNewChatCreated } = useOutletContext<OutletContext>();
 
-  if (!chatId && !userId) {
-    return <div className="p-4">Чат не найден</div>;
-  }
+  const userId = searchParams.get("userId") || undefined;
+
+  useEffect(() => {
+    if (chatId) {
+      setLoadedChatId(chatId);
+    }
+  }, [chatId]);
 
   return (
-    <ChatWindow
-      chatId={chatId ?? null}
-      interlocutorId={userId ?? undefined}
-      onNewChatCreated={onNewChatCreated}
-    />
+    <div className="flex-1 flex flex-col">
+      {loadedChatId || userId ? (
+        <ChatWindow
+          chatId={loadedChatId}
+          interlocutorId={userId}
+          onNewChatCreated={onNewChatCreated}
+        />
+      ) : (
+        <div className="flex-1 flex items-center justify-center text-gray-400">
+          Выберите чат слева
+        </div>
+      )}
+    </div>
   );
 };
 

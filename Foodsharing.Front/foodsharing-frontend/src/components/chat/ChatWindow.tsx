@@ -1,12 +1,13 @@
-import { FC, useEffect, useState, useRef, useCallback } from "react";
-import { ChatDTO, ChatWithMessagesDTO, MessageDTO, UserDTO } from "../../types/chat";
+import { FC, useEffect, useState, useCallback } from "react";
+import { ChatWithMessagesDTO, MessageDTO, UserDTO } from "../../types/chat";
 import { API, StaticAPI } from "../../services/api";
-import { FiSend, FiPaperclip, FiCamera, FiX } from "react-icons/fi";
-import { useChatSignalR } from "../../hooks/useChatSignalR";
+import connection, { startConnection } from "../../services/signalr-chat";
 import { useCurrentUserId } from "../../hooks/useCurrentUserId";
-import connection from "../../services/signalr-chat";
 import { useOutletContext } from "react-router-dom";
 
+import ChatHeader from "../../components/chat/ChatHeader";
+import MessageList from "../../components/chat/MessageList";
+import MessageInput from "../../components/chat/MessageInput";
 
 interface Props {
   chatId: string | null;
@@ -29,23 +30,17 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
+
   const [tempMessage, setTempMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [creatingChatId, setCreatingChatId] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [image, setImage] = useState<File | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  
-  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const currentUserId = useCurrentUserId();
   const actualChatId = chatId || creatingChatId;
 
-  const { updateChatLocally } = useOutletContext<{
-    updateChatLocally: (chat: ChatDTO) => void;
-  }>();
-
-  // Сброс состояния при смене чата
+  // Сбрасываем при смене чата
   useEffect(() => {
     setMessages([]);
     setPage(1);
@@ -54,27 +49,22 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
     setCreatingChatId(null);
   }, [chatId, interlocutorId]);
 
-  // Загрузка данных чата
+  // Загрузка метаданных и первой страницы
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
         if (actualChatId) {
-          // Загрузка метаданных чата
           const metaRes = await API.get<ChatWithMessagesDTO>(`/chat/${actualChatId}`, {
-            params: { onlyMeta: true }
+            params: { onlyMeta: true },
           });
-          
-          const interlocutorData = metaRes.data.interlocutor;
+          const inter = metaRes.data.interlocutor;
           setInterlocutor({
-            firstName: interlocutorData.firstName || "",
-            lastName: interlocutorData.lastName || "",
-            image: interlocutorData.image || null,
-            userId: interlocutorData.userId,
-            userName: interlocutorData.userName || "",
+            firstName: inter.firstName || "",
+            lastName: inter.lastName || "",
+            image: inter.image ? `${StaticAPI.defaults.baseURL}${inter.image}` : null,
+            userId: inter.userId,
           });
-          
-          // Загрузка сообщений
           await fetchMessages(actualChatId, 1);
 
           try {
@@ -84,14 +74,14 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
             console.error("Ошибка при MarkChatAsRead", err);
           }
         } else if (interlocutorId) {
-          // Загрузка собеседника
           const userRes = await API.get<UserDTO>(`/user/${interlocutorId}`);
           setInterlocutor({
             firstName: userRes.data.firstName || "",
             lastName: userRes.data.lastName || "",
-            image: userRes.data.image || null,
+            image: userRes.data.image
+              ? `${StaticAPI.defaults.baseURL}${userRes.data.image}`
+              : null,
             userId: interlocutorId,
-            userName: userRes.data.userName || "",
           });
         }
       } catch (err) {
@@ -100,38 +90,20 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
         setLoading(false);
       }
     };
-
     fetchData();
   }, [actualChatId, interlocutorId]);
 
-
-  useEffect(() => {
-    if (!loading) {
-      inputRef.current?.focus();
-    }
-  }, [loading]);
-
-  
-  // Пагинация сообщений
+  // Функция загрузки сообщений
   const fetchMessages = async (id: string, pageToLoad: number) => {
     setLoadingMessages(true);
     try {
       const res = await API.get<ChatWithMessagesDTO>(`/chat/${id}`, {
-        params: { page: pageToLoad, pageSize: PAGE_SIZE }
+        params: { page: pageToLoad, pageSize: PAGE_SIZE },
       });
-      
-      const newMessages = res.data.messages || [];
-
-      if (pageToLoad === 1) {
-        setMessages(newMessages);
-        // Прокрутка вниз после загрузки первой страницы
-        setTimeout(() => scrollToBottom(), 0);
-      } else {
-        // Добавляем старые сообщения в начало
-        setMessages(prev => [...newMessages, ...prev]);
-      }
-      
-      setHasMore(newMessages.length === PAGE_SIZE);
+      const newMsgs = res.data.messages || [];
+      if (pageToLoad === 1) setMessages(newMsgs);
+      else setMessages((prev) => [...newMsgs, ...prev]);
+      setHasMore(newMsgs.length === PAGE_SIZE);
     } catch (err) {
       console.error("Ошибка загрузки сообщений", err);
     } finally {
@@ -139,71 +111,40 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
     }
   };
 
-  // Подгрузка старых сообщений
-  const loadMore = async () => {
+  // Подгрузка старых
+  const loadMore = useCallback(async () => {
     if (!actualChatId || !hasMore || loadingMessages) return;
-    const nextPage = page + 1;
-    await fetchMessages(actualChatId, nextPage);
-    setPage(nextPage);
-  };
+    const next = page + 1;
+    await fetchMessages(actualChatId, next);
+    setPage(next);
+  }, [actualChatId, hasMore, loadingMessages, page]);
 
-  // Обработчик скролла
-  const handleScroll = useCallback(() => {
-    const div = scrollContainerRef.current;
-    if (!div || div.scrollTop > 100 || loadingMessages) return;
-    
-    // Проверяем, достигли ли верха контейнера
-    if (div.scrollTop === 0) {
-      loadMore();
-    }
-  }, [actualChatId, page, hasMore, loadingMessages]);
-
-  // Подписка на события скролла
+  // ───────── SignalR ──────────────
   useEffect(() => {
-    const div = scrollContainerRef.current;
-    if (!div) return;
-    
-    div.addEventListener("scroll", handleScroll);
-    return () => div.removeEventListener("scroll", handleScroll);
-  }, [handleScroll]);
+    startConnection().catch((e) => console.warn("Ошибка SignalR (ChatWindow)", e));
+  }, []);
 
-  // SignalR обработчики
-  useChatSignalR({
-    conversationId: actualChatId || "",
-    currentUserId: currentUserId || "",
-    onNewMessage: (message: MessageDTO) => {
-      // Добавляем новые сообщения в конец
-      setMessages(prev => [...prev, message]);
-      scrollToBottom();
-    },
-    onMessagesRead: () => {
-      if (!currentUserId) return;
-      setMessages(prev =>
-        prev.map(m =>
-          m.status === "Не прочитано" && m.sender.userId === currentUserId
-            ? { ...m, status: "Прочитано" }
-            : m
-        )
-      );
-    },
-  });
+  // При смене чата — join/leave
+  useEffect(() => {
+    if (actualChatId) {
+      connection.invoke("JoinChat", actualChatId).catch(console.error);
+      return () => {
+        connection.invoke("LeaveChat", actualChatId).catch(console.error);
+      };
+    }
+  }, [actualChatId]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    connection.on("ReceiveMessage", (message: MessageDTO) => {
+      setMessages((prev) => [...prev, message]);
+    });
+    // остальные обработчики, если нужны…
+    return () => {
+      connection.off("ReceiveMessage");
+    };
+  }, []);
 
-  const scrollToBottom = () => {
-    const div = scrollContainerRef.current;
-    if (div) {
-      requestAnimationFrame(() => {
-        div.scrollTop = div.scrollHeight;
-      });
-    }
-  };
-  
-
-
-  // Отправка сообщения
+  // Отправка
   const handleSend = async () => {
     if (!tempMessage.trim() && !image && !file) return;
     if (!actualChatId && !interlocutorId) return;
@@ -211,7 +152,7 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
     setSending(true);
     try {
       let finalChatId = actualChatId;
-  
+      // создаём новый чат, если нужно
       if (!finalChatId && interlocutorId) {
         const res = await API.post<string>("/chat", null, {
           params: { otherUserId: interlocutorId },
@@ -219,12 +160,12 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
         finalChatId = res.data;
         setCreatingChatId(finalChatId);
         onNewChatCreated?.();
+        // подписываемся на группу нового чата
+        await connection.invoke("JoinChat", finalChatId);
       }
-  
-      if (!finalChatId || !interlocutor || !currentUserId) {
-        throw new Error("Недостаточно данных для отправки сообщения");
-      }
-  
+
+      if (!finalChatId) throw new Error("Chat ID is not available");
+
       const formData = new FormData();
       formData.append("ChatId", finalChatId);
       formData.append("Text", tempMessage);
@@ -234,13 +175,9 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
       await API.post("/message", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-  
-      // Не обновляем локальный чат тут — ждём onNewMessage из SignalR
-  
       setTempMessage("");
       setImage(null);
       setFile(null);
-      requestAnimationFrame(() => inputRef.current?.focus());
     } catch (err) {
       console.error("Ошибка при отправке сообщения", err);
     } finally {
@@ -249,216 +186,53 @@ const ChatWindow: FC<Props> = ({ chatId, interlocutorId, onNewChatCreated }) => 
   };
   
 
-  // Превью прикрепленных файлов
-  const renderFilePreviews = () => (
-    (image || file) && (
-      <div className="flex gap-4 mb-2 items-center">
-        {image && (
-          <div className="relative w-20 h-20">
-            <img 
-              src={URL.createObjectURL(image)} 
-              alt="preview" 
-              className="w-20 h-20 object-cover rounded-lg border" 
-            />
-            <button 
-              onClick={() => setImage(null)} 
-              className="absolute -top-2 -right-2 bg-white rounded-full shadow p-1 hover:bg-red-100"
-            >
-              <FiX size={16} />
-            </button>
-          </div>
-        )}
-        {file && (
-          <div className="relative flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg border max-w-xs">
-            <FiPaperclip size={20} className="text-gray-500" />
-            <div className="text-sm truncate">{file.name}</div>
-            <button 
-              onClick={() => setFile(null)} 
-              className="absolute -top-2 -right-2 bg-white rounded-full shadow p-1 hover:bg-red-100"
-            >
-              <FiX size={16} />
-            </button>
-          </div>
-        )}
-      </div>
-    )
-  );
-
-  // Форма ввода
-  const renderForm = () => (
-    <>
-      {renderFilePreviews()}
-      <form 
-        onSubmit={(e) => { e.preventDefault(); handleSend(); }} 
-        className="flex gap-2 items-center"
-      >
-        <label className="cursor-pointer text-primary">
-          <FiCamera size={20} />
-          <input 
-            type="file" 
-            onChange={(e) => setImage(e.target.files?.[0] || null)} 
-            className="hidden" 
-            accept="image/*"
-          />
-        </label>
-        <label className="cursor-pointer text-primary">
-          <FiPaperclip size={20} />
-          <input 
-            type="file" 
-            onChange={(e) => setFile(e.target.files?.[0] || null)} 
-            className="hidden" 
-          />
-        </label>
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder="Введите сообщение..."
-          value={tempMessage}
-          onChange={(e) => setTempMessage(e.target.value)}
-          className="flex-1 border rounded-xl px-4 py-2 outline-none"
-          disabled={sending}
-        />
-
-        <button 
-          type="submit" 
-          className="text-primary hover:text-green-600" 
-          disabled={sending}
-        >
-          <FiSend size={24} />
-        </button>
-      </form>
-    </>
-  );
-
-  // Рендер аватара
-  const renderAvatarOrInitials = (name?: string, url?: string | null) => {
-    if (url) {
-      return <img src={`${StaticAPI.defaults.baseURL}${url}`} alt="avatar" className="w-10 h-10 rounded-full object-cover" />;
-    }
-    return (
-      <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-white font-bold">
-        {name?.[0]?.toUpperCase() || "?"}
-      </div>
-    );
-  };
-
-  // Состояния загрузки
+  // Рендер…
   if (loading) {
     return <div className="flex-1 flex items-center justify-center text-gray-500">Загрузка чата...</div>;
   }
-
   if (!currentUserId) {
     return <div className="flex-1 flex items-center justify-center text-red-500">Пользователь не авторизован</div>;
   }
-
-  // Рендер нового чата
   if (!actualChatId && interlocutorId && interlocutor) {
     return (
       <div className="flex-1 flex flex-col h-full">
-        <div className="border-b px-4 py-3 flex items-center gap-3">
-          {renderAvatarOrInitials(interlocutor.firstName, interlocutor.image)}
-          <span className="font-semibold">{interlocutor.firstName} {interlocutor.lastName}</span>
+        <ChatHeader interlocutor={interlocutor} />
+        <div className="flex-1 flex items-center justify-center text-gray-400">Напишите первое сообщение</div>
+        <div className="border-t px-4 py-3">
+          <MessageInput
+            tempMessage={tempMessage}
+            setTempMessage={setTempMessage}
+            image={image}
+            setImage={setImage}
+            file={file}
+            setFile={setFile}
+            onSend={handleSend}
+            sending={sending}
+          />
         </div>
-        <div className="flex-1 flex items-center justify-center text-gray-400">
-          Напишите первое сообщение
-        </div>
-        <div className="border-t px-4 py-3">{renderForm()}</div>
       </div>
     );
   }
-
-  // Чат не найден
   if (!interlocutor) {
     return <div className="flex-1 flex items-center justify-center text-gray-500">Чат не найден</div>;
   }
 
-  // Основной интерфейс чата
   return (
     <div className="flex-1 flex flex-col h-full">
-      <div className="border-b px-4 py-3 flex items-center gap-3">
-        {renderAvatarOrInitials(interlocutor.firstName, interlocutor.image)}
-        <span className="font-semibold">
-          {interlocutor.firstName} {interlocutor.lastName}
-        </span>
+      <ChatHeader interlocutor={interlocutor} />
+      <MessageList messages={messages} loadingOlder={loadingMessages && page > 1} onLoadMore={loadMore} />
+      <div className="border-t px-4 py-3">
+        <MessageInput
+          tempMessage={tempMessage}
+          setTempMessage={setTempMessage}
+          image={image}
+          setImage={setImage}
+          file={file}
+          setFile={setFile}
+          onSend={handleSend}
+          sending={sending}
+        />
       </div>
-      
-      <div 
-          ref={scrollContainerRef} 
-          className="flex-1 overflow-y-auto px-4 py-2 flex flex-col gap-2"
-        >
-          {loadingMessages && page > 1 && (
-            <div className="text-center text-gray-500 py-2">Загрузка...</div>
-          )}
-
-          {messages.length > 0 ? (
-            messages.map((msg, index) => {
-              const prevMsg = messages[index - 1];
-              const currDate = new Date(msg.date).toDateString();
-              const prevDate = prevMsg ? new Date(prevMsg.date).toDateString() : null;
-              const showDate = currDate !== prevDate;
-
-              return (
-                <div key={msg.id || index}>
-                  {showDate && (
-                    <div className="text-center text-xs text-gray-500 my-2">
-                      {new Date(msg.date).toLocaleDateString("ru-RU", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      })}
-                    </div>
-                  )}
-                  <div className={`max-w-[85%] px-4 py-2 rounded-xl flex flex-col gap-1 ${
-                    msg.sender.userId === currentUserId 
-                      ? "bg-primary text-white self-end ml-auto" 
-                      : "bg-gray-100 text-gray-800 self-start"
-                  }`}>
-                    {msg.text && <div className="text-sm whitespace-pre-line">{msg.text}</div>}
-                    {msg.image && (
-                      <a 
-                        href={`${StaticAPI.defaults.baseURL}${msg.image}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                      >
-                        <img 
-                          src={`${StaticAPI.defaults.baseURL}${msg.image}`} 
-                          alt="attached" 
-                          className="max-w-[200px] max-h-[200px] rounded-lg border" 
-                        />
-                      </a>
-                    )}
-                    {msg.file && (
-                      <a 
-                        href={`${StaticAPI.defaults.baseURL}${msg.file}`} 
-                        download 
-                        className="flex items-center gap-2 text-sm underline hover:text-blue-700"
-                      >
-                        <FiPaperclip size={16} />
-                        {msg.file.split("/").pop() || "Скачать файл"}
-                      </a>
-                    )}
-                    <div className="text-xs mt-1 opacity-70 text-right flex justify-end items-center gap-2">
-                      {new Date(msg.date).toLocaleTimeString("ru-RU", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                      {msg.sender.userId === currentUserId && (
-                        <span className={`text-[10px] ${msg.status === "Прочитано" ? "text-green-300" : "text-gray-300"}`}>
-                          ✓ {msg.status}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            !loadingMessages && <div className="text-center text-gray-400 mt-4">Сообщений пока нет</div>
-          )}
-        </div>
-
-      
-      <div className="border-t px-4 py-3">{renderForm()}</div>
     </div>
   );
 };

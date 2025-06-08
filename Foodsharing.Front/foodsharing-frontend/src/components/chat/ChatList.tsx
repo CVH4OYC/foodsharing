@@ -1,4 +1,5 @@
-import { FC } from "react";
+// src/components/chat/ChatList.tsx
+import React from "react";
 import { ChatDTO } from "../../types/chat";
 import ChatListItem from "./ChatListItem";
 
@@ -9,16 +10,19 @@ interface Props {
   onSelectChat: (chatId: string) => void;
 }
 
-const ChatList: FC<Props> = ({ chats, loading, selectedChatId, onSelectChat }) => {
+const ChatList: React.FC<Props> = ({
+  chats,
+  loading,
+  selectedChatId,
+  onSelectChat,
+}) => {
   return (
     <aside className="w-[300px] border-r overflow-y-auto">
       <h2 className="text-lg font-bold p-4">Чаты</h2>
-      {loading ? (
-        <div className="text-center text-gray-500 p-4">Загрузка...</div>
-      ) : chats.length === 0 ? (
-        <div className="text-center text-gray-500 p-4">Чатов пока нет</div>
-      ) : (
-        <ul className="space-y-1 px-2 pb-4">
+
+      {chats.length > 0 ? (
+        // Всегда показываем список, если есть хотя бы один чат
+        <ul>
           {chats.map((chat) => (
             <ChatListItem
               key={chat.id}
@@ -28,6 +32,12 @@ const ChatList: FC<Props> = ({ chats, loading, selectedChatId, onSelectChat }) =
             />
           ))}
         </ul>
+      ) : loading ? (
+        // Показываем «Загрузка...» только если список пока пуст и идёт первый fetch
+        <div className="p-4 text-gray-500">Загрузка...</div>
+      ) : (
+        // Если не loading и нет чатов
+        <div className="p-4 text-gray-500">Нет чатов</div>
       )}
     </aside>
   );

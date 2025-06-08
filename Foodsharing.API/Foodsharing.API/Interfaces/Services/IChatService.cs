@@ -19,11 +19,13 @@ public interface IChatService
     Task<Guid> CreateChatWithUserAsync(Guid otherUserId, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Получить свои чаты
+    /// Получить свои чаты (с полем UnreadCount)
     /// </summary>
-    /// <returns></returns>
     Task<IEnumerable<ChatDTO>?> GetMyChatsAsync(CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Получить чат с историей сообщений
+    /// </summary>
     Task<ChatWithMessagesDTO?> GetChatWithMessagesAsync(
         Guid chatId,
         int page,
@@ -31,5 +33,8 @@ public interface IChatService
         string? search,
         CancellationToken cancellationToken = default);
 
-    Task<Guid> GetReceiverId(Guid chatId, Guid senderId, CancellationToken cancellationToken);
+    /// <summary>
+    /// Построить ChatDTO для списка чатов (последнее сообщение + UnreadCount)
+    /// </summary>
+    Task<ChatDTO> BuildChatListDtoAsync(Guid chatId, CancellationToken cancellationToken = default);
 }
