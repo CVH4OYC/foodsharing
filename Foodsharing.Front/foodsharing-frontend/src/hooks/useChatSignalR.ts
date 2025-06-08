@@ -1,4 +1,3 @@
-// hooks/useChatSignalR.ts
 import { useEffect } from "react";
 import connection, { startConnection } from "../services/signalr-chat";
 
@@ -13,6 +12,9 @@ type UseChatSignalRProps = {
     newStatus: "Доставлено" | "Прочитано";
   }) => void;
   onChatListUpdate?: (updatedChat: any) => void;
+
+  // ✅ Новый коллбек для уведомления о новом сообщении в неактивном чате
+  onChatReceivedMessage?: (chatId: string) => void;
 } | null;
 
 export const useChatSignalR = (params: UseChatSignalRProps) => {
@@ -26,7 +28,9 @@ export const useChatSignalR = (params: UseChatSignalRProps) => {
       onMessagesRead,
       onMessageStatusUpdate,
       onChatListUpdate,
+      onChatReceivedMessage,
     } = params;
+
     let isMounted = true;
     let markAsReadTimeout: any = null;
 
@@ -34,42 +38,48 @@ export const useChatSignalR = (params: UseChatSignalRProps) => {
       .then(() => {
         if (!isMounted) return;
 
-        // 1) Присоединяемся к нужному чату
+        // Присоединение к чату
         connection.invoke("JoinChat", conversationId).catch(() =>
           console.warn("❌ Не удалось присоединиться к чату")
         );
 
-        // 2) Прислушиваемся к новым сообщениям
+        // Получение нового сообщения
         connection.on("ReceiveMessage", (message: any) => {
-          onNewMessage(message);
+          // Всегда вызываем основной хендлер
+          if (message.chatId === conversationId) {
+            onNewMessage(message);
+          } else {
+            // Если это чат неактивный — вызываем коллбек
+            onChatReceivedMessage?.(message.chatId);
+          }
         });
 
-        // 3) Когда сервер пометил «прочитано» 
+        // Обновление статуса одного сообщения
         connection.on("MessageStatusUpdate", (payload: any) => {
-          // payload = { chatId: string, messageId: string, newStatus: "IsDelivered" | "IsRead" }
-          onMessageStatusUpdate &&
-            onMessageStatusUpdate({
-              chatId: payload.chatId,
-              messageId: payload.messageId,
-              newStatus: payload.newStatus,
-            });
+          onMessageStatusUpdate?.({
+            chatId: payload.chatId,
+            messageId: payload.messageId,
+            newStatus: payload.newStatus,
+          });
         });
 
-        // 4) Когда сервер говорит «все непрочитанные прочитаны»
+        // Отметка всех сообщений как прочитанных
         connection.on("MessagesMarkedAsRead", () => {
-          onMessagesRead && onMessagesRead();
+          onMessagesRead?.();
         });
 
-        // 5) Когда нужно обновить карточку чата в списке
+        // Обновление карточки чата
         connection.on("ChatListUpdate", (updatedChat: any) => {
-          onChatListUpdate && onChatListUpdate(updatedChat);
+          onChatListUpdate?.(updatedChat);
         });
 
-        // 6) Ждём 500 мс, а потом говорим серверу: "пометь все предыдущие сообщения как прочитанные"
+        // Автоматическая отметка как прочитано через 500 мс
         markAsReadTimeout = setTimeout(() => {
           connection
             .invoke("MarkChatAsRead", conversationId)
-            .catch(() => console.warn("❌ Не удалось пометить сообщения как прочитанные"));
+            .catch(() =>
+              console.warn("❌ Не удалось пометить сообщения как прочитанные")
+            );
         }, 500);
       })
       .catch((err) => console.error("Ошибка SignalR", err));
@@ -82,7 +92,6 @@ export const useChatSignalR = (params: UseChatSignalRProps) => {
         console.warn("❌ Не удалось покинуть чат")
       );
 
-      // Чистим все подписчики
       connection.off("ReceiveMessage");
       connection.off("MessageStatusUpdate");
       connection.off("MessagesMarkedAsRead");

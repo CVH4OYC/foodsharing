@@ -67,12 +67,6 @@ const ChatListItem: FC<Props> = ({ chat, selected, onSelect }) => {
             {renderStatusIcon()}
             <span className="truncate">{truncatedText}</span>
           </div>
-
-          {unreadCount > 0 && (
-            <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full shrink-0">
-              {unreadCount}
-            </span>
-          )}
         </div>
       </div>
     </div>

@@ -1,4 +1,3 @@
-// pages/ChatsPage.tsx
 import { useEffect, useState, useCallback } from "react";
 import { API } from "../services/api";
 import ChatList from "../components/chat/ChatList";
@@ -33,27 +32,12 @@ const ChatsPage = () => {
     fetchChats();
   }, [fetchChats]);
 
-  // ─── Подписка на SignalR ― ChatListUpdate ────────────────────────────────────────
+  // Подписываемся на обновления списка
   useEffect(() => {
     startConnection()
       .then(() => {
-        connection.on("ChatListUpdate", (updatedChat: ChatDTO) => {
-          setChats((prev) => {
-            const idx = prev.findIndex((c) => c.id === updatedChat.id);
-            let newChats = [...prev];
-            if (idx >= 0) {
-              newChats[idx] = updatedChat;
-            } else {
-              newChats.unshift(updatedChat);
-            }
-            // Пересортируем по дате последнего сообщения
-            newChats.sort((a, b) => {
-              const dateA = a.message?.date ? new Date(a.message.date).getTime() : 0;
-              const dateB = b.message?.date ? new Date(b.message.date).getTime() : 0;
-              return dateB - dateA;
-            });
-            return newChats;
-          });
+        connection.on("ChatListUpdate", () => {
+          fetchChats();
         });
       })
       .catch((e) => console.warn("Ошибка SignalR (ChatsPage)", e));
@@ -61,7 +45,7 @@ const ChatsPage = () => {
     return () => {
       connection.off("ChatListUpdate");
     };
-  }, []);
+  }, [fetchChats]);
 
   const handleSelectChat = (id: string) => {
     navigate(`/chats/${id}`);
