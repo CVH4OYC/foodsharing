@@ -3,13 +3,13 @@ import axios from "axios";
 
 // Для API-запросов
 const API = axios.create({
-  baseURL: "https://localhost:7044/api",
+  baseURL: "http://192.168.0.89:5051/api",
   withCredentials: true, // включаем отправку cookies
 });
 
 // Для статических файлов
 const StaticAPI = axios.create({
-  baseURL: "https://localhost:7044/",
+  baseURL: "http://192.168.0.89:5051/",
   withCredentials: true,
 });
 

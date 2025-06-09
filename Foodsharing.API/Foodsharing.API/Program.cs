@@ -69,8 +69,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("FrontendPolicy", policy =>
     {
         policy.WithOrigins(
-                "https://localhost:3000",  // Frontend
-                "https://localhost:7044"   // Backend (для статических файлов)
+                "http://localhost:3000",  // Frontend
+                "http://192.168.0.89:3000",
+                "http://localhost:7044",   // Backend (для статических файлов)
+                "http://192.168.0.89:7044"
             )
             .AllowCredentials()
             .AllowAnyMethod()
@@ -87,7 +89,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseCookiePolicy(new CookiePolicyOptions
 {
